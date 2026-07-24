@@ -13,10 +13,17 @@
    de andra tres open/pinned-mönster som inte finns där.
 
    En enda delad fil i stället för att upprepa samma mobil-CSS fyra gånger -- inkludera med
-   samma relativa sökväg som css/theme.css i varje modul som har en sådan panel. */
+   samma relativa sökväg som css/theme.css i varje modul som har en sådan panel.
+
+   VIKTIGT: nav.js:s #resusNav sitter OCKSÅ botten-fast på mobil (se dess egen inbäddade
+   mobil-CSS), på VARJE sida inklusive dessa fyra -- utan att stapla dem satt modul-lådan
+   (z-index 45, samma bredd/botten-position) rakt OVANPÅ och dolde #resusNav helt, trots att
+   det senare fortfarande var "synligt" i DOM:en (bara visuellt övertäckt). Löst genom att
+   modul-lådan sitter `bottom: 56px` (exakt #resusNav:s hopfällda höjd) i stället för `bottom:
+   0` -- de två staplas i stället för att överlappa, oavsett vilken som är öppen/stängd. */
 @media (max-width: 640px) {
   #drawer, .bd-drawer, #condDrawer, .body3d-sidebar {
-    position: fixed; top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-width: 100%;
+    position: fixed; top: auto; left: 0; right: 0; bottom: 56px; width: 100%; max-width: 100%;
     height: auto; max-height: 56px; transform: none; flex-direction: column;
     border-radius: 14px 14px 0 0; overflow: hidden; z-index: 45;
     transition: max-height .28s cubic-bezier(.4,0,.2,1);
