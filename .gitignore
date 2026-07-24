@@ -2,7 +2,12 @@
 # sammanslagna till de faktiska produktfilerna i Neuro/models/ och Kroppsatlas/models/, som
 # DÄREMOT versionshanteras (de är webbplatsens riktiga runtime-data, inget "byggsteg" bakar
 # om dem). Källorna kan laddas ner igen om merge-scripten behöver köras om, se CLAUDE.md.
-Models/
+# VIKTIGT: `/`-prefixet ankrar mönstret till repo-ROTEN specifikt -- utan det matchar gitignore
+# case-INSENSITIVT på macOS (core.ignorecase=true som standard), så "Models/" träffade även
+# Kroppsatlas/models/body/ och tystade ALLA dess produktfiler (organ.js, skeletal.js, etc.)
+# ur den allra första commiten utan att synas i `git status` -- upptäckt när ett nytt lung-
+# merge-resultat inte visade sig som en ändring alls, se konversationen 2026-07-24.
+/Models/
 
 # Referens-PDF:er (läroböcker/riktlinjedokument) -- inte källkod, och osäker upphovsrätt för
 # offentlig distribution (t.ex. en hel bokutgåva i EKG/-mappen). Behåll lokalt, publicera inte.
