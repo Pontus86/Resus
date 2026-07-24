@@ -58,6 +58,24 @@
     #resusNav .rn-item.current .rn-name{color:#C5362B}
     #resusNav .rn-item .rn-tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6B6B6B}
     @media(max-width:700px){#resusNav{width:240px}}
+    /* Mobil: samma öppna/fäst-logik (samma JS, samma .open/.pinned-klasser) men lådan sitter
+       nederst i stället för i sidled -- en 42px-bred vertikal flik äter för stor andel av en
+       telefons bredd (se konversationen). Bara CSS-om positioneringen: click-baserad
+       togglePin() fungerar identiskt oavsett skärmstorlek, ingen JS-ändring behövs -- hover
+       (mouseenter/mouseleave) triggas i praktiken aldrig från en touch-tryckning på moderna
+       mobila webbläsare, så den logiken stör inte här. */
+    @media(max-width:640px){
+      #resusNav{top:auto;left:0;right:0;bottom:0;width:100%;max-width:100%;height:auto;
+        max-height:56px;transform:none;flex-direction:column;border-radius:14px 14px 0 0;
+        overflow:hidden;transition:max-height .28s cubic-bezier(.4,0,.2,1)}
+      #resusNav.open{max-height:65vh}
+      #resusNav .rn-tab{width:100%;flex-direction:row;justify-content:space-between;
+        padding:14px 18px;border-radius:0;box-shadow:none;gap:0}
+      #resusNav .rn-label{writing-mode:horizontal-tb;font-size:13px}
+      #resusNav .rn-chevron{transform:rotate(90deg)}
+      #resusNav.open .rn-chevron{transform:rotate(-90deg)}
+      #resusNav .rn-body{width:100%;border-right:none;box-shadow:none;overflow-y:auto}
+    }
   `;
   const style = document.createElement("style");
   style.textContent = css;

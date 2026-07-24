@@ -123,6 +123,15 @@
     flipBtn.addEventListener("click", () => { flip = !flip; flipBtn.classList.toggle("active", flip); apply(); });
   });
 
+  // ---- mobil: handtaget överst i sidopanelen fäller ut/in panelen som ett bottensheet ----
+  // (se css/mobile-drawers.css -- .body3d-sidebar har ingen hover/fäst-låda att återanvända
+  // som HLR/Neuro/EKG:s drawer-mönster, så en egen enkel klass-toggling räcker här.)
+  const sidebarHandle = document.getElementById("body3dSidebarHandle");
+  const sidebarEl = document.getElementById("body3dSidebar");
+  if(sidebarHandle && sidebarEl){
+    sidebarHandle.addEventListener("click", () => sidebarEl.classList.toggle("mobile-open"));
+  }
+
   // ---- init ----
   const canvas = document.getElementById("body3dCanvas");
   const loadingEl = document.getElementById("body3dLoading");

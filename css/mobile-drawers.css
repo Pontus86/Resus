@@ -1,0 +1,49 @@
+/* ---------- Delad mobil-anpassning för de fyra modul-specifika sidopanelerna ----------
+   HLR:s #drawer (åtgärder), Neuro/Kärnors .bd-drawer (strukturer -- två instanser, samma
+   klasser), EKG:s #condDrawer (tillstånd) är tre separat implementerade men IDENTISKT
+   uppbyggda hover/fäst-lådor (samma mönster som nav.js:s #resusNav, fast höger- i stället för
+   vänsterkant) -- klick-baserad togglePin() (redan kodad i respektive modul) fungerar
+   identiskt oavsett skärmstorlek, ingen JS-ändring behövs där. Innehålls-ihopskjutningen
+   (body:has(...open) .wrap{margin-right:...}) nollas redan av varje moduls EGEN befintliga
+   @media(max-width:900px)-regel, som täcker telefonbredder också -- rörs inte här.
+
+   Kropps-atlas .body3d-sidebar är EN FJÄRDE, in-flow flex-panel (ingen hover/fäst-låda
+   tidigare) -- får en enkel ny .mobile-open-togglingsklass (se js/main.js) och en handtags-
+   rad (.mobile-sheet-handle) som bara syns i detta media-query, i stället för att återanvända
+   de andra tres open/pinned-mönster som inte finns där.
+
+   En enda delad fil i stället för att upprepa samma mobil-CSS fyra gånger -- inkludera med
+   samma relativa sökväg som css/theme.css i varje modul som har en sådan panel. */
+@media (max-width: 640px) {
+  #drawer, .bd-drawer, #condDrawer, .body3d-sidebar {
+    position: fixed; top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-width: 100%;
+    height: auto; max-height: 56px; transform: none; flex-direction: column;
+    border-radius: 14px 14px 0 0; overflow: hidden; z-index: 45;
+    transition: max-height .28s cubic-bezier(.4,0,.2,1);
+  }
+  #drawer.open, .bd-drawer.open, #condDrawer.open, .body3d-sidebar.mobile-open {
+    max-height: 65vh; overflow-y: auto;
+  }
+
+  .drawer-tab, .bd-tab, .cd-tab {
+    width: 100%; flex-direction: row; justify-content: space-between;
+    padding: 14px 18px; border-radius: 0; box-shadow: none; gap: 0;
+  }
+  .dt-label, .bd-label, .cd-label { writing-mode: horizontal-tb; transform: none; font-size: 13px; }
+  .dt-chevron, .bd-chevron, .cd-chevron { transform: rotate(90deg); }
+  #drawer.open .dt-chevron, .bd-drawer.open .bd-chevron, #condDrawer.open .cd-chevron {
+    transform: rotate(-90deg);
+  }
+  .drawer-body, .bd-body, .cd-body { width: 100%; border-left: none; box-shadow: none; overflow-y: auto; }
+
+  .mobile-sheet-handle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; font-weight: 800; font-size: 13px; letter-spacing: .06em;
+    text-transform: uppercase; background: var(--red); color: #fff; cursor: pointer;
+    flex: none;
+  }
+  .mobile-sheet-chevron { transition: transform .28s; transform: rotate(90deg); }
+  .body3d-sidebar.mobile-open .mobile-sheet-chevron { transform: rotate(-90deg); }
+}
+/* Handtaget ska ALDRIG synas på desktop -- undviker en synlig extra rad ovanför "System" */
+.mobile-sheet-handle { display: none; }
