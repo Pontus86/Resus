@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Om Resus</title>
+<link rel="stylesheet" href="css/theme.css">
+<style>
+.about-hero{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+.about-avatar{width:64px;height:64px;border-radius:50%;background:var(--red);color:#fff;font-size:22px;
+  font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.about-name{font-size:19px;font-weight:800;color:var(--ink)}
+.about-role{font-size:13.5px;color:var(--muted)}
+.about-contact{margin-top:18px;text-align:center}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px}
+.module-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px}
+.module-card h4{margin:0 0 6px;font-size:14.5px;font-weight:800;color:var(--ink)}
+.module-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+.credit-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px}
+.credit-card h4{margin:0 0 6px;font-size:14px;font-weight:800;color:var(--ink)}
+.credit-card p{margin:0 0 6px;font-size:13px;color:var(--muted);line-height:1.55}
+.credit-card .attr{font-family:var(--font-mono);font-size:11.5px;background:#fff;border:1px solid var(--line);
+  border-radius:7px;padding:8px 10px;color:var(--ink);margin-top:6px}
+.small{font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>Om Resus</h1>
+    <span class="sub" style="margin-left:auto;font-size:12.5px;color:var(--muted)"><a href="index.html" style="color:var(--red-dark);text-decoration:none;font-weight:700">← Tillbaka till Resus</a></span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="about-hero">
+      <div class="about-avatar">PO</div>
+      <div>
+        <div class="about-name">Pontus Olsson</div>
+        <div class="about-role">Läkare · skapare av Resus</div>
+      </div>
+    </div>
+
+    <h3>Varför jag byggde Resus</h3>
+    <p>Akutsjukvård kräver att man fattar rätt beslut på sekunder, över ett brett spann av
+    situationer: ett hjärtstopp, ett EKG som antingen är eller inte är en STEMI, ett fokalt
+    neurologiskt bortfall som måste lokaliseras, en blodgas som ska tolkas, en misstänkt
+    förgiftning som ska kännas igen, en procedur som ska dokumenteras korrekt. Det gemensamma är
+    att den kliniska säkerheten sitter i mönsterigenkänning och algoritmträning — färdigheter som
+    byggs genom upprepning, inte genom att läsa om dem en gång. Problemet är att riktiga patienter
+    med rätt fyndkombination inte dyker upp tillräckligt ofta för att man ska hinna öva på alla
+    varianter innan det verkligen gäller.</p>
+    <p>Resus samlar de träningsverktyg jag byggt åt mig själv och mina kollegor för att täppa till
+    det glappet — fristående, gratis, öppet dokumenterade så att varje beräkning och varje
+    algoritm går att kontrollera, och byggda för att köras direkt i webbläsaren utan installation
+    eller inloggning. Det första var en blodgasräknare jag skrev som Android-app för flera år
+    sedan; Resus är den idén utbyggd till en hel svit.</p>
+
+    <h3>Friskrivning</h3>
+    <p class="small">Alla verktyg på Resus är avsedda för utbildning och beslutsstöd för
+    legitimerad vårdpersonal. De ersätter inte klinisk bedömning, gällande riktlinjer, eller
+    bilddiagnostik — du är fortsatt ansvarig för varje beslut som fattas med hjälp av dem.
+    Korrelera alltid med hela den kliniska bilden.</p>
+
+    <p class="about-contact"><a href="mailto:pontus.olsson86@gmail.com?subject=Resus">pontus.olsson86@gmail.com</a></p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Modulerna — vad och varför</h3>
+    <div class="module-grid">
+
+      <div class="module-card">
+        <h4>A-HLR Simulator</h4>
+        <p>Hjärtstopp är den mest tidskritiska och algoritmstyrda situationen i akutsjukvården,
+        men riktiga hjärtstopp är (lyckligtvis) för sällsynta för att någon enskild kliniker ska
+        hinna bygga upp rutin genom verklig erfarenhet. Byggd för att låta team öva hela
+        ERC 2025-algoritmen — reversibla orsaker, post-ROSC-vård, teamledarskap — i ett säkert,
+        upprepningsbart och slumpat scenario, tills responsen sitter automatiskt.</p>
+      </div>
+
+      <div class="module-card">
+        <h4>Blodgastolkning</h4>
+        <p>Att tolka en arteriell eller venös blodgas under tidspress innebär att jonglera ett
+        dussin formler och referensintervall samtidigt. Byggd så att räknandet sker omedelbart
+        och tillförlitligt — grundad i en publicerad, kollegialt granskad metod
+        (Läkartidningen 2021;118:21087, "Syra–bastolkning på akuten") — så att läkaren kan
+        fokusera på patienten i stället för på räknaren.</p>
+      </div>
+
+      <div class="module-card">
+        <h4>EKG · STEMI-tränare</h4>
+        <p>Att känna igen STEMI och peka ut kulpritkärlet på ett 12-avlednings-EKG under
+        tidspress är en färdighet som bleknar utan regelbunden övning, och en felläsning kan vara
+        skillnaden mellan en räddande PCI-aktivering och ett missat fönster. Byggd för upprepad,
+        varierad övning i att läsa och resonera kring EKG-mönster — inte bara memorera
+        läroboksexempel.</p>
+      </div>
+
+      <div class="module-card">
+        <h4>Neuro (NIHSS + Simulator)</h4>
+        <p>Att lokalisera en stroke utifrån den kliniska undersökningen bygger mönsterigenkänning
+        som är central i akut strokevård men svår att öva säkert på riktiga patienter i realtid,
+        och att förstå VAR i hjärnan/ryggmärgen/nervbanorna ett bortfall pekar kräver en spatial
+        intuition som är svår att bygga från platta läroboksbilder. Byggd för att kombinera
+        NIHSS-skattningen med genuin 3D-anatomi (hjärna, ryggmärg, kranial- och perifera nerver,
+        reflexbågar) så att man ser, inte bara läser, varför ett visst mönster pekar mot ett visst
+        kärlterritorium.</p>
+      </div>
+
+      <div class="module-card">
+        <h4>Checklistor</h4>
+        <p>Checklistor minskar fel vid högriskprocedurer, men en checklista på papper räknar
+        inte ut doser eller skapar dokumentation — så den blir lätt bortprioriterad under
+        tidspress. Byggd så att checklistan själv genererar dosberäkningen och ett
+        journalförslag, så att den säkra vägen också blir den snabbaste vägen till att bli klar
+        med dokumentationen.</p>
+      </div>
+
+      <div class="module-card">
+        <h4>Toxidrom-detektiv</h4>
+        <p>Förgiftningar är var för sig ovanliga men tillsammans vanliga i akutsjukvården, och
+        samma fåtal kluster av kliniska fynd (toxidrom) återkommer över vitt skilda substanser —
+        att känna igen MÖNSTRET, inte memorera varje preparat, är det som faktiskt hjälper vid
+        sängkanten. Byggd som en differentialdiagnos-tränare: fyll i de fynd du faktiskt ser, få
+        rangordnade toxidrom med antidot-/behandlingstips.</p>
+      </div>
+
+      <div class="module-card">
+        <h4>Loggbok</h4>
+        <p>Procedurloggning krävs för utbildnings-/certifieringsspårning men blir ofta en
+        efterhandskonstruktion som prioriteras bort när det är fullt upp, och att tappa bort vem
+        som assisterat vid vad gör återkoppling och handledning svårare. Byggd som ett genuint
+        snabbt loggverktyg (kollegataggning, CSV-export/import) så att procedurräkningen till
+        certifieringen kommer på köpet från något som tar sekunder, inte minuter.</p>
+      </div>
+
+      <div class="module-card">
+        <h4>Kropps-atlas</h4>
+        <p>Att förstå ett specifikt system (nerver, kärl, muskler) i sammanhanget av HELA
+        kroppen — inte bara en isolerad läroboksbild av en enskild region — är hur verklig
+        anatomisk förståelse byggs, men de flesta fria 3D-anatomiresurser är antingen mycket
+        begränsade i omfång eller bakom betalvägg. Byggd som en öppen, helkropps-, systemvis
+        organiserad 3D-atlas (skelett/muskler/nerver/kärl/organ/hud) som går att söka i, isolera
+        delar av och skära genom, så att samma
+        utforska-genom-3D-filosofi från Neuro sträcker sig över hela kroppen.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Tack — datakällor och 3D-modeller</h3>
+    <p>Neuro-modulens hjärn-/ryggmärgsanatomi och Kropps-atlasens interna organ/hud bygger på
+    riktig, segmenterad anatomisk data från BodyParts3D. Kropps-atlasens skelett, muskler,
+    perifera nerver och kärl (samt Neuro-modulens armnerver) bygger på Open3DModel. Ingen av
+    dessa källor är kliniskt verifierade av mig personligen — de används här som pedagogiskt
+    underlag, inte som en ersättning för en anatomiatlas i tryckt eller granskad form.</p>
+
+    <div class="credit-card">
+      <h4>BodyParts3D / Anatomography — DBCLS</h4>
+      <p>Hjärna, hjärnstam, lillhjärna, ryggmärg, kranialnerver och de inre organen/huden i
+      Kropps-atlas kommer från BodyParts3D, en databas med segmenterade 3D-modeller av
+      mänsklig anatomi, framtagen av <strong>Database Center for Life Science (DBCLS)</strong>,
+      en icke-vinstdrivande forskningsinstitution knuten till University of Tokyo.</p>
+      <p>Licens: Creative Commons Attribution-Share Alike 2.1 Japan. Obligatorisk
+      attribueringstext enligt licensvillkoren:</p>
+      <div class="attr">BodyParts3D, © The Database Center for Life Science licensed under CC Attribution-Share Alike 2.1 Japan</div>
+      <p class="small" style="margin-top:8px"><a href="https://lifesciencedb.jp/bp3d/" target="_blank" rel="noopener">lifesciencedb.jp/bp3d</a></p>
+    </div>
+
+    <div class="credit-card">
+      <h4>Open3DModel — AnatomyTOOL</h4>
+      <p>Skelettet, musklerna, de perifera nerverna och kärlen i Kropps-atlas (samt de tillagda
+      arm-/handnerverna i Neuro-modulen) kommer från Open3DModel, ett öppet 3D-anatomiprojekt
+      publicerat via <strong>AnatomyTOOL</strong>. Projektet drivs av ett konsortium av
+      anatomer med finansiering från nederländska utbildningsdepartementet, lett av
+      <strong>Leiden University Medical Center (LUMC)</strong> tillsammans med University Medical
+      Center Utrecht, Maastricht University, University Leuven (Campus Kulak), Amsterdam UMC,
+      Radboud University Medical Center och University of Gent. Projektet härstammar i sin tur
+      från Z-Anatomy (2021), som i sin tur bygger vidare på BodyParts3D (2008) — samma
+      ursprungskälla som ovan, omarbetad och förenklad för undervisningsbruk.</p>
+      <p>Licens: Creative Commons Attribution-ShareAlike 4.0 (vissa texturer CC-BY-NC-SA,
+      University of British Columbia).</p>
+      <p class="small" style="margin-top:8px"><a href="https://anatomytool.org/open3dmodel-about" target="_blank" rel="noopener">anatomytool.org/open3dmodel-about</a></p>
+    </div>
+
+    <p class="small" style="margin-top:12px">Ingen av dessa modeller är anatomiskt verifierade
+    fall-för-fall av mig — de återges så nära originalsegmenteringen som möjligt, med
+    kalibrering endast för att få olika källors koordinatsystem att stämma överens rumsligt.
+    Upptäcker du ett fel, hör gärna av dig.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

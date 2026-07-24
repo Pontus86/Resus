@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kropps-atlas — Resus</title>
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>Kropps-atlas</h1>
+    <span class="sub">Full 3D-kropp — skelett, muskler, nerver, kärl, ledband</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h3>Om atlasen</h3>
+    <p>Utforska hela kroppen i 3D. Slå på/av hela system (skelett/muskler/nerver/kärl/ledband),
+    filtrera på region eller sida, sök efter en specifik struktur eller klicka direkt i modellen
+    för att markera och isolera den. Data: skelett/mjukdelar från Open3DModel (anatomytool.org,
+    CC-BY-SA 4.0) kalibrerat mot samma hjärn-/ryggmärgsdata som Neuro-modulen använder — ej
+    kliniskt verifierat, för utbildningsbruk. Muskler/nerver/kärl saknar för närvarande bål/rygg
+    (endast armar/ben) eftersom källbiblioteket ännu inte publicerat den regionen.</p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="body3d-panel">
+      <div class="body3d-main">
+        <div class="body3d-canvas-wrap">
+          <canvas id="body3dCanvas"></canvas>
+          <div class="body3d-loading" id="body3dLoading">Laddar 3D-kropp…</div>
+          <div class="body3d-hint">Dra för att rotera · scrolla för att zooma · skift+dra för att panorera</div>
+        </div>
+        <div class="body3d-presets">
+          <button class="rs-btn" data-preset="front">Framifrån</button>
+          <button class="rs-btn" data-preset="back">Bakifrån</button>
+          <button class="rs-btn" data-preset="left">Vänster sida</button>
+          <button class="rs-btn" data-preset="right">Höger sida</button>
+        </div>
+      </div>
+
+      <div class="body3d-sidebar">
+        <div class="body3d-sidebar-heading">System</div>
+        <div id="body3dSystems" class="body3d-systems"></div>
+
+        <div class="body3d-sidebar-heading">Region</div>
+        <div id="body3dRegions" class="body3d-chip-row"></div>
+
+        <div class="body3d-sidebar-heading">Sida</div>
+        <div class="body3d-chip-row">
+          <button class="body3d-chip active" data-side="both">Båda</button>
+          <button class="body3d-chip" data-side="l">Vänster</button>
+          <button class="body3d-chip" data-side="r">Höger</button>
+        </div>
+
+        <div class="body3d-sidebar-heading">Sök struktur</div>
+        <input type="text" id="body3dSearch" class="body3d-search" placeholder="t.ex. Femur, Ulnar nerve, Radial artery…">
+        <div id="body3dResults" class="body3d-results"></div>
+
+        <div class="body3d-sidebar-heading">Markering</div>
+        <div id="body3dSelectedInfo" class="body3d-selected-info">Ingen struktur vald.</div>
+        <label class="body3d-check"><input type="checkbox" id="body3dIsolateChk"> Isolera markerad (dölj övriga)</label>
+        <button class="rs-btn" id="body3dClearBtn" style="margin-top:8px;width:100%">Rensa markering</button>
+
+        <div class="body3d-sidebar-heading">Snitt</div>
+        <div class="body3d-clip-row" data-axis="sagittal">
+          <label class="body3d-check"><input type="checkbox" class="clip-enable"> Sagittal</label>
+          <input type="range" class="clip-slider" min="-3" max="3" step="0.05" value="0">
+          <button class="body3d-flip">⇄</button>
+        </div>
+        <div class="body3d-clip-row" data-axis="coronal">
+          <label class="body3d-check"><input type="checkbox" class="clip-enable"> Koronal</label>
+          <input type="range" class="clip-slider" min="-3" max="3" step="0.05" value="0">
+          <button class="body3d-flip">⇄</button>
+        </div>
+        <div class="body3d-clip-row" data-axis="axial">
+          <label class="body3d-check"><input type="checkbox" class="clip-enable"> Axial</label>
+          <input type="range" class="clip-slider" min="-30" max="5" step="0.2" value="-12">
+          <button class="body3d-flip">⇄</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../lib/three.min.js"></script>
+<script src="../lib/OBJLoader.js"></script>
+<script src="js/body3d-data.js"></script>
+<script src="models/body/brain/cortex.js"></script>
+<script src="models/body/brain/corpus_callosum.js"></script>
+<script src="models/body/brain/white_matter.js"></script>
+<script src="models/body/brain/ventricles.js"></script>
+<script src="models/body/brain/thalamus_l.js"></script>
+<script src="models/body/brain/thalamus_r.js"></script>
+<script src="models/body/brain/basalganglia_l.js"></script>
+<script src="models/body/brain/basalganglia_r.js"></script>
+<script src="models/body/brain/capsule_l.js"></script>
+<script src="models/body/brain/capsule_r.js"></script>
+<script src="models/body/brain/midbrain_l.js"></script>
+<script src="models/body/brain/midbrain_r.js"></script>
+<script src="models/body/brain/pons_l.js"></script>
+<script src="models/body/brain/pons_r.js"></script>
+<script src="models/body/brain/medulla_l.js"></script>
+<script src="models/body/brain/medulla_r.js"></script>
+<script src="models/body/brain/cerebellum_l.js"></script>
+<script src="models/body/brain/cerebellum_r.js"></script>
+<script src="models/body/brain/cerebellum_vermis.js"></script>
+<script src="models/body/brain/spinalcord.js"></script>
+<script src="models/body/manifest.js"></script>
+<script src="models/body/skeletal.js"></script>
+<!-- muscular/nervous/vascular/connective (13-37MB var) laddas DYNAMISKT först när användaren
+     slår på det systemet första gången (se _body3dLoadSystemScript i body3d.js) -- annars
+     skulle sidan alltid ladda ~115MB extra vid varje besök, oavsett om de systemen någonsin
+     visas. Skelett+hjärna/ryggmärg (~68MB) är default-på och laddas direkt ovan/nedan. -->
+<script src="js/body3d.js"></script>
+<script src="js/main.js"></script>
+<script src="../nav.js"></script>
+</body>
+</html>

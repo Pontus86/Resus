@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A-HLR Simulator · Akutrummet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">A-HLR SIMULATOR<small>Akutrummet · ERC Guidelines 2025 · Vuxen</small></div>
+    <div class="clock" id="clock">00:00<small>Tid sedan hjärtstopp</small></div>
+    <div class="chips" id="chips"></div>
+    <div class="speed" id="speedCtl">
+      <button data-s="0">⏸</button><button data-s="1" class="sel">1×</button><button data-s="2">2×</button><button data-s="4">4×</button>
+    </div>
+    <button class="endbtn" id="btnSound" title="Ljud på/av" style="min-width:40px">🔊</button>
+    <button class="endbtn" id="btnAbort">Avbryt återupplivning</button>
+  </div>
+
+  <div id="coach" class="coach hidden">
+    <div class="coach-badge" id="coachStep">Steg 1</div>
+    <div class="coach-msg" id="coachMsg"></div>
+    <div class="coach-tag">Guidad genomgång</div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h3 class="rvhead">Akutrum 1, vy ovanifrån
+          <span class="rvseg" id="rvseg" role="group" aria-label="Rumsvy">
+            <button data-v="klassisk" class="sel">Klassisk</button><button data-v="sprite">Sprite</button>
+          </span>
+        </h3>
+        <canvas id="room" width="560" height="330"></canvas>
+        <div class="monitor">
+          <canvas id="ecg" width="540" height="96"></canvas>
+          <canvas id="art" width="540" height="40" class="hidden"></canvas>
+          <div class="rytmlabel" id="rytmlabel">Koppla defibrillatorplattor för att se rytm,</div>
+          <div class="vitals">
+            <div class="vit"><b>HF /min</b><span id="vHR">--</span></div>
+            <div class="vit amb"><b>EtCO₂ kPa</b><span id="vCO2">--</span></div>
+            <div class="vit cy"><b>SpO₂ %</b><span id="vSpO2">--</span></div>
+            <div class="vit"><b>BT mmHg</b><span id="vBP">--</span></div>
+            <div class="vit"><b>Kärntemp °C</b><span id="vTemp">--</span></div>
+            <div class="vit amb"><b>Chocker</b><span id="vShock">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel hidden" id="usPanel">
+        <h3>Ultraljud hjärta, subxifoidal vy</h3>
+        <div class="usbox">
+          <canvas id="us" width="300" height="200"></canvas>
+          <div class="usinfo" id="usInfo"></div>
+        </div>
+      </div>
+      <div class="panel" id="teamPanel">
+        <h3>Teamstatus, en person gör en sak i taget</h3>
+        <div class="team" id="teamstatus"></div>
+      </div>
+      <div class="panel" style="margin-top:12px">
+        <h3>Händelselogg</h3>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- utfällbar åtgärdslåda (hovra på högerkanten) -->
+  <div id="drawer" aria-label="Ordinationer och åtgärder">
+    <div class="drawer-tab" id="drawerTab" title="Ordinationer &amp; åtgärder, hovra för att öppna, klicka för att fästa">
+      <span class="dt-chevron" id="dtChevron">‹</span>
+      <span class="dt-label">ORDINATIONER &amp; ÅTGÄRDER</span>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-head">
+        <span>Ordinationer &amp; åtgärder</span>
+        <button id="pinBtn" class="pinbtn" title="Fäst lådan öppen">Fäst</button>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div class="actions" id="actions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- startskärm -->
+<div class="overlay" id="startOverlay">
+  <div class="card">
+    <button type="button" class="overlay-close" id="startOverlayClose" title="Stäng (Esc)" aria-label="Stäng">×</button>
+    <h1>A-HLR Simulator</h1>
+    <p>Du är teamledare på akutrummet. En patient inkommer med pågående hjärtstopp, orsaken är slumpad och okänd. Led teamet enligt ERC:s A-HLR-algoritm 2025. Du bedöms på tid, algoritmföljsamhet, HLR-kvalitet, att hitta och åtgärda reversibla orsaker (4H &amp; 4T) samt patientsäkerhet, full debriefing ges efteråt.</p>
+    <div id="topChampion"></div>
+    <h2>Välj läkarprofil</h2>
+    <div class="profile-picker" id="profilePicker"></div>
+    <h2>Välj svårighetsgrad</h2>
+    <button class="big outline" id="btnGuided">Guidad<small style="display:block;font-weight:400;opacity:.85">Steg-för-steg-genomgång som lär dig hur spelet och A-HLR-flödet fungerar. Rätt verktyg lyfts fram i tur och ordning, med coach som förklarar varje steg.</small></button>
+    <button class="big" id="btnNormal" style="margin-top:8px">Normal<small style="display:block;font-weight:400;opacity:.85">Alla verktyg direkt, ingen handledning. Full information om åtgärderna: varje knapp visar ett kort tips om vad den gör och när den används.</small></button>
+    <button class="big outline" id="btnAdvanced" style="margin-top:8px">Avancerad<small style="display:block;font-weight:400;opacity:.85">Alla verktyg direkt. Tipsen ersätts av hur lång tid varje åtgärd tar. Bonuspoäng vid debriefing.</small></button>
+    <button class="big outline" id="btnExpert" style="margin-top:8px">Expert<small style="display:block;font-weight:400;opacity:.85">Som avancerad, men utan hjälptimrarna upptill. Håll själv reda på rytmkontroller och adrenalin. Endast tiden sedan hjärtstopp visas. Störst bonuspoäng vid debriefing.</small></button>
+    <button class="big hardcore" id="btnHardcore" style="margin-top:8px">Hardcore<small style="display:block;font-weight:400;opacity:.85">Som expert, men ambulansanamnesen är helt otillgänglig — patienten dyker upp direkt, utan förvarning eller historik. Störst bonuspoäng: +40 % av intjänade poäng.</small></button>
+    <button class="linkbtn" id="btnOpenLb" style="display:block;margin:14px auto 0">Topplista &amp; din historik</button>
+  </div>
+</div>
+
+<!-- resultat -->
+<div class="overlay hidden" id="resultOverlay">
+  <div class="card" id="resultCard"></div>
+</div>
+
+<!-- topplista & historik -->
+<div class="overlay hidden" id="lbOverlay">
+  <div class="card">
+    <h1>Topplista &amp; historik</h1>
+    <div class="tabs" style="border-radius:8px;overflow:hidden;margin-top:8px">
+      <button id="lbTabTop" class="sel">Topplista</button>
+      <button id="lbTabHist">Din historik</button>
+    </div>
+    <div class="lb-body" id="lbBody"></div>
+    <button class="big" id="btnCloseLb" style="margin-top:14px">Stäng</button>
+  </div>
+</div>
+
+<!-- avbryt-dialog -->
+<div class="overlay hidden" id="abortOverlay">
+  <div class="card">
+    <h1>Avbryta återupplivningen?</h1>
+    <p id="abortText"></p>
+    <button class="big" id="btnAbortYes" style="background:var(--red);color:#fff">Ja, avbryt och konstatera dödsfall</button>
+    <button class="big" id="btnAbortNo" style="background:var(--panel2);color:var(--ink);border:1px solid var(--line)">Nej, fortsätt HLR</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="sbarModal">
+  <div class="card sbar-card">
+    <div class="sbar-top">
+      <div class="sbar-name"><b id="sbarName">Dr Björk</b><span id="sbarRole">IVA-jour · tar emot samtalet</span></div>
+      <div class="sbar-step" id="sbarStepTag"></div>
+    </div>
+    <div class="sbar-who-line" id="sbarWho"></div>
+    <div class="sbar-stage">
+      <div class="sbar-box" id="sbarBox"><div class="sbar-scroll" id="sbarScroll"><div class="sbar-text" id="sbarText"></div></div><span class="sbar-cont" id="sbarCont">▼</span></div>
+      <div class="sbar-portrait" id="sbarPortrait"></div>
+    </div>
+    <div class="sbar-choices" id="sbarChoices"></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="gasModal">
+  <div class="gas-paper" id="gasPaper">
+    <div class="gas-head">
+      <div class="gas-lab">◆ AKUTLABBET · ARTÄRBLODGAS</div>
+      <div class="gas-meta" id="gasMeta"></div>
+    </div>
+    <div class="gas-grid" id="gasGrid"></div>
+    <div class="gas-foot">⚠ = utanför referensintervall. Analys utförd på patientnära blodgasinstrument.</div>
+    <button class="big" id="gasOk">Okej, jag har läst av</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="ekgModal">
+  <div class="card ekg-card">
+    <h1 id="ekTitle">12-avlednings-EKG</h1>
+    <p id="ekSub" class="rm-sub">Allt är pausat. Läs remsan och avgör om detta är en ST-höjningsinfarkt.</p>
+    <div class="ekg-paper"><canvas id="ekg12" width="1500" height="860"></canvas></div>
+    <div id="ekStage"></div>
+  </div>
+</div>
+<div class="overlay hidden" id="rhythmModal">
+  <div class="card rhythm-card">
+    <h1 id="rmTitle">Rytmkontroll</h1>
+    <p id="rmSub" class="rm-sub">Allt är pausat. Titta på rytmen och bedöm den.</p>
+    <div class="rm-monitor"><canvas id="rhythmStrip" width="600" height="150"></canvas></div>
+    <div id="rmStage"></div>
+  </div>
+</div>
+<div class="overlay hidden" id="orsakModal">
+  <div class="card">
+    <h1>Åtgärda orsak &amp; disponera</h1>
+    <p class="rm-sub">Allt är pausat. Vilken fortsatt handläggning är rätt för den här orsaken?</p>
+    <div id="orsakStage"></div>
+  </div>
+</div>
+
+
+<!-- nav.js/auth.js måste ladda FÖRE leaderboard.js/main.js: main.js:boot() anropar
+     renderTopChampion() -> fetchLeaderboard() synkront vid sidladdning, vilket numera
+     läser det globala Auth-objektet (auth.js) — annars kastar det ett ReferenceError
+     eftersom Auth ännu inte finns. -->
+<script src="../nav.js"></script>
+<script src="../lib/supabase.js"></script>
+<script src="../auth.js"></script>
+<script src="../usernames.js"></script>
+<script src="../auth-ui.js"></script>
+<script src="js/wavemodel.js"></script>
+<script src="js/data.js"></script>
+<script src="js/achievements.js"></script>
+<script src="js/state.js"></script>
+<script src="js/actions.js"></script>
+<script src="js/complications.js"></script>
+<script src="js/dialogue.js"></script>
+<script src="js/ecg.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/tick.js"></script>
+<script src="js/ultrasound.js"></script>
+<script src="js/room-render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/leaderboard.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

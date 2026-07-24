@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checklistor — Resus</title>
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>Checklistor</h1>
+    <span class="sub">Procedurchecklistor med dosberäkning och journalanteckning</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ---------- Procedurlista ---------- -->
+  <section class="view active" id="listView">
+    <div class="card">
+      <h3>Välj procedur</h3>
+      <p>Varje procedur ger dosberäkning, en checklista att bocka av och ett journalförslag att klistra in — genomförd procedur loggas automatiskt lokalt i din webbläsare.</p>
+      <button type="button" class="rs-btn ghost" id="newChecklistBtn" style="margin-top:10px">+ Ny egen checklista</button>
+      <div class="tag-picker" id="tagFilterBar" style="margin-top:14px"></div>
+    </div>
+    <div id="customStatus"></div>
+    <div class="rs-grid" id="procedureList" style="margin-top:16px"></div>
+  </section>
+
+  <!-- ---------- Egen checklista: skapa/redigera ---------- -->
+  <section class="view" id="editorView">
+    <button class="rs-btn" id="editorBackBtn">← Avbryt</button>
+    <div id="editorBody" style="margin-top:14px"></div>
+  </section>
+
+  <!-- ---------- Procedurarbetsyta ---------- -->
+  <section class="view" id="workspaceView">
+    <button class="rs-btn" id="backBtn">← Tillbaka till procedurer</button>
+
+    <div class="card" style="margin-top:14px">
+      <h2 id="wsTitle"></h2>
+      <p id="wsDesc"></p>
+      <p class="proc-count">Genomförda hittills: <b id="wsCount"></b></p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Dosberäkning</h3>
+      <div class="rs-field" style="max-width:220px">
+        <label>Patientvikt (kg)</label>
+        <input type="number" id="weightInput" min="1" step="1" placeholder="t.ex. 70">
+      </div>
+      <div id="drugList"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Checklista</h3>
+      <div id="checklistBody"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Journalanteckning</h3>
+      <div class="rs-grid">
+        <div class="rs-field">
+          <label>Indikation</label>
+          <input type="text" id="indicationInput" placeholder="t.ex. reponering av axelledsluxation">
+        </div>
+        <div class="rs-field">
+          <label>Komplikationer (valfritt)</label>
+          <input type="text" id="complicationsInput" placeholder="t.ex. inga">
+        </div>
+      </div>
+      <textarea id="noteBox" rows="12" readonly style="width:100%;font-family:var(--font-mono);font-size:12.5px;
+        padding:12px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)"></textarea>
+      <div class="answer-actions">
+        <button class="rs-btn" id="genNoteBtn">Generera anteckning</button>
+        <button class="rs-btn ghost" id="copyNoteBtn">Kopiera</button>
+        <button class="rs-btn primary" id="doneBtn">Markera som genomförd</button>
+      </div>
+      <div class="done-banner" id="doneBanner" style="display:none;margin-top:10px"></div>
+    </div>
+  </section>
+
+</div>
+
+<script src="../nav.js"></script>
+<script src="../lib/supabase.js"></script>
+<script src="../auth.js"></script>
+<script src="../usernames.js"></script>
+<script src="../auth-ui.js"></script>
+<script src="js/procedures/common.js"></script>
+<script src="js/procedures/sedation.js"></script>
+<script src="js/procedures/chest-tube.js"></script>
+<script src="js/procedures/central-line.js"></script>
+<script src="js/procedures/lumbar-puncture.js"></script>
+<script src="js/procedures/intubation.js"></script>
+<script src="js/procedure-registry.js"></script>
+<script src="js/card-art.js"></script>
+<script src="js/log-store.js"></script>
+<script src="js/tags.js"></script>
+<script src="js/custom-store.js"></script>
+<!-- Vendrade lokalt (ingen CDN) för PDF/Word-tolkning i checklist-vision.js. Sidan öppnas
+     som en lokal fil (file://), och moderna ES-modul-byggen av pdf.js blockeras då av
+     webbläsarens CORS-regler för file://-origin — därför används pdf.js "legacy"-byggen
+     (pdfjs-dist@2.16.105), som är klassiska <script>-globaler precis som mammoth.js. -->
+<script src="lib/mammoth.browser.min.js"></script>
+<script src="lib/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = "lib/pdf.worker.min.js";</script>
+<script src="js/checklist-vision.js"></script>
+<script src="js/custom-editor.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

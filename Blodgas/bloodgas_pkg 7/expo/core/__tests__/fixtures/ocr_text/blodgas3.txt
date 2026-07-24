@@ -1,0 +1,22 @@
+Syra-Bas Status
+pH 7,572
+pCO2 3,28 kPa
+pO2 5,25 kPa
+cBase(Ecf)c 0,7 mmol/L
+cHCO3-(P,st)c 26,1 mmol/L
+Oximetervärden
+sO2 76,1 %
+ctHb 162 g/L
+FMetHb 0,8 %
+FCOHb 1,2 %
+Elektrolytvärden
+cNa+ 129 mmol/L
+cK+ 2,1 mmol/L
+cCa2+ 0,99 mmol/L
+cCl- 83 mmol/L
+Metabolitvärden
+cGlu 7,9 mmol/L
+cLac 4,7 mmol/L
+cCrea 67 µmol/l
+Beräknade Värden
+Anion Gapc 23,1 mmol/L

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resus · Verktyg för vårdpersonal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#F44336; --red-dark:#C5362B; --red-tint:#FDECEA;
+  --ink:#1C1B1B; --muted:#6B6B6B; --line:#E7E4E3;
+  --surface:#FFFFFF; --bg:#F7F5F4;
+  --font-ui:"Archivo",system-ui,sans-serif; --font-mono:"IBM Plex Mono",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font-ui);background:var(--bg);color:var(--ink);line-height:1.5}
+header{max-width:900px;margin:0 auto;padding:64px 24px 32px;text-align:center}
+header .kicker{font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);font-weight:600}
+header h1{font-size:clamp(32px,5vw,48px);margin:10px 0 14px;font-weight:800;letter-spacing:-.01em}
+header p{color:var(--muted);font-size:16px;max-width:640px;margin:0 auto}
+main{max-width:900px;margin:0 auto;padding:8px 24px 64px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:12px}
+a.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s,box-shadow .15s}
+a.card:hover{border-color:var(--red);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.card .tag{display:inline-block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--red-dark);background:var(--red-tint);border-radius:5px;padding:3px 8px;margin-bottom:12px}
+.card h2{margin:0 0 8px;font-size:20px;font-weight:700}
+.card p{margin:0;color:var(--muted);font-size:13.5px}
+.card.disabled{opacity:.55;cursor:default}
+.card.disabled:hover{border-color:var(--line);transform:none;box-shadow:none}
+.card .tag.soon{color:var(--muted);background:var(--line)}
+footer{max-width:900px;margin:0 auto;padding:0 24px 48px;color:var(--muted);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">Resus</div>
+  <h1>Verktyg för vårdpersonal</h1>
+  <p>Resus samlar fristående träningsverktyg för akutsjukvård, byggda för att öva kliniskt resonemang och algoritmer i en trygg, spelbaserad miljö. Varje modul nedan är fristående och kan öppnas för sig.</p>
+</header>
+<main>
+  <div class="grid">
+    <a class="card" href="HLR/ahlr.html">
+      <span class="tag">Modul</span>
+      <h2>A-HLR Simulator</h2>
+      <p>Led återupplivningsteamet genom ett slumpat hjärtstopp enligt ERC:s algoritm 2025, med reversibla orsaker, post-ROSC-vård och full debriefing.</p>
+    </a>
+    <a class="card" href="Blodgas/bloodgas_pkg/web/index.html">
+      <span class="tag">Modul</span>
+      <h2>Blodgastolkning</h2>
+      <p>Träningsverktyg för tolkning av arteriell blodgas.</p>
+    </a>
+    <a class="card" href="EKG/index.html">
+      <span class="tag">Modul</span>
+      <h2>EKG · STEMI-tränare</h2>
+      <p>Tolka 12-avlednings-EKG, avgör STEMI eller ej och peka ut troligt kulpritkärl (LAD/RCA/LCx).</p>
+    </a>
+    <a class="card" href="Neuro/index.html">
+      <span class="tag">Modul</span>
+      <h2>Neuro</h2>
+      <p>NIHSS-skattning med förslag på trolig lokalisation i hjärna, plus nivå- och gradbedömning vid ryggmärgsskada.</p>
+    </a>
+    <a class="card" href="Kroppsatlas/index.html">
+      <span class="tag">Modul</span>
+      <h2>Kropps-atlas</h2>
+      <p>Full 3D-kropp — skelett, muskler, nerver och kärl. Sök, filtrera på region/sida, isolera enskilda strukturer och skär genom kroppen.</p>
+    </a>
+    <a class="card" href="Checklistor/index.html">
+      <span class="tag">Modul</span>
+      <h2>Checklistor</h2>
+      <p>Procedurchecklistor med dosberäkning som genererar ett journalförslag, med automatisk procedurräkning som bieffekt.</p>
+    </a>
+    <a class="card" href="Toxidrom/index.html">
+      <span class="tag">Modul</span>
+      <h2>Toxidrom-detektiv</h2>
+      <p>Fyll i kliniska fynd (pupiller, hud, vitalparametrar) och få rangordnade toxidrom med antidot/behandlingstips.</p>
+    </a>
+    <a class="card" href="Loggbok/index.html">
+      <span class="tag">Modul</span>
+      <h2>Loggbok</h2>
+      <p>Snabblogga genomförda procedurer, tagga kollegor som deltog, och exportera/importera hela loggboken som CSV.</p>
+    </a>
+  </div>
+</main>
+<footer>Resus · fristående moduler, ingen inloggning krävs · <a href="about.html" style="color:inherit">Om Resus</a></footer>
+<script src="nav.js"></script>
+<script src="lib/supabase.js"></script>
+<script src="auth.js"></script>
+<script src="usernames.js"></script>
+<script src="auth-ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/^\\\\\\(function\\\\\\(root\\\\\\)/{print NR\": \"$0} /^\\\\}\\\\\\)\\\\\\(typeof module/{print NR\": \"$0}' ahlr.html)",
+      "Bash(awk 'NR==617,NR==625{print NR\": \"$0}' ahlr.html)"
+    ]
+  }
+}

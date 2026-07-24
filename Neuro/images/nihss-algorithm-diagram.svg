@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1180" font-family="Archivo, system-ui, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6B6B6B"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="1180" fill="#F7F5F4"/>
+
+  <!-- Input -->
+  <rect x="215" y="16" width="750" height="56" rx="12" fill="#FFFFFF" stroke="#E7E4E3"/>
+  <text x="590" y="40" text-anchor="middle" font-size="14" font-weight="800" fill="#1C1B1B">15 NIHSS-delposter (poäng 1a–11)</text>
+  <text x="590" y="58" text-anchor="middle" font-size="10.5" fill="#6B6B6B">medvetande, blick, synfält, ansikte, arm/ben ×2, ataxi, sensibilitet, språk, dysartri, neglekt</text>
+
+  <line x1="590" y1="72" x2="590" y2="100" stroke="#6B6B6B" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Derived signals -->
+  <rect x="140" y="100" width="900" height="130" rx="12" fill="#FDECEA" stroke="#F3B9B2"/>
+  <text x="590" y="122" text-anchor="middle" font-size="13" font-weight="800" fill="#C5362B">Härledda signaler (booleska flaggor räknade ur posterna ovan)</text>
+  <text x="160" y="145" font-size="11.5" fill="#1C1B1B">• leftWeak / rightWeak — svaghet i arm ELLER ben på den sidan</text>
+  <text x="160" y="163" font-size="11.5" fill="#1C1B1B">• arm vs. ben-skillnad per sida (ben svagare → ACA-mönster, arm svagare → MCA-mönster)</text>
+  <text x="160" y="181" font-size="11.5" fill="#1C1B1B">• cortical = afasi ELLER neglekt · anyWeak / bilateralWeak · visualCut · gazeAbn · ataxia · dysarthria · locAbn</text>
+  <text x="160" y="199" font-size="11.5" fill="#1C1B1B">• synfältspoäng = 3 specifikt → bilateral (signal för Antons syndrom, skiljs från ensidigt bortfall)</text>
+  <text x="160" y="217" font-size="11.5" fill="#1C1B1B">• lesionSide: kontralateral regel — vänster kroppshalva svag → höger lesion (och vice versa), banorna korsar</text>
+
+  <line x1="590" y1="230" x2="590" y2="256" stroke="#6B6B6B" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="605" y="248" font-size="11" fill="#6B6B6B">testas mot 14 mönster</text>
+
+  <!-- Outer grouping container: 14 patterns grouped into 7 boxes, tested in PARALLEL, no arrows between them
+       (avoids needing to converge many individual lines onto one point without crossing boxes) -->
+  <rect x="16" y="262" width="1148" height="602" rx="14" fill="#FFFFFF" stroke="#E7E4E3" stroke-dasharray="5,4"/>
+  <text x="36" y="286" font-size="11.5" font-weight="800" fill="#6B6B6B" letter-spacing="0.04em">MÖNSTERBIBLIOTEK — TESTAS ALLA PARALLELLT MOT SIGNALERNA OVAN</text>
+
+  <!-- Row 1: y 298-478 (h=180) -->
+  <g>
+    <rect x="30" y="298" width="360" height="180" rx="12" fill="#F7F5F4" stroke="#E7E4E3"/>
+    <text x="210" y="320" text-anchor="middle" font-size="13" font-weight="800" fill="#1C1B1B">Kortikalt / a. cerebri media (MCA)</text>
+    <text x="46" y="341" font-size="11" fill="#1C1B1B">Vänster MCA: höger svaghet + afasi</text>
+    <text x="46" y="357" font-size="11" fill="#1C1B1B">(dominant hemisfär, oftast vänster)</text>
+    <text x="46" y="378" font-size="11" fill="#1C1B1B">Höger MCA: vänster svaghet + neglekt,</text>
+    <text x="46" y="394" font-size="11" fill="#1C1B1B">EJ afasi (icke-dominant hemisfär)</text>
+    <text x="46" y="415" font-size="11" fill="#1C1B1B">Isolerad afasi, INGEN pares: liten kortikal</text>
+    <text x="46" y="431" font-size="11" fill="#1C1B1B">gren-infarkt (Brocas/Wernickes område)</text>
+    <text x="46" y="454" font-size="10.5" fill="#6B6B6B">+ poäng: arm ≥ ben, synfältsbortfall samma sida</text>
+    <text x="46" y="469" font-size="10.5" fill="#6B6B6B">(MCA) · svårare språkbortfall (isolerad afasi)</text>
+  </g>
+  <g>
+    <rect x="410" y="298" width="360" height="180" rx="12" fill="#F7F5F4" stroke="#E7E4E3"/>
+    <text x="590" y="320" text-anchor="middle" font-size="13" font-weight="800" fill="#1C1B1B">a. cerebri anterior (ACA)</text>
+    <text x="426" y="341" font-size="11" fill="#1C1B1B">Svaghet där BENET är mer drabbat</text>
+    <text x="426" y="357" font-size="11" fill="#1C1B1B">än ARMEN på samma sida,</text>
+    <text x="426" y="373" font-size="11" fill="#1C1B1B">UTAN kortikal signatur (ej afasi/neglekt)</text>
+    <text x="426" y="394" font-size="11" fill="#1C1B1B">→ lesion i motsatt (kontralateral)</text>
+    <text x="426" y="410" font-size="11" fill="#1C1B1B">hemisfärs ACA-territorium</text>
+    <text x="426" y="431" font-size="10.5" fill="#6B6B6B">+ poäng när bendominansen är tydlig</text>
+    <text x="426" y="446" font-size="10.5" fill="#6B6B6B">(ben klart svagare än arm)</text>
+  </g>
+  <g>
+    <rect x="790" y="298" width="360" height="180" rx="12" fill="#F7F5F4" stroke="#E7E4E3"/>
+    <text x="970" y="320" text-anchor="middle" font-size="13" font-weight="800" fill="#1C1B1B">a. cerebri posterior (PCA) / talamus</text>
+    <text x="806" y="341" font-size="11" fill="#1C1B1B">Isolerat synfältsbortfall, UTAN pares</text>
+    <text x="806" y="357" font-size="11" fill="#1C1B1B">och UTAN kortikala fynd</text>
+    <text x="806" y="378" font-size="11" fill="#1C1B1B">Bilateral hemianopsi/kortikal blindhet,</text>
+    <text x="806" y="394" font-size="11" fill="#1C1B1B">INGEN pares → Antons syndrom</text>
+    <text x="806" y="410" font-size="11" fill="#1C1B1B">(bilateral PCA — rankas högst av de två)</text>
+    <text x="806" y="431" font-size="10.5" fill="#6B6B6B">+ poäng vid samtidig sensibilitets-</text>
+    <text x="806" y="446" font-size="10.5" fill="#6B6B6B">nedsättning (talamisk komponent)</text>
+  </g>
+
+  <!-- Row 2: y 496-726 (h=230) -->
+  <g>
+    <rect x="30" y="496" width="360" height="230" rx="12" fill="#F7F5F4" stroke="#E7E4E3"/>
+    <text x="210" y="518" text-anchor="middle" font-size="13" font-weight="800" fill="#1C1B1B">Lakunära mönster</text>
+    <text x="46" y="539" font-size="11" fill="#1C1B1B">Ren motorisk: svaghet, INGET annat</text>
+    <text x="46" y="555" font-size="11" fill="#1C1B1B">(ej kortikalt, synfält, ataxi, sensibilitet)</text>
+    <text x="46" y="576" font-size="11" fill="#1C1B1B">Ren sensorisk: isolerad sensibilitets-</text>
+    <text x="46" y="592" font-size="11" fill="#1C1B1B">nedsättning, inget annat (talamus)</text>
+    <text x="46" y="613" font-size="11" fill="#1C1B1B">Ataktisk hemipares: ataxi + svaghet,</text>
+    <text x="46" y="629" font-size="11" fill="#1C1B1B">ej kortikalt</text>
+    <text x="46" y="650" font-size="11" fill="#1C1B1B">Dysartri/"clumsy hand": isolerad</text>
+    <text x="46" y="666" font-size="11" fill="#1C1B1B">dysartri, inget annat</text>
+    <text x="46" y="690" font-size="10.5" fill="#6B6B6B">→ capsula interna / pons (litet fokus)</text>
+  </g>
+  <g>
+    <rect x="410" y="496" width="360" height="230" rx="12" fill="#F7F5F4" stroke="#E7E4E3"/>
+    <text x="590" y="518" text-anchor="middle" font-size="13" font-weight="800" fill="#1C1B1B">Arteria choroidea anterior (AChA)</text>
+    <text x="426" y="539" font-size="11" fill="#1C1B1B">Hemipares + hemisensorisk nedsättning</text>
+    <text x="426" y="555" font-size="11" fill="#1C1B1B">+ homonym hemianopsi (samtliga tre),</text>
+    <text x="426" y="571" font-size="11" fill="#1C1B1B">UTAN kortikala fynd (ej afasi/neglekt)</text>
+    <text x="426" y="600" font-size="10.5" fill="#6B6B6B">Faller annars "mellan stolarna": MCA vill</text>
+    <text x="426" y="616" font-size="10.5" fill="#6B6B6B">ha kortikala fynd, PCA/talamus vill sakna</text>
+    <text x="426" y="632" font-size="10.5" fill="#6B6B6B">pares, ACA vill ha bendominans specifikt</text>
+    <text x="426" y="655" font-size="10.5" fill="#6B6B6B">→ djup skada: capsula interna + thalamus</text>
+    <text x="426" y="671" font-size="10.5" fill="#6B6B6B">+ synbana</text>
+  </g>
+  <g>
+    <rect x="790" y="496" width="360" height="230" rx="12" fill="#F7F5F4" stroke="#E7E4E3"/>
+    <text x="970" y="518" text-anchor="middle" font-size="13" font-weight="800" fill="#1C1B1B">Vertebrobasilärt / hjärnstam</text>
+    <text x="806" y="539" font-size="11" fill="#1C1B1B">Ataxi + dysartri TILLSAMMANS,</text>
+    <text x="806" y="558" font-size="11" fill="#1C1B1B">ELLER avvikande blickriktning +</text>
+    <text x="806" y="574" font-size="11" fill="#1C1B1B">bilateral svaghet,</text>
+    <text x="806" y="593" font-size="11" fill="#1C1B1B">ELLER sänkt medvetande UTAN kortikala</text>
+    <text x="806" y="609" font-size="11" fill="#1C1B1B">fynd + (blickpares eller bilateral svaghet)</text>
+    <text x="806" y="634" font-size="10.5" fill="#6B6B6B">Bilaterala/korsade fynd talar MOT ett</text>
+    <text x="806" y="650" font-size="10.5" fill="#6B6B6B">enskilt supratentoriellt kärlterritorium</text>
+    <text x="806" y="671" font-size="10.5" fill="#6B6B6B">→ basilaristopp vid uttalad bild</text>
+  </g>
+
+  <!-- Row 3: single centered box, y 744-844 (h=100) -->
+  <g>
+    <rect x="380" y="744" width="420" height="100" rx="12" fill="#F7F5F4" stroke="#E7E4E3"/>
+    <text x="590" y="766" text-anchor="middle" font-size="13" font-weight="800" fill="#1C1B1B">Cerebellärt territorium</text>
+    <text x="396" y="787" font-size="11" fill="#1C1B1B">Ataxi UTAN pares och UTAN kortikala fynd</text>
+    <text x="396" y="808" font-size="10.5" fill="#6B6B6B">→ PICA / AICA / SCA-territorium</text>
+  </g>
+
+  <line x1="590" y1="864" x2="590" y2="892" stroke="#6B6B6B" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- scoring box -->
+  <rect x="290" y="894" width="600" height="90" rx="12" fill="#FFFFFF" stroke="#C5362B" stroke-width="1.5"/>
+  <text x="590" y="920" text-anchor="middle" font-size="13" font-weight="800" fill="#C5362B">Poängsätt varje matchande mönster (bas + bonus för stödjande fynd)</text>
+  <text x="590" y="940" text-anchor="middle" font-size="11.5" fill="#1C1B1B">Sortera fallande → visa topp 3 (①  Mest sannolik, ② ③ Alternativ)</text>
+  <text x="590" y="960" text-anchor="middle" font-size="11" fill="#6B6B6B">Inget mönster matchar → "Inget tydligt fokalt mönster"</text>
+  <text x="590" y="974" text-anchor="middle" font-size="10" fill="#6B6B6B">(normalfynd, mycket lindrig skada, eller överlappande mönster)</text>
+
+  <!-- parallel differentials branch, routed at x=6: clear of container (x>=16) and all boxes
+       (x>=30) for its entire vertical run, so it never crosses through anything -->
+  <line x1="140" y1="145" x2="6" y2="145" stroke="#6B6B6B" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <line x1="6" y1="145" x2="6" y2="1048" stroke="#6B6B6B" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <line x1="6" y1="1048" x2="290" y2="1048" stroke="#6B6B6B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <rect x="290" y="1006" width="600" height="150" rx="12" fill="#EEF4F8" stroke="#DCE6EC"/>
+  <text x="590" y="1030" text-anchor="middle" font-size="13" font-weight="800" fill="#2C5875">Differentialdiagnoser / "stroke mimics" — OBEROENDE check, ej konkurrerande</text>
+  <text x="306" y="1052" font-size="11" fill="#2C5875">• Hypoglykemi — kontrollera ALLTID, kan ge stroke-lika bild helt reversibelt</text>
+  <text x="306" y="1070" font-size="11" fill="#2C5875">• Todds pares — om fokalt bortfall: fråga känt anfall/postiktalitet</text>
+  <text x="306" y="1088" font-size="11" fill="#2C5875">• Meningit/encefalit — om sänkt medvetande: feber, nackstyvhet, huvudvärk</text>
+  <text x="306" y="1106" font-size="11" fill="#2C5875">• Migrän med aura — om isolerat synfältsbortfall: gradvis spridning 20–60 min</text>
+  <text x="306" y="1124" font-size="11" fill="#2C5875">• Perifer facialispares — om ansiktspares: sparar pannan vid CENTRAL pares</text>
+  <text x="590" y="1144" text-anchor="middle" font-size="10" fill="#6B6B6B">Dessa ersätter inte lokalisationsförslaget ovan — bara kliniska påminnelser</text>
+</svg>

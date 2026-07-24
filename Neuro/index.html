@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Neuro — Resus</title>
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>Neuro</h1>
+    <nav class="rs-nav" id="tabNav">
+      <button data-tab="nihss" class="active">NIHSS + lokalisation</button>
+      <button data-tab="simulator">Simulator</button>
+      <button data-tab="algoritm">Lokalisationsalgoritm</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ---------- NIHSS ---------- -->
+  <section class="view active" id="nihssView">
+    <div class="card">
+      <h3>NIHSS-skattning</h3>
+      <p>Fyll i samtliga poster. Verktyget räknar ihop totalpoäng och ger en pedagogisk gissning om troligt kärlterritorium/lokalisation utifrån mönstret av fynd — ersätter inte klinisk bedömning eller bilddiagnostik.</p>
+    </div>
+    <div class="card" id="nihssForm" style="margin-top:16px"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="rs-btn primary" id="nihssCalcBtn">Beräkna</button>
+    </div>
+    <div class="card" id="nihssResult" style="margin-top:16px;display:none">
+      <h3>Resultat</h3>
+      <div class="score-banner" id="nihssScoreBanner"></div>
+
+      <div class="brain3d-host" id="nihss3dCol"></div>
+      <p class="brain-note">3D-modell, ej anatomiskt exakt — röd markering visar troligast lokalisation (svagare/genomskinlig markering = alternativ). Ryggmärgen och cortexskalet går att slå av/på; snitten under modellen skär genom den riktiga geometrin live, oberoende av markeringen.</p>
+
+      <div id="nihssLocList"></div>
+      <div id="nihssDiffList"></div>
+    </div>
+  </section>
+
+  <!-- 3D-panelen (canvas + kontroller) delas mellan NIHSS-resultatet och Nervbanor-fliken --
+       EN renderer/scen (se brain3d.js), panelen flyttas i DOM:en till vilken flik som är
+       synlig (main.js). Ligger här som "hemmaposition" vid sidladdning. -->
+  <template id="brain3dPanelTemplate">
+    <div class="brain3d-panel" id="brain3dPanel">
+      <div class="brain3d-main">
+        <div class="brain3d-wrap" id="brain3dWrap">
+          <canvas id="brain3dCanvas"></canvas>
+          <div class="brain3d-loading" id="brain3dLoading">
+            <div class="brain3d-spinner"></div>
+            <span>Laddar 3D-modell…</span>
+          </div>
+          <div class="brain3d-toggles">
+            <label class="brain3d-cortex-toggle"><input type="checkbox" id="brain3dCortexToggle" checked> Cortex</label>
+            <label class="brain3d-cortex-toggle"><input type="checkbox" id="brain3dCordToggle"> Ryggmärg</label>
+          </div>
+          <canvas class="brain3d-mini" id="brain3dMiniCanvas" title="Visar var snitten skär genom modellen"></canvas>
+          <div class="brain3d-hint">Dra för att rotera · scrolla för att zooma · skift+dra för att panorera</div>
+        </div>
+        <div class="brain3d-clips" id="brain3dClips">
+          <div class="brain3d-clip-row">
+            <label><input type="checkbox" id="clipSagittalOn" data-axis="sagittal"> Sagittalsnitt (V/H)</label>
+            <input type="range" id="clipSagittal" data-axis="sagittal" min="-2.5" max="2.5" step="0.05" value="0" disabled>
+            <button type="button" class="brain3d-flip-btn" id="clipSagittalFlip" data-axis="sagittal" title="Vänd — visa andra halvan" disabled>⇄</button>
+          </div>
+          <div class="brain3d-clip-row">
+            <label><input type="checkbox" id="clipCoronalOn" data-axis="coronal"> Koronarsnitt (fram/bak)</label>
+            <input type="range" id="clipCoronal" data-axis="coronal" min="-2.5" max="2.5" step="0.05" value="0" disabled>
+            <button type="button" class="brain3d-flip-btn" id="clipCoronalFlip" data-axis="coronal" title="Vänd — visa andra halvan" disabled>⇄</button>
+          </div>
+          <div class="brain3d-clip-row">
+            <label><input type="checkbox" id="clipAxialOn" data-axis="axial"> Axialsnitt (upp/ner)</label>
+            <input type="range" id="clipAxial" data-axis="axial" min="-2.5" max="2.5" step="0.05" value="0" disabled>
+            <button type="button" class="brain3d-flip-btn" id="clipAxialFlip" data-axis="axial" title="Vänd — visa andra halvan" disabled>⇄</button>
+          </div>
+        </div>
+        <!-- Debug-vy (bara snittytornas egna färger, ingen bakgrundsfyllnad) -- dold som
+             standard, mest användbar vid felsökning av lock-systemet (se F9-panelen). -->
+        <div class="brain3d-wrap brain3d-wrap-caps" id="brain3dCapsWrap" hidden>
+          <canvas id="brain3dCapsCanvas"></canvas>
+          <div class="brain3d-hint">Bara snittytornas egna färger (ingen bakgrundsfyllnad)</div>
+        </div>
+        <div class="brain3d-presets" id="brain3dPresets">
+          <button type="button" class="active" data-preset="front">Framifrån</button>
+          <button type="button" data-preset="side">Från sidan</button>
+          <button type="button" data-preset="whole">Helkropp</button>
+        </div>
+        <div class="brain3d-presets" id="brain3dStyleToggle">
+          <button type="button" class="active" data-style="toon">Toon-stil</button>
+          <button type="button" data-style="atlas">Atlas-stil (konturer)</button>
+        </div>
+        <div class="brain3d-presets" id="brain3dColorModeToggle">
+          <button type="button" data-colormode="grouped">Grupperade färger</button>
+          <button type="button" data-colormode="distinct">Distinkta färger per del</button>
+          <button type="button" class="active" data-colormode="custom">Anpassade färger</button>
+        </div>
+        <label class="brain3d-outline-toggle"><input type="checkbox" id="brain3dOutlineFXToggle" checked> Kantlinjer/AO (postprocessing)</label>
+        <label class="brain3d-outline-toggle"><input type="checkbox" id="brain3dCapsToggle" checked> Snittytor (lock)</label>
+      </div>
+    </div>
+
+    <!-- Utfällbar strukturlåda, höger kant -- samma mönster som HLR:s #drawer / EKG:s
+         #condDrawer (hovra för att öppna, klicka fliken/"Fäst" för att fästa den öppen). -->
+    <div class="bd-drawer" id="brain3dDrawer" aria-label="Strukturer">
+      <div class="bd-tab" id="brain3dDrawerTab" title="Strukturer, hovra för att öppna, klicka för att fästa">
+        <span class="bd-chevron">‹</span>
+        <span class="bd-label">STRUKTURER</span>
+      </div>
+      <div class="bd-body">
+        <div class="bd-head">
+          <span>Strukturer</span>
+          <button id="brain3dDrawerPinBtn" class="pinbtn" title="Fäst lådan öppen">Fäst</button>
+        </div>
+        <div class="bd-groups">
+          <div class="brain3d-sidebar-heading">Strukturer</div>
+          <div class="brain3d-structs" id="brain3dStructs">
+            <button type="button" class="active" data-group="">Visa alla</button>
+            <button type="button" data-group="cortex">Cortex</button>
+            <button type="button" data-group="thalamus">Talamus</button>
+            <button type="button" data-group="basalganglia">Basala ganglier</button>
+            <button type="button" data-group="capsule">Capsula interna</button>
+            <button type="button" data-group="brainstem">Hjärnstam</button>
+            <button type="button" data-group="cerebellum">Lillhjärna</button>
+            <button type="button" data-group="corpus_callosum">Corpus callosum</button>
+            <button type="button" data-group="white_matter">Vit substans</button>
+            <button type="button" data-group="ventricles">Ventriklar</button>
+            <button type="button" data-group="spinalcord">Ryggmärg</button>
+            <button type="button" data-group="vertebrae">Kotpelare</button>
+          </div>
+          <div class="brain3d-sidebar-heading">Cortex-regioner</div>
+          <div class="brain3d-structs brain3d-ctx-regions" id="brain3dCtxRegions">
+            <button type="button" class="active" data-region="">Cortex normal</button>
+            <button type="button" data-region="ctx_motor">Motorisk cortex</button>
+            <button type="button" data-region="ctx_sensory">Sensorisk cortex</button>
+            <button type="button" data-region="ctx_broca">Brocas område (V)</button>
+            <button type="button" data-region="ctx_wernicke">Wernickes område (V)</button>
+            <button type="button" data-region="ctx_visual">Synbark</button>
+            <button type="button" data-region="ctx_prefrontal">Prefrontal cortex</button>
+            <button type="button" data-region="ctx_parietal">Parietal association</button>
+            <button type="button" data-region="ctx_cingulate">Cingulate cortex</button>
+            <button type="button" data-region="ctx_insula">Insula</button>
+            <button type="button" data-region="ctx_orbitofrontal">Orbitofrontal cortex</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ---------- Simulator (konsoliderar Synfält/Ryggmärg/Nervbanor/Reflexer/Kärnor) ---------- -->
+  <section class="view" id="simulatorView">
+    <nav class="sim-subnav" id="simSubNav">
+      <button data-submode="pathway" class="active">Synfältsbortfall</button>
+      <button data-submode="spinal">Ryggmärgsskada</button>
+      <button data-submode="tracts">Nervbanor</button>
+      <button data-submode="reflex">Reflexer</button>
+      <button data-submode="nuclei">Kärnor</button>
+    </nav>
+
+    <!-- ---------- Synfältsbortfall ---------- -->
+    <section class="sim-subview active" id="pathwayView">
+    <div class="card">
+      <h3>Synbanan — skadeläge och synfältsbortfall</h3>
+      <p>Klicka på en skadeplats längs synbanan (vänster eller höger sida, samma nivå 1–7 på båda sidor) — eller på en av miniatyrerna nedan — för att se resulterande synfältsbortfall på vardera ögat.</p>
+    </div>
+
+    <div class="card pathway-card" style="margin-top:16px">
+      <svg viewBox="0 0 360 420" class="pathway-svg">
+        <ellipse cx="180" cy="205" rx="155" ry="195" class="head-outline"/>
+
+        <circle cx="110" cy="45" r="24" class="eye-white"/>
+        <circle cx="110" cy="45" r="11" class="eye-iris"/>
+        <circle cx="110" cy="45" r="5" class="eye-pupil"/>
+        <circle cx="250" cy="45" r="24" class="eye-white"/>
+        <circle cx="250" cy="45" r="11" class="eye-iris"/>
+        <circle cx="250" cy="45" r="5" class="eye-pupil"/>
+
+        <path d="M110,69 L110,172" class="tract-line uncrossed"/>
+        <path d="M250,69 L250,172" class="tract-line uncrossed"/>
+        <path d="M110,69 L250,172" class="tract-line crossed"/>
+        <path d="M250,69 L110,172" class="tract-line crossed"/>
+
+        <path d="M250,172 Q300,260 206,372" class="tract-line radiation"/>
+        <path d="M250,172 Q330,280 206,372" class="tract-line radiation"/>
+        <path d="M110,172 Q60,260 154,372" class="tract-line radiation"/>
+        <path d="M110,172 Q30,280 154,372" class="tract-line radiation"/>
+
+        <ellipse cx="206" cy="378" rx="18" ry="14" class="occipital-lobe"/>
+        <ellipse cx="154" cy="378" rx="18" ry="14" class="occipital-lobe"/>
+
+        <text x="180" y="150" text-anchor="middle" class="pathway-label">Kiasma</text>
+        <text x="180" y="405" text-anchor="middle" class="pathway-label">Occipitallob</text>
+
+        <g id="lesionMarkers"></g>
+      </svg>
+
+      <div class="pathway-result">
+        <div class="field-pair">
+          <div class="field-col">
+            <svg viewBox="0 0 100 100" class="field-svg">
+              <circle cx="50" cy="50" r="42" class="field-outline"/>
+              <line x1="50" y1="8" x2="50" y2="92" class="field-midline"/>
+              <g id="fieldL"></g>
+            </svg>
+            <span class="brain-caption">Vänster öga</span>
+          </div>
+          <div class="field-col">
+            <svg viewBox="0 0 100 100" class="field-svg">
+              <circle cx="50" cy="50" r="42" class="field-outline"/>
+              <line x1="50" y1="8" x2="50" y2="92" class="field-midline"/>
+              <g id="fieldR"></g>
+            </svg>
+            <span class="brain-caption">Höger öga</span>
+          </div>
+        </div>
+        <h4 id="pathwaySiteName"></h4>
+        <p id="pathwaySiteDesc"></p>
+      </div>
+
+      <div class="pathway-gallery-wrap">
+        <h3>Alla skadelägen</h3>
+        <div class="pathway-gallery" id="pathwayGallery"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Spinal ---------- -->
+  <section class="sim-subview" id="spinalView">
+    <div class="card">
+      <h3>Ryggmärgsskada — nivå &amp; grad</h3>
+      <p>Förenklad, ISNCSCI-inspirerad skattning av neurologisk skadenivå (NLI) och ASIA impairment scale (A–E). Bygger på fyra fält (mest kaudala normala nivå per sida/modalitet) i stället för en fullständig dermatom/myotom-undersökning — använd som träningsstöd, inte som ersättning för en komplett ISNCSCI-undersökning.</p>
+    </div>
+
+    <div class="card derm-card" style="margin-top:16px">
+      <h3>Klicka på kroppen för att ange nivå</h3>
+      <div class="field-pills">
+        <button type="button" class="field-pill" data-field="sensL">Känsel V</button>
+        <button type="button" class="field-pill" data-field="sensR">Känsel H</button>
+        <button type="button" class="field-pill" data-field="motL">Motorik V</button>
+        <button type="button" class="field-pill" data-field="motR">Motorik H</button>
+        <button type="button" class="rs-btn" id="dermNormalBtn">Sätt normal/intakt</button>
+      </div>
+      <div class="derm-body-wrap">
+        <svg viewBox="0 0 300 520" class="derm-svg">
+          <circle cx="150" cy="35" r="26" class="derm-head"/>
+          <g id="dermRegions"></g>
+        </svg>
+        <div class="reflex-panel">
+          <h3>Reflexer</h3>
+          <p class="derm-hint">Klicka en reflex för att se dess nivå markerad på kroppen (påverkar inte dina val ovan).</p>
+          <div class="reflex-list" id="reflexList"></div>
+          <p id="reflexDesc" class="reflex-desc"></p>
+        </div>
+      </div>
+      <p class="derm-status" id="dermStatus"></p>
+      <p class="brain-note">Förenklad skiss — inte exakta dermatomgränser. Bål och nacke kan väljas separat vänster/höger; alla 27 nivåer är klickbara även där ingen landmärkesetikett visas.</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <label>Sakral sparing (känsel S4-S5 och/eller viljemässig analkontraktion)?</label>
+      <div class="choice-row">
+        <button class="choice-btn" data-group="sacralSparing" data-val="yes">Ja</button>
+        <button class="choice-btn" data-group="sacralSparing" data-val="no">Nej</button>
+      </div>
+
+      <div class="rs-field cond" id="motorBelowField" style="display:none">
+        <label>Motorisk funktion bevarad mer än 3 nivåer under motornivån, bilateralt?</label>
+        <div class="choice-row">
+          <button class="choice-btn" data-group="motorBelow" data-val="yes">Ja</button>
+          <button class="choice-btn" data-group="motorBelow" data-val="no">Nej</button>
+        </div>
+      </div>
+
+      <div class="rs-field cond" id="halfBelowField" style="display:none">
+        <label>Minst hälften av nyckelmusklerna under NLI har kraft grad ≥3?</label>
+        <div class="choice-row">
+          <button class="choice-btn" data-group="halfBelowGr3" data-val="yes">Ja</button>
+          <button class="choice-btn" data-group="halfBelowGr3" data-val="no">Nej</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="rs-btn primary" id="spinalCalcBtn">Beräkna nivå</button>
+    </div>
+
+    <div class="card" id="spinalResult" style="margin-top:16px;display:none">
+      <h3>Resultat</h3>
+      <div class="score-banner" id="spinalNliBanner"></div>
+      <p id="spinalAisText" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card cord-card" style="margin-top:16px">
+      <h3>Ryggmärgens tvärsnitt — inkompletta skadesyndrom</h3>
+      <p>Välj ett syndrom för att se vilka banor som är skadade (rött) — dorsalsträngar (proprioception/vibration), kortikospinalbana (motorik) och spinothalamusbana (smärta/temperatur).</p>
+      <div class="syndrome-pills" id="syndromePills"></div>
+      <div class="cord-wrap">
+        <svg viewBox="0 0 220 220" class="cord-svg">
+          <circle cx="110" cy="110" r="92" class="cord-outline"/>
+          <g id="cordRegions"></g>
+          <ellipse cx="110" cy="110" rx="30" ry="45" id="cordCentralCore" class="cord-central"/>
+          <ellipse cx="103" cy="105" rx="13" ry="9" class="cord-gray"/>
+          <ellipse cx="117" cy="105" rx="13" ry="9" class="cord-gray"/>
+          <rect x="106" y="78" width="8" height="55" class="cord-gray"/>
+          <line x1="110" y1="18" x2="110" y2="38" class="cord-fissure"/>
+          <line x1="110" y1="182" x2="110" y2="202" class="cord-fissure"/>
+          <text x="20" y="114" class="side-label">V</text>
+          <text x="200" y="114" class="side-label">H</text>
+          <text x="110" y="14" text-anchor="middle" class="side-label">Bak</text>
+          <text x="110" y="212" text-anchor="middle" class="side-label">Fram</text>
+        </svg>
+        <div class="cord-result">
+          <h4 id="cordSyndromeName"></h4>
+          <p id="cordSyndromeDesc"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Nervbanor ---------- -->
+  <section class="sim-subview" id="tractsView">
+    <div class="card">
+      <h3>Nervbanor genom CNS</h3>
+      <p>Välj ett system nedan. Samma diagram visar VAR i CNS-banan den korsar om till andra sidan (om alls) — det är just den nivån som avgör hur en skada lokaliseras kliniskt (t.ex. varför Brown-Séquard-syndrom ger bortfall av olika sinnen på olika sidor). Hovra över en markerad struktur för att se dess roll i den valda banan OCH vad den gör därutöver.</p>
+    </div>
+    <div class="card tracts-card" style="margin-top:16px">
+      <div class="tracts-switch" id="tractsSwitch"></div>
+      <div class="tracts-layout">
+        <svg id="tractsSvg" viewBox="0 0 320 900" class="tracts-svg" aria-label="CNS-bana genom hjärna och ryggmärg"></svg>
+        <div class="tracts-info" id="tractsInfo">
+          <p class="tracts-hint">Hovra över en markerad struktur i diagrammet till vänster.</p>
+        </div>
+      </div>
+      <div class="tracts-summary" id="tractsSummary"></div>
+    </div>
+    <div class="card tracts-card" style="margin-top:16px">
+      <h3 style="margin:0 0 4px">3D — samma bana genom riktig anatomi</h3>
+      <p class="tracts-hint" style="margin:0 0 12px">Riktig geometri (BodyParts3D), inklusive ett riktigt ryggmärgssnitt. Röret genom modellen är en förenklad kurva mellan strukturernas faktiska mittpunkter — inte en anatomiskt exakt fiberbana (det finns inga individuella nervrötter eller spårade fiberknippen i datasetet), men samma nivåer och sträckning som det schemat visar. Använd snitten under modellen för att se in i den.</p>
+      <p class="tracts-hint" id="tracts3dNote" hidden><b>Den här banan går huvudsakligen genom perifera ganglier utanför CNS</b> — strukturer som inte finns i 3D-modellen. Se schemat till vänster för hela förloppet.</p>
+      <div id="tracts3dSlot"></div>
+    </div>
+  </section>
+
+  <!-- ---------- Reflexer (reflexbågar genom riktig anatomi, samma teknik som Nervbanor) ---------- -->
+  <section class="sim-subview" id="reflexView">
+    <div class="card">
+      <h3>Reflexbågar</h3>
+      <p>Välj en reflex nedan. Afferent (sensorisk) del av bågen visas i blått, efferent (motorisk) del i rött, med en röd punkt vid den nivå i ryggmärgen/hjärnstammen där reflexen faktiskt kopplas om.</p>
+    </div>
+    <div class="card tracts-card" style="margin-top:16px">
+      <div class="tracts-switch" id="reflexSwitch"></div>
+      <div class="tracts-info" id="reflexInfo">
+        <p class="tracts-hint">Välj en reflex ovan.</p>
+      </div>
+    </div>
+    <div class="card tracts-card" style="margin-top:16px">
+      <h3 style="margin:0 0 4px">3D — reflexbågen genom riktig anatomi</h3>
+      <p class="tracts-hint" style="margin:0 0 12px">Samma teknik som Nervbanor — en förenklad kurva mellan strukturernas faktiska mittpunkter, inte spårade enskilda nervrötter.</p>
+      <p class="tracts-hint" id="reflex3dNote" hidden><b>Ingen ben-/muskelanatomi i modellen</b> — nerven och muskeln nedanför/utanför den synliga geometrin är schematiskt ritade, inte anatomiskt korrekta positioner.</p>
+      <div id="reflex3dSlot"></div>
+    </div>
+  </section>
+
+  <!-- ---------- Kärnor (djupa kärnor och andra strukturer utan egen plats i huvudmodellen) ---------- -->
+  <section class="sim-subview" id="nucleiView">
+    <div class="card">
+      <h3>Djupa kärnor</h3>
+      <p>Ett separat, mer detaljerat läge -- samma källbibliotek som huvudmodellen, men med enskilda kärnor/strukturer synliga var för sig i stället för hopslagna till en enda talamus-/hjärnstamsyta. Välj en struktur i listan till höger för att lysa upp den (röd, opak) mot en blek cortex-siluett som referens. Ingen klippning/snittning här -- rotera och zooma för att se runt.</p>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="brain3d-panel">
+        <div class="brain3d-main">
+          <div class="brain3d-wrap" id="nuclei3dWrap">
+            <canvas id="nuclei3dCanvas"></canvas>
+            <div class="brain3d-loading" id="nuclei3dLoading">
+              <div class="brain3d-spinner"></div>
+              <span>Laddar kärnor…</span>
+            </div>
+            <div class="brain3d-hint">Dra för att rotera · scrolla för att zooma · skift+dra för att panorera</div>
+          </div>
+        </div>
+      </div>
+      <div class="bd-drawer" id="nuclei3dDrawer" aria-label="Kärnor">
+        <div class="bd-tab" id="nuclei3dDrawerTab" title="Kärnor, hovra för att öppna, klicka för att fästa">
+          <span class="bd-chevron">‹</span>
+          <span class="bd-label">KÄRNOR</span>
+        </div>
+        <div class="bd-body">
+          <div class="bd-head">
+            <span>Kärnor</span>
+            <button id="nuclei3dDrawerPinBtn" class="pinbtn" title="Fäst lådan öppen">Fäst</button>
+          </div>
+          <div class="bd-groups" id="nuclei3dGroups"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  </section>
+
+  <!-- ---------- Lokalisationsalgoritm (förklaring, ingen interaktion) ---------- -->
+  <section class="view" id="algoritmView">
+    <div class="card">
+      <h3>Hur gissar verktyget lokalisationen?</h3>
+      <p>Detta är en <strong>pedagogisk tumregelsmotor</strong>, inte en validerad diagnostisk
+      algoritm och inte en ersättning för bilddiagnostik. Den bygger på klassiska, läroboksmässiga
+      samband mellan kliniska fynd och kärlterritorium/lesionsnivå, för att öva
+      mönsterigenkänning — riktig stroke presenterar sig ofta med överlappande eller ofullständiga
+      mönster.</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Principen i korthet</h3>
+      <ol class="algo-steps">
+        <li>De 15 ifyllda NIHSS-delposterna (medvetande, blick, synfält, ansikte, arm/ben på
+        båda sidor, ataxi, sensibilitet, språk, dysartri, neglekt) omvandlas till ett antal
+        <strong>härledda signaler</strong> — t.ex. <em>vilken sida</em> är svag,
+        <em>är benet svagare än armen</em> på den sidan, finns det en <em>kortikal signatur</em>
+        (afasi eller neglekt), o.s.v.</li>
+        <li>Vart och ett av <strong>14 fördefinierade mönster</strong> (kärlterritorium eller
+        lakunärt syndrom, grupperade i 7 familjer — bl.a. MCA, ACA, PCA/talamus,
+        <em>arteria choroidea anterior</em>, lakunära syndrom, hjärnstam och cerebellärt) testas
+        mot dessa signaler. Ett mönster som matchar får en poäng — bas + bonus för extra
+        stödjande fynd (t.ex. samtidigt synfältsbortfall på samma sida som en MCA-misstanke).</li>
+        <li>Sidan på lesionen bestäms av den <strong>kontralaterala regeln</strong>: vänstersidig
+        svaghet pekar mot en högersidig lesion och vice versa, eftersom de motoriska banorna
+        korsar om i hjärnstammen.</li>
+        <li>Matchande mönster sorteras fallande efter poäng — de tre högsta visas
+        ("Mest sannolik" + två alternativ). Matchar inget mönster visas
+        "Inget tydligt fokalt mönster".</li>
+        <li>Parallellt, som en <strong>helt separat och icke-konkurrerande check</strong>, körs en
+        lista med vanliga <strong>stroke mimics</strong> (differentialdiagnoser) mot samma poster
+        — påminnelser, inte en del av lokalisationsgissningen.</li>
+      </ol>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Diagram</h3>
+      <img src="images/nihss-algorithm-diagram.svg" alt="Flödesschema över NIHSS-lokalisationsalgoritmen: NIHSS-poster → härledda signaler → 14 mönster i 7 familjer (MCA/ACA/PCA-talamus/arteria choroidea anterior/lakunära/hjärnstam/cerebellärt) → poängsättning och topp 3, samt en parallell, oberoende lista över stroke mimics." style="width:100%;height:auto;border-radius:10px;border:1px solid var(--line)">
+      <p class="brain-note">Streckad linje = den parallella, oberoende differentialdiagnos-checken (påverkar inte poängsättningen ovan).</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Begränsningar</h3>
+      <p>Många verkliga stroke passar inte snyggt i en enda kategori — blandade eller ofullständiga
+      mönster är vanliga. Verktyget känner inte till tid sedan insjuknande, tidigare bortfall,
+      eller fynd utanför NIHSS-skalan (t.ex. specifika kranialnervsfynd). Använd det för att träna
+      resonemang, inte som facit.</p>
+    </div>
+  </section>
+
+</div>
+
+<script src="../nav.js"></script>
+<script src="../lib/supabase.js"></script>
+<script src="../auth.js"></script>
+<script src="../usernames.js"></script>
+<script src="../auth-ui.js"></script>
+<script src="../lib/three.min.js"></script>
+<script src="../lib/OBJLoader.js"></script>
+<!-- Riktig hjärngeometri (BodyParts3D/FMA, djupa strukturer), inbäddad som JS i stället för
+     att hämtas med fetch() -- file:// blockerar fetch mot lokala filer, se EKG-modulens
+     3D-hjärta för samma mönster/motivering. -->
+<script src="models/brain/thalamus_l.js"></script>
+<script src="models/brain/thalamus_r.js"></script>
+<script src="models/brain/basalganglia_l.js"></script>
+<script src="models/brain/basalganglia_r.js"></script>
+<script src="models/brain/capsule_l.js"></script>
+<script src="models/brain/capsule_r.js"></script>
+<script src="models/brain/midbrain_l.js"></script>
+<script src="models/brain/midbrain_r.js"></script>
+<script src="models/brain/pons_l.js"></script>
+<script src="models/brain/pons_r.js"></script>
+<script src="models/brain/medulla_l.js"></script>
+<script src="models/brain/medulla_r.js"></script>
+<!-- Lillhjärnans hemisfärer + vermis, sammanslagna av 29 enskilda lobuli (Models/cerebellum/,
+     samma bibliotek som Kärnor-flikens "Lillhjärna, lobuli"-grupp) i stället för de gamla
+     grova hjärnhalv-blobbarna -- ger en riktig, vikt lobul-yta i snittytan i stället för en
+     slät klump. Redan vattentäta (kollat), behöver ingen capproxy (se borttagna
+     capproxy/cerebellum_*.js-taggarna nedanför -- de matchade de GAMLA grova blobbarna och
+     hade gett ett fellokaliserat, lågupplöst lock om de fått vara kvar). -->
+<script src="models/brain/cerebellum_l.js"></script>
+<script src="models/brain/cerebellum_r.js"></script>
+<script src="models/brain/cerebellum_vermis.js"></script>
+<script src="models/brain/corpus_callosum.js"></script>
+<!-- Vit substans: APPROXIMATION, inte en riktig segmentering -- genererad offline i Blender/
+     Python (voxel-fyllning av alla andra delar här ovanför + morfologisk "closing" ~4.8mm för
+     att bygga ihop angränsande gyri/kärnor/hjärnstamssegment, se konversationen) eftersom
+     BodyParts3D-biblioteket inte innehåller någon egen vit substans-tillgång. -->
+<script src="models/brain/white_matter.js"></script>
+<script src="models/brain/ventricles.js"></script>
+<!-- Cortexskal (73 sammanslagna gyrus-/precuneus-/cuneus-/lobule-ytor från Models/Brain,
+     samma BodyParts3D-koordinatsystem som resten -- se merge_cortex_obj.py). Halvgenomskinlig,
+     så de djupa strukturerna syns igenom. Täcker bara storhjärnans hemisfärer (ingen
+     cortex-yta för lillhjärnan/hjärnstammen i det underliggande datasetet). -->
+<script src="models/brain/spinalcord.js"></script>
+<script src="models/brain/vertebrae.js"></script>
+<!-- Perifera nervsystemet (Models/Peripheral Nervous System/, 88 sammanslagna delar --
+     kranialnerver + cervikal-/brachialplexus + synbana). Ren kontext, INTE klickbar -- inget
+     knapp i strukturlistan, ingen egen urvalslogik. Följer bara ryggmärgens/kotpelarens
+     av/på-knapp (se setBrain3DCordVisible). -->
+<script src="models/brain/peripheral_nerves.js"></script>
+<script src="models/brain/cortex.js"></script>
+<!-- Funktionella cortex-delregioner (motorisk/sensorisk cortex, Brocas/Wernickes område osv) --
+     samma gyrus-källfiler som redan ingår i cortex.js ovan, en delmängd per region, dolda tills
+     en knapp väljer en av dem, se setBrain3DCortexRegion i brain3d.js. -->
+<script src="models/brain/ctx_motor.js"></script>
+<script src="models/brain/ctx_sensory.js"></script>
+<script src="models/brain/ctx_broca.js"></script>
+<script src="models/brain/ctx_wernicke.js"></script>
+<script src="models/brain/ctx_visual.js"></script>
+<script src="models/brain/ctx_prefrontal.js"></script>
+<script src="models/brain/ctx_parietal.js"></script>
+<script src="models/brain/ctx_cingulate.js"></script>
+<script src="models/brain/ctx_insula.js"></script>
+<script src="models/brain/ctx_orbitofrontal.js"></script>
+<!-- Osynliga, garanterat vattentäta "cap-proxy"-ytor (voxelfyllda + marching cubes) för
+     snitt-locken (stencil-caps) -- se filkommentaren vid _buildStencilCaps i brain3d.js för
+     varför de riktiga ytorna ovan inte duger till det (en del av dem har öppna kanter där
+     strukturen gränsar mot grannvävnad i originalatlasen, vilket annars gav hål i locken). -->
+<script src="models/brain/capproxy/basalganglia_l.js"></script>
+<script src="models/brain/capproxy/basalganglia_r.js"></script>
+<script src="models/brain/capproxy/capsule_l.js"></script>
+<script src="models/brain/capproxy/capsule_r.js"></script>
+<script src="models/brain/capproxy/midbrain_l.js"></script>
+<script src="models/brain/capproxy/midbrain_r.js"></script>
+<script src="models/brain/capproxy/pons_l.js"></script>
+<script src="models/brain/capproxy/pons_r.js"></script>
+<script src="models/brain/capproxy/medulla_l.js"></script>
+<script src="models/brain/capproxy/medulla_r.js"></script>
+<script src="models/brain/capproxy/corpus_callosum.js"></script>
+<script src="models/brain/capproxy/spinalcord.js"></script>
+<script src="models/brain/capproxy/ventricles.js"></script>
+<script src="models/brain/capproxy/cortex.js"></script>
+<script src="js/brain3d-render-settings.js"></script>
+<script src="js/brain3d-post.js"></script>
+<script src="js/brain3d.js"></script>
+<script src="js/nihss-data.js"></script>
+<script src="js/nihss.js"></script>
+<script src="js/brain-diagram.js"></script>
+<script src="js/visual-pathway-data.js"></script>
+<script src="js/visual-pathway.js"></script>
+<script src="js/spinal-data.js"></script>
+<script src="js/spinal.js"></script>
+<script src="js/dermatome-data.js"></script>
+<script src="js/reflex-data.js"></script>
+<script src="js/dermatome-diagram.js"></script>
+<script src="js/cord-syndrome-data.js"></script>
+<script src="js/cord-syndrome-diagram.js"></script>
+<script src="js/tracts-data.js"></script>
+<script src="js/tracts.js"></script>
+<script src="js/reflex3d-data.js"></script>
+<script src="js/reflex3d.js"></script>
+<!-- Kärnmodulen -- separat 3D-läge, egen scen/canvas (se filkommentaren i nuclei3d.js för
+     varför den inte bara lades till i den befintliga brain3d-scenen). Samma Models/Brain-
+     källbibliotek som cortex-gyrusytorna. -->
+<script src="models/nuclei/manifest.js"></script>
+<script src="models/nuclei/thalamus.js"></script>
+<script src="models/nuclei/hypothalamus.js"></script>
+<script src="models/nuclei/basalganglia.js"></script>
+<script src="models/nuclei/midbrain.js"></script>
+<script src="models/nuclei/limbic.js"></script>
+<script src="models/nuclei/commissures.js"></script>
+<script src="models/nuclei/midline.js"></script>
+<script src="models/nuclei/ventricles_detail.js"></script>
+<!-- Lillhjärnans lobuli -- nytt bibliotek (Models/cerebellum/), 29 enskilda lobuli i stället
+     för huvudmodellens två hopslagna hjärnhalv-blobbar (cerebellum_l/r). -->
+<script src="models/nuclei/cerebellum_detail.js"></script>
+<script src="js/nuclei3d.js"></script>
+<script src="js/nuclei-diagram.js"></script>
+<div id="brain3dCapDebugPanel" class="brain3d-cap-debug" hidden>
+  <div class="brain3d-cap-debug-head">Cap-felsökning (F9 stänger) — per struktur: på/av, positions-eps, vridriktning, hoppa över stencil-test
+    <label style="display:block;font-weight:400;margin-top:4px"><input type="checkbox" id="brain3dCapLogToggle"> Logga varje faktisk cap-/stencil-ritning i webbläsarkonsolen (kan bli mycket text — visar NÄR objektet skickas för ritning, inte om stencil-testet faktiskt släppte igenom några pixlar)</label>
+  </div>
+  <table id="brain3dCapDebugTable"></table>
+</div>
+<script src="js/main.js"></script>
+</body>
+</html>

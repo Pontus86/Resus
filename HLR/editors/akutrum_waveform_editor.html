@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A-HLR – Vågforms-editor (EKG-rytmer)</title>
+<style>
+  :root{--bg:#0f1417;--panel:#171d21;--line:#2a343a;--ink:#e8ebee;--muted:#8b98a2;--accent:#35e08e;--accent2:#f4a93b;--red:#e5544b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:13px}
+  header{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  header h1{font-size:15px;margin:0}
+  .hint{color:var(--muted);font-size:12px}
+  .wrap{display:flex;gap:14px;padding:14px;align-items:flex-start;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px}
+  .card h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .rlist{display:flex;flex-direction:column;gap:3px;max-height:520px;overflow:auto;width:220px}
+  .rrow{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:5px;background:#1e262b;cursor:pointer;font-size:12px}
+  .rrow:hover{background:#26313a}.rrow.active{outline:1px solid var(--accent)}
+  .rrow .k{color:var(--muted);font-size:9px}
+  .monitor{background:#0b120f;border:1px solid var(--line);border-radius:6px}
+  .beatbox{background:#0b120f;border:1px solid var(--line);border-radius:6px;position:relative}
+  .beatbox canvas{display:block;border-radius:6px}
+  button{background:#26303a;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-family:inherit}
+  button:hover{background:#2f3b45}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#062}
+  .row{display:flex;gap:8px;align-items:center;margin:6px 0}
+  .row label{width:74px;color:var(--muted)}
+  .row input[type=range]{flex:1}
+  .row input[type=number]{width:64px;background:#0c1114;color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:3px 5px}
+  .row .val{width:44px;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+  textarea{width:100%;height:120px;background:#0c1114;color:#bfe6c8;border:1px solid var(--line);border-radius:6px;font-family:ui-monospace,monospace;font-size:11px;padding:8px}
+  .mini{font-size:11px;color:var(--muted)}
+  .kbd{font-family:ui-monospace;background:#0c1114;border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .pointhint{font-size:11px;color:var(--muted);margin-top:6px}
+  select{background:#0c1114;color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:4px 6px;font-family:inherit}
+</style>
+</head>
+<body>
+<header>
+  <h1>A-HLR · Vågforms-editor</h1>
+  <span class="hint">Välj rytm, justera parametrar och dra kontrollpunkter i enslagsvyn. <span class="kbd">Dubbelklick</span> lägger till punkt, <span class="kbd">Alt-klick</span> tar bort.</span>
+</header>
+<div class="wrap">
+  <div class="card">
+    <h3>Rytmer</h3>
+    <div class="rlist" id="rlist"></div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <h3>Live-monitor (scrollande, som i spelet)</h3>
+      <canvas id="monitor" class="monitor" width="540" height="120"></canvas>
+      <div class="toolbar" style="margin-top:8px">
+        <label class="mini">HLR-artefakt <input type="checkbox" id="cpr"></label>
+        <label class="mini">Svep-hastighet
+          <select id="sweep"><option value="90">25 mm/s</option><option value="130">snabb</option><option value="60">långsam</option></select>
+        </label>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Enslagsvy (dra punkterna)</h3>
+      <div class="beatbox"><canvas id="beat" width="540" height="200"></canvas></div>
+      <div class="pointhint" id="pointHint">—</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card" style="width:300px">
+      <h3>Parametrar · <span id="selName">—</span></h3>
+      <div class="row"><label>Typ</label>
+        <select id="kindSel"><option value="beat">beat (P-QRS-T)</option><option value="fib">fib (VF)</option><option value="torsades">torsades</option><option value="sine">sine</option><option value="flat">flat</option></select>
+      </div>
+      <div id="beatParams">
+        <div class="row"><label>Frekvens</label><input type="range" id="rateR" min="10" max="220" value="80"><input type="number" id="rateN"><span class="val">bpm</span></div>
+        <div class="row"><label>Amplitud</label><input type="range" id="ampR" min="0" max="2" step="0.01" value="1"><input type="number" id="ampN" step="0.05"></div>
+        <div class="row"><label>Brus</label><input type="range" id="noiseR" min="0" max="0.3" step="0.005" value="0.03"><input type="number" id="noiseN" step="0.005"></div>
+        <div class="row"><label>Oregelb.</label><input type="range" id="irrR" min="0" max="0.6" step="0.01" value="0"><input type="number" id="irrN" step="0.01"></div>
+        <div class="row"><label><input type="checkbox" id="flipC"> bidirektionell</label></div>
+      </div>
+      <div id="fibParams" style="display:none">
+        <div class="row"><label>Frekv 1</label><input type="range" id="f1R" min="5" max="40" step="0.5" value="17"><input type="number" id="f1N" step="0.5"></div>
+        <div class="row"><label>Frekv 2</label><input type="range" id="f2R" min="5" max="60" step="0.5" value="31"><input type="number" id="f2N" step="0.5"></div>
+        <div class="row"><label>Amp 1</label><input type="range" id="faR" min="0" max="1.5" step="0.01" value="0.85"><input type="number" id="faN" step="0.05"></div>
+        <div class="row"><label>Amp 2</label><input type="range" id="fbR" min="0" max="1.5" step="0.01" value="0.45"><input type="number" id="fbN" step="0.05"></div>
+        <div class="row"><label>Envelope</label><input type="range" id="envR" min="0" max="8" step="0.1" value="3"><input type="number" id="envN" step="0.1"></div>
+      </div>
+      <div id="torParams" style="display:none">
+        <div class="row"><label>Osc</label><input type="range" id="oscR" min="8" max="40" step="0.5" value="22"><input type="number" id="oscN" step="0.5"></div>
+        <div class="row"><label>Env-frekv</label><input type="range" id="envfR" min="0.2" max="3" step="0.05" value="0.9"><input type="number" id="envfN" step="0.05"></div>
+        <div class="row"><label>Amp min</label><input type="range" id="amnR" min="0" max="1" step="0.01" value="0.18"><input type="number" id="amnN" step="0.05"></div>
+        <div class="row"><label>Amp max</label><input type="range" id="amxR" min="0" max="1.5" step="0.01" value="0.8"><input type="number" id="amxN" step="0.05"></div>
+      </div>
+      <div id="sineParams" style="display:none">
+        <div class="row"><label>Frekvens</label><input type="range" id="srateR" min="10" max="120" value="38"><input type="number" id="srateN"></div>
+        <div class="row"><label>Amplitud</label><input type="range" id="sampR" min="0" max="1.5" step="0.01" value="0.8"><input type="number" id="sampN" step="0.05"></div>
+      </div>
+      <div id="flatParams" style="display:none">
+        <div class="row"><label>Vandring</label><input type="range" id="wanR" min="0" max="0.3" step="0.005" value="0.05"><input type="number" id="wanN" step="0.005"></div>
+      </div>
+      <div class="row"><label>Etikett</label><input type="text" id="lblI" style="flex:1;background:#0c1114;color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:4px 6px"></div>
+      <div class="toolbar"><button id="btnReset">Återställ denna</button></div>
+    </div>
+    <div class="card" style="width:300px">
+      <h3>Export</h3>
+      <div class="mini" style="margin-bottom:6px">Kopiera och skicka till mig — jag lägger in specarna i spelets delade vågformsmodell (monitor + defib + EKG-remsa använder samma).</div>
+      <div class="toolbar"><button class="primary" id="btnExport">⬇ Kopiera specs-JSON</button><button id="btnImport">⬆ Läs in</button></div>
+      <textarea id="json" spellcheck="false"></textarea>
+    </div>
+  </div>
+</div>
+<script>
+/* ==========================================================================
+   DELAD VÅGFORMSMODELL  (används av både spelet och vågforms-editorn)
+   rhythmSample(spec, t, opts) -> normaliserat värde ~[-1.2, 1.2]
+   Varje rytm beskrivs av en 'spec' med kind + parametrar. "beat"-rytmer
+   ritas från kontrollpunkter (fas 0..1, värde) som interpoleras mjukt.
+   ========================================================================== */
+(function(root){
+  function lerp(a,b,t){return a+(b-a)*t;}
+  // monoton kubisk-ish interpolation mellan kontrollpunkter {p,v}
+  function samplePoints(points, ph){
+    if(!points||!points.length)return 0;
+    if(ph<=points[0].p)return points[0].v;
+    if(ph>=points[points.length-1].p)return points[points.length-1].v;
+    let i=0; while(i<points.length-1 && points[i+1].p<ph)i++;
+    const a=points[i], b=points[i+1];
+    const span=(b.p-a.p)||1e-6; let t=(ph-a.p)/span;
+    // smoothstep för mjukare kurvor (undviker hackiga hörn som ser "dåliga" ut)
+    const s = t*t*(3-2*t);
+    return lerp(a.v,b.v,s);
+  }
+  function phaseOf(t, rate, irregular, seed){
+    const per=60/rate;
+    if(!irregular){ return {ph:(((t%per)+per)%per)/per, beat:Math.floor(t/per)}; }
+    // oregelbunden: bygg slagtider deterministiskt
+    let tb=0,k=0,prev=0;
+    const golden=0.6180339887;
+    while(tb<=t){ prev=tb; const jit=1+irregular*(2*(((k*golden)%1))-1); tb+=per*jit; k++; }
+    const span=tb-prev||per;
+    return {ph:(t-prev)/span, beat:k-1};
+  }
+  function rhythmSample(spec, t, opts){
+    opts=opts||{};
+    const noise = opts.noise!=null?opts.noise:(spec.noise||0);
+    const nz = noise? (Math.sin(t*137.13)*0.5+Math.sin(t*51.7)*0.5)*noise : 0; // pseudo-brus (deterministiskt)
+    switch(spec.kind){
+      case "flat":
+        return Math.sin(t*2.2)*(spec.wander||0.05) + nz;
+      case "sine": {
+        const per=60/(spec.rate||38), ph=(((t%per)+per)%per)/per;
+        return Math.sin(ph*Math.PI*2)*(spec.amp||0.8) + nz;
+      }
+      case "fib": {
+        return Math.sin(t*(spec.f1||17))*(spec.amp||0.85)
+             + Math.sin(t*(spec.f2||31))*(spec.amp2||0.45)*Math.sin(t*(spec.env||3)) + nz;
+      }
+      case "torsades": {
+        const env=Math.abs(Math.sin(t*(spec.envF||0.9)));
+        return Math.sin(t*(spec.osc||22))*((spec.ampMin||0.2)+(spec.ampMax||0.8)*env) + nz;
+      }
+      case "beat": {
+        const {ph,beat}=phaseOf(t, spec.rate||70, spec.irregular||0);
+        let v=samplePoints(spec.points, ph)*(spec.amp!=null?spec.amp:1);
+        if(spec.flip && (beat%2)) v=-v;      // bidirektionell
+        return v + nz;
+      }
+      default: return nz;
+    }
+  }
+  root.rhythmSample = rhythmSample;
+  root.samplePoints = samplePoints;
+
+  /* ---- standardspecar för alla rytmer i spelet ---- */
+  // beat-punkter: fas 0..1. Ett smalt, skarpt QRS = punkter tätt ihop.
+  const QRS = (p0,rH,qD,sD,rV,qV,sV)=>[
+    {p:p0-0.02,v:0},{p:p0-qD,v:qV},{p:p0,v:rV},{p:p0+sD,v:sV},{p:p0+sD+0.02,v:0}
+  ];
+  const RHYTHM_SPECS = {
+    VF:        {kind:"fib", f1:17, f2:31, amp:0.85, amp2:0.45, env:3, noise:0.06, label:"VF (grovvågigt)"},
+    VF_fine:   {kind:"fib", f1:17, f2:31, amp:0.25, amp2:0.18, env:3, noise:0.05, label:"VF (finvågigt)"},
+    pVT_mono:  {kind:"beat", rate:190, amp:1, noise:0.03, label:"Pulslös VT (monomorf)",
+                points:[{p:0,v:0},{p:0.20,v:0},{p:0.32,v:0.85},{p:0.55,v:0},{p:0.70,v:-0.20},{p:0.9,v:0},{p:1,v:0}]},
+    torsades:  {kind:"torsades", osc:22, envF:0.9, ampMin:0.18, ampMax:0.80, noise:0.03, label:"Polymorf VT (torsades)"},
+    bidirVT:   {kind:"beat", rate:170, amp:0.9, flip:true, noise:0.03, label:"Bidirektionell VT (digitalis)",
+                points:[{p:0,v:0},{p:0.12,v:0},{p:0.26,v:0.9},{p:0.42,v:0},{p:1,v:0}]},
+    asystoli:  {kind:"flat", wander:0.05, noise:0.05, label:"Asystoli"},
+    organiserad:{kind:"beat", rate:80, amp:1, noise:0.02, label:"Organiserad rytm",
+                points:[{p:0,v:0},{p:0.06,v:0.14},{p:0.10,v:0},{p:0.12,v:-0.16},{p:0.15,v:1.0},{p:0.18,v:-0.28},{p:0.20,v:0},{p:0.42,v:0.22},{p:0.5,v:0},{p:1,v:0}]},
+    rosc:      {kind:"beat", rate:95, amp:1, noise:0.015, label:"Sinusrytm · ROSC",
+                points:[{p:0,v:0},{p:0.06,v:0.16},{p:0.10,v:0},{p:0.12,v:-0.16},{p:0.15,v:1.0},{p:0.18,v:-0.28},{p:0.20,v:0},{p:0.40,v:0.26},{p:0.5,v:0},{p:1,v:0}]},
+    // PEA-varianter
+    pea_narrow:{kind:"beat", rate:55, amp:1, noise:0.03, label:"PEA (smala QRS)",
+                points:[{p:0,v:0},{p:0.06,v:0.14},{p:0.10,v:0},{p:0.12,v:-0.14},{p:0.15,v:0.95},{p:0.18,v:-0.24},{p:0.21,v:0},{p:1,v:0}]},
+    pea_narrowfast:{kind:"beat", rate:112, amp:0.75, noise:0.03, label:"PEA (smala, takykard)",
+                points:[{p:0,v:0},{p:0.06,v:0.1},{p:0.10,v:0},{p:0.12,v:-0.12},{p:0.15,v:0.9},{p:0.18,v:-0.2},{p:0.21,v:0},{p:1,v:0}]},
+    pea_brady: {kind:"beat", rate:32, amp:1, noise:0.03, label:"PEA (bradykard/agonal)",
+                points:[{p:0,v:0},{p:0.10,v:0},{p:0.14,v:-0.16},{p:0.18,v:0.9},{p:0.24,v:-0.28},{p:0.30,v:0},{p:1,v:0}]},
+    pea_idio:  {kind:"beat", rate:26, amp:1, noise:0.03, label:"PEA (idioventrikulär, breda)",
+                points:[{p:0,v:0},{p:0.10,v:-0.45},{p:0.24,v:0.85},{p:0.40,v:-0.35},{p:0.5,v:0},{p:1,v:0}]},
+    pea_sine:  {kind:"sine", rate:38, amp:0.8, noise:0.03, label:"PEA (sinusvåg, hyperkalemi)"},
+    pea_wide:  {kind:"beat", rate:55, amp:0.85, noise:0.03, label:"PEA (breddökade QRS)",
+                points:[{p:0,v:0},{p:0.06,v:0.1},{p:0.10,v:0},{p:0.14,v:-0.18},{p:0.22,v:0.85},{p:0.32,v:-0.24},{p:0.40,v:0},{p:1,v:0}]},
+  };
+  root.RHYTHM_SPECS = RHYTHM_SPECS;
+})(typeof module!=="undefined"&&module.exports?module.exports:(this.WaveModel=this.WaveModel||{}));
+
+const {rhythmSample, samplePoints} = WaveModel;
+let SPECS = JSON.parse(JSON.stringify(WaveModel.RHYTHM_SPECS));
+const DEFAULTS = JSON.parse(JSON.stringify(WaveModel.RHYTHM_SPECS));
+let curKey = Object.keys(SPECS)[0];
+const $=id=>document.getElementById(id);
+
+/* ---- rhythm list ---- */
+function buildList(){const L=$('rlist');L.innerHTML='';
+  Object.keys(SPECS).forEach(k=>{const r=document.createElement('div');r.className='rrow'+(k===curKey?' active':'');
+    r.innerHTML=`<span>${SPECS[k].label||k}</span><span class="k">${SPECS[k].kind}</span>`;
+    r.onclick=()=>{curKey=k;buildList();syncParams();};L.appendChild(r);});}
+
+/* ---- parameter panel ---- */
+function showParamGroups(kind){
+  $('beatParams').style.display=kind==='beat'?'block':'none';
+  $('fibParams').style.display=kind==='fib'?'block':'none';
+  $('torParams').style.display=kind==='torsades'?'block':'none';
+  $('sineParams').style.display=kind==='sine'?'block':'none';
+  $('flatParams').style.display=kind==='flat'?'block':'none';
+}
+function pair(rid,nid,get,set,fmt){const R=$(rid),N=$(nid);
+  const upd=v=>{set(v);N.value=v;R.value=v;draw();syncJSON();};
+  R.oninput=()=>upd(+R.value);N.oninput=()=>upd(+N.value);
+  return ()=>{const v=get();R.value=v;N.value=v;};
+}
+const refreshers=[];
+function bindAll(){
+  refreshers.length=0;
+  const s=()=>SPECS[curKey];
+  refreshers.push(pair('rateR','rateN',()=>s().rate||80,v=>s().rate=v));
+  refreshers.push(pair('ampR','ampN',()=>s().amp!=null?s().amp:1,v=>s().amp=v));
+  refreshers.push(pair('noiseR','noiseN',()=>s().noise||0,v=>s().noise=v));
+  refreshers.push(pair('irrR','irrN',()=>s().irregular||0,v=>s().irregular=v));
+  refreshers.push(pair('f1R','f1N',()=>s().f1||17,v=>s().f1=v));
+  refreshers.push(pair('f2R','f2N',()=>s().f2||31,v=>s().f2=v));
+  refreshers.push(pair('faR','faN',()=>s().amp!=null?s().amp:0.85,v=>s().amp=v));
+  refreshers.push(pair('fbR','fbN',()=>s().amp2!=null?s().amp2:0.45,v=>s().amp2=v));
+  refreshers.push(pair('envR','envN',()=>s().env!=null?s().env:3,v=>s().env=v));
+  refreshers.push(pair('oscR','oscN',()=>s().osc||22,v=>s().osc=v));
+  refreshers.push(pair('envfR','envfN',()=>s().envF||0.9,v=>s().envF=v));
+  refreshers.push(pair('amnR','amnN',()=>s().ampMin!=null?s().ampMin:0.18,v=>s().ampMin=v));
+  refreshers.push(pair('amxR','amxN',()=>s().ampMax!=null?s().ampMax:0.8,v=>s().ampMax=v));
+  refreshers.push(pair('srateR','srateN',()=>s().rate||38,v=>s().rate=v));
+  refreshers.push(pair('sampR','sampN',()=>s().amp!=null?s().amp:0.8,v=>s().amp=v));
+  refreshers.push(pair('wanR','wanN',()=>s().wander!=null?s().wander:0.05,v=>s().wander=v));
+}
+function syncParams(){
+  const s=SPECS[curKey];
+  $('selName').textContent=curKey;
+  $('kindSel').value=s.kind;showParamGroups(s.kind);
+  $('flipC').checked=!!s.flip;
+  $('lblI').value=s.label||'';
+  refreshers.forEach(f=>f());
+  draw();syncJSON();
+}
+$('kindSel').onchange=()=>{SPECS[curKey].kind=$('kindSel').value;
+  // ge rimliga defaultfält om de saknas
+  const s=SPECS[curKey];
+  if(s.kind==='beat'&&!s.points)s.points=[{p:0,v:0},{p:0.15,v:1},{p:0.2,v:0},{p:1,v:0}];
+  showParamGroups(s.kind);syncParams();};
+$('flipC').onchange=()=>{SPECS[curKey].flip=$('flipC').checked;draw();syncJSON();};
+$('lblI').oninput=()=>{SPECS[curKey].label=$('lblI').value;buildList();syncJSON();};
+$('btnReset').onclick=()=>{SPECS[curKey]=JSON.parse(JSON.stringify(DEFAULTS[curKey]));syncParams();buildList();};
+
+/* ---- live monitor ---- */
+const mC=$('monitor').getContext('2d');let mx=0,mlast=60,mt=0;
+function stepMonitor(dt){const W=540,H=120,mid=H*0.55,sp=+$('sweep').value;const step=Math.max(1,Math.round(sp*dt));
+  mC.fillStyle="#0b120f";mC.fillRect(mx,0,step+14,H);
+  mC.strokeStyle="#152019";mC.lineWidth=1;mC.beginPath();for(let y=0;y<H;y+=16){mC.moveTo(mx,y);mC.lineTo(mx+step+14,y);}mC.stroke();
+  mt+=dt; const spec=SPECS[curKey];
+  let v=rhythmSample(spec,mt); if($('cpr').checked)v+=Math.sin(mt*11)*0.28;
+  const y=mid - v*H*0.38;
+  mC.strokeStyle="#35e08e";mC.lineWidth=1.6;mC.beginPath();mC.moveTo(mx===0?0:mx-1,mlast);mC.lineTo(mx+step,y);mC.stroke();
+  mlast=y;mx+=step;if(mx>=W){mx=0;mlast=y;}
+  mC.fillStyle="#35e08e";mC.fillRect((mx+2)%W,0,2,H);
+}
+let last=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-last)/1000);last=now;stepMonitor(dt);requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+
+/* ---- beat editor (control points) ---- */
+const bC=$('beat').getContext('2d');const BW=540,BH=200;
+let dragPt=null;
+function beatToScreen(p,v){return [20+p*(BW-40), BH*0.5 - v*(BH*0.36)];}
+function screenToBeat(x,y){return [(x-20)/(BW-40), (BH*0.5-y)/(BH*0.36)];}
+function drawBeat(){bC.clearRect(0,0,BW,BH);bC.fillStyle="#0b120f";bC.fillRect(0,0,BW,BH);
+  // grid + baseline
+  bC.strokeStyle="#152019";bC.lineWidth=1;bC.beginPath();for(let x=20;x<=BW-20;x+=(BW-40)/10){bC.moveTo(x,0);bC.lineTo(x,BH);}for(let y=0;y<BH;y+=BH/8){bC.moveTo(0,y);bC.lineTo(BW,y);}bC.stroke();
+  bC.strokeStyle="#2a3a30";bC.beginPath();bC.moveTo(0,BH*0.5);bC.lineTo(BW,BH*0.5);bC.stroke();
+  const spec=SPECS[curKey];
+  // curve
+  bC.strokeStyle="#35e08e";bC.lineWidth=1.6;bC.beginPath();
+  for(let i=0;i<=BW;i++){const p=(i-20)/(BW-40);if(p<0||p>1)continue;
+    let v; if(spec.kind==='beat')v=samplePoints(spec.points,p)*(spec.amp!=null?spec.amp:1);
+    else { // for non-beat, show one representative period
+      const rate=spec.rate|| (spec.kind==='fib'?260:60); const per=60/rate; v=rhythmSample(spec,p*per*1.0);
+    }
+    const [sx,sy]=beatToScreen(p,v);i?bC.lineTo(sx,sy):bC.moveTo(sx,sy);}
+  bC.stroke();
+  // points (only beat)
+  if(spec.kind==='beat'&&spec.points){spec.points.forEach((pt,idx)=>{const [sx,sy]=beatToScreen(pt.p,pt.v);
+    bC.fillStyle=idx===dragPt?"#f4a93b":"#8ff0b0";bC.beginPath();bC.arc(sx,sy,4.5,0,7);bC.fill();
+    bC.strokeStyle="#0b120f";bC.lineWidth=1.5;bC.stroke();});
+    $('pointHint').textContent=spec.points.length+" punkter · dra för att forma · dubbelklick = ny · Alt-klick = ta bort";
+  } else { $('pointHint').textContent='("'+spec.kind+'"-rytm styrs av parametrarna till höger, inte kontrollpunkter)'; }
+}
+function nearestPoint(x,y){const spec=SPECS[curKey];if(spec.kind!=='beat'||!spec.points)return -1;
+  let best=-1,bd=14*14;spec.points.forEach((pt,i)=>{const[sx,sy]=beatToScreen(pt.p,pt.v);const d=(sx-x)**2+(sy-y)**2;if(d<bd){bd=d;best=i;}});return best;}
+$('beat').addEventListener('pointerdown',e=>{const r=$('beat').getBoundingClientRect();const x=e.offsetX,y=e.offsetY;
+  const spec=SPECS[curKey];if(spec.kind!=='beat')return;
+  const i=nearestPoint(x,y);
+  if(e.altKey){ if(i>0&&i<spec.points.length-1){spec.points.splice(i,1);drawBeat();syncJSON();} return; }
+  if(i>=0){dragPt=i;$('beat').setPointerCapture(e.pointerId);}
+});
+$('beat').addEventListener('pointermove',e=>{if(dragPt==null)return;const spec=SPECS[curKey];
+  let [p,v]=screenToBeat(e.offsetX,e.offsetY);
+  // clamp; endpoints keep their p
+  if(dragPt===0)p=0;else if(dragPt===spec.points.length-1)p=1;else p=Math.max(0.001,Math.min(0.999,p));
+  v=Math.max(-2,Math.min(2,v));
+  // keep order
+  if(dragPt>0)p=Math.max(p,spec.points[dragPt-1].p+0.001);
+  if(dragPt<spec.points.length-1)p=Math.min(p,spec.points[dragPt+1].p-0.001);
+  spec.points[dragPt]={p:+p.toFixed(3),v:+v.toFixed(3)};drawBeat();});
+$('beat').addEventListener('pointerup',()=>{if(dragPt!=null){dragPt=null;drawBeat();syncJSON();}});
+$('beat').addEventListener('dblclick',e=>{const spec=SPECS[curKey];if(spec.kind!=='beat')return;
+  let [p,v]=screenToBeat(e.offsetX,e.offsetY);p=Math.max(0.001,Math.min(0.999,p));
+  let idx=spec.points.findIndex(pt=>pt.p>p);if(idx<0)idx=spec.points.length-1;
+  spec.points.splice(idx,0,{p:+p.toFixed(3),v:+v.toFixed(3)});drawBeat();syncJSON();});
+
+function draw(){drawBeat();}
+
+/* ---- export/import ---- */
+function syncJSON(){$('json').value=JSON.stringify(SPECS,null,1);}
+$('btnExport').onclick=()=>{syncJSON();const ta=$('json');ta.select();navigator.clipboard&&navigator.clipboard.writeText(ta.value);
+  const b=$('btnExport'),t=b.textContent;b.textContent='✓ Kopierat!';setTimeout(()=>b.textContent=t,1200);};
+$('btnImport').onclick=()=>{try{SPECS=JSON.parse($('json').value);curKey=Object.keys(SPECS)[0];buildList();syncParams();}catch(e){alert('JSON-fel: '+e.message);}};
+
+/* ---- boot ---- */
+bindAll();buildList();syncParams();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+Lund/Landskrona
+Datum Tid Analys Resultat Ref.omr. Mätenhet Anmärkning
+161120 0923 Pt-Oxygen (adm) 3.0 L/min
+161120 0923 vB-pH (37 C) 6.76
+161120 0923 vB-pCO2 (37 C) 4.3 kPa
+161120 0923 vB-pO2 (37 C) 8.1 kPa
+161120 0923 S-Calciumjon 1.06* 1.15-1.33 mmol/L
+161120 0923 Ecv-Basöverskott -26.9* -3.0-+3.0 mmol/L
+161120 0923 B-Natrium 139 137-145 mmol/L
+161120 0923 B-Kalium 7.1* 3.5-4.4 mmol/L
+161120 0923 P-Glukos 4.8 4.2-6.3 mmol/L
+161120 0923 P-Laktat 18.0* 0.5-2.2 mmol/L
+161120 0923 B-Hb (Hemoglobin) 132* 134-170 g/L
+161120 0923 P-Standardbikarbonat KOMM mmol/L Ogiltigt resultat
+161120 0923 vB-Oxygenmättnad 71 %
+161120 0923 B-Methemoglobin 1.1 <2.0 %
+161120 0923 B-CO Hb 0.2 0.5-1.5 %
+161120 0923 B-Kreatinin 1224* 60-105 umol/L
+161120 0923 Provtyp: Venös Op: 164681

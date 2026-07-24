@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Blood Gas Analyzer",
+    "slug": "bloodgas",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "bloodgas",
+    "userInterfaceStyle": "light",
+    "splash": { "backgroundColor": "#f44336", "resizeMode": "contain" },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.olsson.bloodgas",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Used to scan blood gas printouts and read values automatically."
+      }
+    },
+    "android": {
+      "package": "com.olsson.bloodgas",
+      "permissions": ["CAMERA"],
+      "adaptiveIcon": { "backgroundColor": "#f44336" }
+    },
+    "web": { "bundler": "metro", "output": "static" },
+    "plugins": ["expo-router", "expo-camera"]
+  }
+}

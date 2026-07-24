@@ -1,0 +1,20 @@
+Landskrona
+Tid Analys Resultat Ref.omr. Mätenhet Anmärkning
+1650 Pt-Oxygen (adm) 0.0 L/min
+1650 vB-pH (37 C) 6.57
+1650 vB-pCO2 (37 C) 2.6 kPa
+1650 vB-pO2 (37 C) 12.2 kPa
+1650 B-Calciumjon 1.41* 1.15-1.33 mmol/L
+1650 Ecv-Basöverskott KOMM mmol/L Ogiltigt
+1650 P-Natrium (Blodgas) 142 137-145 mmol/L
+1650 P-Kalium (Blodgas) 4.6* 3.5-4.4 mmol/L
+1650 P-Klorid (Blodgas) 109 98-110 mmol/L
+1650 P-Glukos (Blodgas) 7.4* 4.2-6.0 mmol/L
+1650 P-Laktat 21.0* 0.5-2.2 mmol/L
+1650 B-Hb (Blodgas) 121* 134-170 g/L
+1650 P-Standardbikarbonat KOMM mmol/L Ogiltigt
+1650 vB-Oxygenmättnad 86 %
+1650 B-Methemoglobin 1.0 <2.0 %
+1650 B-CO Hb KOMM % Ogiltigt
+1650 P-Kreatinin (Blodgas) 122* 60-105 umol/L
+1650 Provtyp: Venös Op: 104366

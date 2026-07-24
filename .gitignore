@@ -1,0 +1,23 @@
+# Råa nedladdade källbibliotek (BodyParts3D, Open3DModel m.fl.) -- stora (~1.9GB), och redan
+# sammanslagna till de faktiska produktfilerna i Neuro/models/ och Kroppsatlas/models/, som
+# DÄREMOT versionshanteras (de är webbplatsens riktiga runtime-data, inget "byggsteg" bakar
+# om dem). Källorna kan laddas ner igen om merge-scripten behöver köras om, se CLAUDE.md.
+Models/
+
+# Referens-PDF:er (läroböcker/riktlinjedokument) -- inte källkod, och osäker upphovsrätt för
+# offentlig distribution (t.ex. en hel bokutgåva i EKG/-mappen). Behåll lokalt, publicera inte.
+*.pdf
+
+# macOS
+.DS_Store
+
+# Wordlås-filer och uppenbart oavsiktliga temp-mappar/filer i projektroten
+~$*
+untitled folder/
+
+# Om ett npm-baserat verktyg (t.ex. Playwright) någonsin installeras lokalt i projektet
+node_modules/
+
+# Egen, separat git-repo (299 commits, egen historik, redan pushad till github.com/Pontus86/
+# Blodgas.git) -- versionshanteras oberoende där, inte här.
+Blodgas/Blodgas_old_android_app/

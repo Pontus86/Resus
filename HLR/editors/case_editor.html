@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A-HLR · Case-editor</title>
+<style>
+  :root{--bg:#0f1417;--panel:#171d21;--panel2:#1c2328;--line:#2a343a;--ink:#e8ebee;--muted:#8b98a2;--accent:#35e08e;--accent2:#f4a93b;--red:#e5544b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:13px}
+  header{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);z-index:5}
+  header h1{font-size:15px;margin:0}
+  .hint{color:var(--muted);font-size:12px}
+  .layout{display:grid;grid-template-columns:250px 1fr 320px;gap:0;align-items:start}
+  .sidebar{border-right:1px solid var(--line);padding:10px;position:sticky;top:49px;height:calc(100vh - 49px);overflow:auto}
+  .main{padding:14px;min-width:0}
+  .exportcol{border-left:1px solid var(--line);padding:10px;position:sticky;top:49px;height:calc(100vh - 49px);overflow:auto}
+  .crow{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:7px 8px;border-radius:6px;background:#1e262b;cursor:pointer;margin-bottom:3px;font-size:12px}
+  .crow:hover{background:#26313a}.crow.active{outline:1px solid var(--accent)}
+  .crow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .dot.ok{background:var(--accent)}.dot.bad{background:var(--red)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px}
+  .card h3{margin:0 0 10px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+  .tabbtn{background:#1c2328;color:var(--muted);border:1px solid var(--line);border-radius:6px 6px 0 0;padding:6px 12px;cursor:pointer;font-size:12px;font-family:inherit}
+  .tabbtn.active{background:var(--panel);color:var(--ink);border-bottom-color:var(--panel)}
+  .pane{display:none}.pane.active{display:block}
+  label.f{display:block;margin-bottom:9px}
+  label.f .lb{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}
+  input[type=text],input[type=number],textarea,select{width:100%;background:#0c1114;color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:6px 7px;font-family:inherit;font-size:12.5px}
+  textarea{font-family:ui-monospace,monospace;font-size:11.5px;resize:vertical}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:0 10px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:0 10px}
+  .row{display:flex;gap:8px;align-items:center;margin:6px 0}
+  .chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .chk input{width:auto}
+  button{background:#26303a;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-family:inherit}
+  button:hover{background:#2f3b45}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#062}
+  button.warn{background:var(--red);border-color:var(--red);color:#fff}
+  button.sm{padding:3px 7px;font-size:11px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:10px;background:#26303a;color:var(--muted);margin-left:6px}
+  .badge.miss{background:#3a2226;color:#f0a3a3}
+  .variant{border:1px solid var(--line);border-radius:7px;padding:9px;margin-bottom:8px;background:#1a2024}
+  .variant .vhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .abcderow{display:grid;grid-template-columns:26px 1fr 1fr;gap:8px;align-items:start;margin-bottom:10px}
+  .abcderow .lt{font-weight:700;color:var(--accent2);padding-top:6px}
+  .prevbox{background:#0c1114;border:1px solid var(--line);border-radius:5px;padding:6px 8px;font-size:11.5px;color:var(--muted);margin-top:4px;min-height:1.4em}
+  .prevbox.err{color:var(--red)}
+  .prevbox b{color:var(--ink)}
+  canvas#rhythmPrev{background:#0b120f;border:1px solid var(--line);border-radius:6px;display:block}
+  .completeness{font-size:11.5px;color:var(--muted);line-height:1.7}
+  .completeness .miss{color:#f0a3a3}
+  textarea#exportJson{width:100%;height:260px}
+  .mini{font-size:11px;color:var(--muted)}
+  .flag{font-size:10.5px;background:#2a2116;color:#e0b96b;border-radius:4px;padding:1px 6px;margin-left:5px}
+  a.gh, .gh{color:var(--accent);text-decoration:none;cursor:pointer}
+  .divider{border:none;border-top:1px solid var(--line);margin:10px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>A-HLR · Case-editor</h1>
+  <span class="hint">Redigera orsaker, fall-varianter, blodgas, ABCDE-fynd, SBAR/överlämning och rytm. Export skickas till mig i chatten så lägger jag in det i spelfilerna.</span>
+</header>
+<div class="layout">
+  <div class="sidebar">
+    <div class="toolbar" style="margin-bottom:8px">
+      <button class="sm primary" id="btnAddCause">+ Ny orsak</button>
+    </div>
+    <div id="causeList"></div>
+  </div>
+
+  <div class="main" id="main"></div>
+
+  <div class="exportcol">
+    <div class="card">
+      <h3>Fullständighet</h3>
+      <div class="completeness" id="completeness"></div>
+    </div>
+    <div class="card">
+      <h3>Förhandsgranska</h3>
+      <div class="mini" style="margin-bottom:8px">Öppnar spelet direkt med ett tvingat fall (<code>?case=N</code>). Kräver att indexet redan finns i spelets <code>CASES</code>-array, dvs. efter att jag applicerat dina ändringar.</div>
+    </div>
+    <div class="card">
+      <h3>Export / Import</h3>
+      <div class="mini" style="margin-bottom:8px">Kopiera JSON:en och klistra in i chatten till mig, så uppdaterar jag <code>data.js</code>, <code>state.js</code>, <code>dialogue.js</code> och <code>ecg.js</code> åt dig.</div>
+      <div class="toolbar">
+        <button class="primary" id="btnExport">⬇ Kopiera JSON</button>
+        <button id="btnImport">⬆ Klistra in JSON</button>
+        <button id="btnResetOrig">↺ Återställ till nuvarande spel</button>
+      </div>
+      <textarea id="exportJson" spellcheck="false" placeholder="Klicka Export för att fylla, eller klistra in JSON här och tryck Import."></textarea>
+      <div class="mini" id="saveStatus" style="margin-top:6px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== delad vågformsmodell (samma som spelet, för rytm-förhandsvisning) ===== */
+(function(root){
+  function samplePoints(points, ph){
+    if(!points||!points.length)return 0;
+    if(ph<=points[0].p)return points[0].v;
+    if(ph>=points[points.length-1].p)return points[points.length-1].v;
+    let i=0; while(i<points.length-1 && points[i+1].p<ph)i++;
+    const a=points[i], b=points[i+1];
+    const span=(b.p-a.p)||1e-6; let t=(ph-a.p)/span;
+    const s = t*t*(3-2*t);
+    return a.v+(b.v-a.v)*s;
+  }
+  function phaseOf(t, rate, irregular){
+    const per=60/rate;
+    if(!irregular){ return {ph:(((t%per)+per)%per)/per, beat:Math.floor(t/per)}; }
+    let tb=0,k=0,prev=0; const golden=0.6180339887;
+    while(tb<=t){ prev=tb; const jit=1+irregular*(2*(((k*golden)%1))-1); tb+=per*jit; k++; }
+    const span=tb-prev||per;
+    return {ph:(t-prev)/span, beat:k-1};
+  }
+  function rhythmSample(spec, t, opts){
+    opts=opts||{};
+    const noise = opts.noise!=null?opts.noise:(spec.noise||0);
+    const nz = noise? (Math.sin(t*137.13)*0.5+Math.sin(t*51.7)*0.5)*noise : 0;
+    switch(spec.kind){
+      case "flat": return Math.sin(t*2.2)*(spec.wander||0.05) + nz;
+      case "sine": { const per=60/(spec.rate||38), ph=(((t%per)+per)%per)/per; return Math.sin(ph*Math.PI*2)*(spec.amp||0.8) + nz; }
+      case "fib": return Math.sin(t*(spec.f1||17))*(spec.amp||0.85) + Math.sin(t*(spec.f2||31))*(spec.amp2||0.45)*Math.sin(t*(spec.env||3)) + nz;
+      case "torsades": { const env=Math.abs(Math.sin(t*(spec.envF||0.9))); return Math.sin(t*(spec.osc||22))*((spec.ampMin||0.2)+(spec.ampMax||0.8)*env) + nz; }
+      case "beat": { const {ph,beat}=phaseOf(t, spec.rate||70, spec.irregular||0); let v=samplePoints(spec.points, ph)*(spec.amp!=null?spec.amp:1); if(spec.flip && (beat%2)) v=-v; return v + nz; }
+      default: return nz;
+    }
+  }
+  root.rhythmSample = rhythmSample;
+  const RHYTHM_SPECS = {
+    VF:{kind:"fib",f1:17,f2:31,amp:0.85,amp2:0.45,env:3,noise:0.06},
+    pVT_mono:{kind:"beat",rate:190,amp:1,noise:0.03,points:[{p:0,v:0},{p:0.20,v:0},{p:0.32,v:0.85},{p:0.55,v:0},{p:0.70,v:-0.20},{p:0.9,v:0},{p:1,v:0}]},
+    torsades:{kind:"torsades",osc:22,envF:0.9,ampMin:0.18,ampMax:0.80,noise:0.03},
+    bidirVT:{kind:"beat",rate:170,amp:0.9,flip:true,noise:0.03,points:[{p:0,v:0},{p:0.12,v:0},{p:0.26,v:0.9},{p:0.42,v:0},{p:1,v:0}]},
+    asystoli:{kind:"flat",wander:0.05,noise:0.05},
+    pea_narrow:{kind:"beat",rate:55,amp:1,noise:0.03,points:[{p:0,v:0},{p:0.06,v:0.14},{p:0.10,v:0},{p:0.12,v:-0.14},{p:0.15,v:0.95},{p:0.18,v:-0.24},{p:0.21,v:0},{p:1,v:0}]},
+    pea_narrowfast:{kind:"beat",rate:112,amp:0.75,noise:0.03,points:[{p:0,v:0},{p:0.06,v:0.1},{p:0.10,v:0},{p:0.12,v:-0.12},{p:0.15,v:0.9},{p:0.18,v:-0.2},{p:0.21,v:0},{p:1,v:0}]},
+    pea_brady:{kind:"beat",rate:32,amp:1,noise:0.03,points:[{p:0,v:0},{p:0.10,v:0},{p:0.14,v:-0.16},{p:0.18,v:0.9},{p:0.24,v:-0.28},{p:0.30,v:0},{p:1,v:0}]},
+    pea_idio:{kind:"beat",rate:26,amp:1,noise:0.03,points:[{p:0,v:0},{p:0.10,v:-0.45},{p:0.24,v:0.85},{p:0.40,v:-0.35},{p:0.5,v:0},{p:1,v:0}]},
+    pea_sine:{kind:"sine",rate:38,amp:0.8,noise:0.03},
+    pea_wide:{kind:"beat",rate:55,amp:0.85,noise:0.03,points:[{p:0,v:0},{p:0.06,v:0.1},{p:0.10,v:0},{p:0.14,v:-0.18},{p:0.22,v:0.85},{p:0.32,v:-0.24},{p:0.40,v:0},{p:1,v:0}]},
+  };
+  root.RHYTHM_SPECS = RHYTHM_SPECS;
+})(this.WaveModel=this.WaveModel||{});
+
+/* Samma val-logik som spelets currentWaveSpec() (room-render.js), givet en orsak istället för live-state. */
+function waveSpecFor(cause){
+  const W=WaveModel.RHYTHM_SPECS;
+  if(cause.rytm==="VF") return W.VF;
+  if(cause.rytm==="pVT"){
+    if(cause.polymorf) return W.torsades;
+    if(cause.id==="digitalis") return W.bidirVT;   // OBS: hårdkodat i spelmotorn, se varning i UI
+    return W.pVT_mono;
+  }
+  if(cause.rytm==="asystoli") return W.asystoli;
+  const pt=cause.peaType||null;
+  if(pt==="sine") return W.pea_sine;
+  if(pt==="idio") return W.pea_idio;
+  if(pt==="brady") return W.pea_brady;
+  if(pt==="narrowfast") return W.pea_narrowfast;
+  if(cause.bredQRS) return W.pea_wide;
+  return W.pea_narrow;
+}
+
+/* ===== Nuvarande speldata (snapshot). Detta ÄR datan i data.js/state.js/dialogue.js/ecg.js just nu. ===== */
+const ORIGINAL = {
+CAUSES:[
+ {id:"stemi",namn:"Koronartrombos (STEMI)",rytm:"VF",bredQRS:false,peaType:"narrow",polymorf:false,
+  behandling:null,bonus:[],alt:[],postROSC:"pci",
+  tips:"Chockbar rytm av kranskärlsorsak, defibrillering är den definitiva behandlingen. Efter ROSC: 12-avlednings-EKG och akut PCI."},
+ {id:"pe",namn:"Lungemboli",rytm:"PEA",bredQRS:false,peaType:"narrow",polymorf:false,
+  behandling:["trombolys"],bonus:[],alt:[],postROSC:null,
+  tips:"Vid misstänkt lungemboli: ge trombolys och överväg att fortsätta HLR 60–90 min efter administrering."},
+ {id:"hyperk",namn:"Hyperkalemi",rytm:"PEA",bredQRS:true,peaType:"sine",polymorf:false,
+  behandling:["kalcium"],bonus:["bikarbonat"],alt:[],postROSC:null,
+  tips:"Hyperkalemi: ge kalciumklorid iv (membranstabiliserande). Natriumbikarbonat och insulin-glukos som tillägg. Dialys efter ROSC."},
+ {id:"hypovol",namn:"Hypovolemi (GI-blödning)",rytm:"PEA",bredQRS:false,peaType:"narrowfast",polymorf:false,
+  behandling:["vatska","vatska"],bonus:[],alt:[],postROSC:null,
+  tips:"Hypovolemi: aggressiv volymersättning (kristalloid/blod) är enda vägen till ROSC. Ge vätska endast vid hypovolem orsak."},
+ {id:"tension",namn:"Ventilpneumothorax",rytm:"PEA",bredQRS:false,peaType:"brady",polymorf:false,
+  behandling:["naldekomp"],bonus:[],alt:["thoraxdran"],postROSC:null,
+  tips:"Ventilpneumothorax: omedelbar nåldekompression eller thorakostomi. Ventilation utan dekompression förvärrar."},
+ {id:"tamponad",namn:"Hjärttamponad",rytm:"PEA",bredQRS:false,peaType:"narrowfast",polymorf:false,
+  behandling:["perikard"],bonus:[],alt:[],postROSC:null,
+  tips:"Tamponad: ultraljudsledd perikardiocentes under pågående HLR är enda effektiva åtgärden."},
+ {id:"hypoxi",namn:"Hypoxi (luftvägsobstruktion)",rytm:"asystoli",bredQRS:false,peaType:"brady",polymorf:false,
+  behandling:["luftvag"],bonus:[],alt:[],postROSC:null,
+  tips:"Hypoxiskt stopp: säkra luftväg, maximal syrgas och effektiv ventilation är den kausala behandlingen. Räkna med långsam förbättring."},
+ {id:"cico",namn:"Luftvägsstopp (CICO)",rytm:"asystoli",bredQRS:false,peaType:"brady",polymorf:false,
+  behandling:["koniotomi"],bonus:[],alt:[],postROSC:null,
+  tips:"”Can't intubate, can't oxygenate” (CICO): när maskventilation, larynxmask OCH intubation alla misslyckas är <b>akut kirurgisk luftväg (koniotomi)</b> den livräddande åtgärden. Vänta inte, en misslyckad ventilationsstege ska snabbt leda till kniven på struphuvudet. Efter säkrad luftväg: syresätt och åtgärda orsaken (bronkoskopi/ÖNH)."},
+ {id:"toxin",namn:"Intoxikation (TCA)",rytm:"PEA",bredQRS:true,peaType:"wide",polymorf:false,
+  behandling:["bikarbonat"],bonus:[],alt:[],postROSC:null,
+  tips:"TCA-intox: natriumbikarbonat i upprepade doser smalnar QRS och kan ge ROSC. Överväg lipidterapi och ECPR vid refraktärt stopp."},
+ {id:"hypotermi",namn:"Hypotermi",rytm:"VF",bredQRS:false,peaType:"brady",polymorf:false,
+  behandling:["varme"],bonus:[],alt:[],postROSC:null,
+  tips:"Hypotermi <30 °C: defibrillering fungerar sällan förrän patienten värmts, aktiv uppvärmning (och ECMO på rätt center) är kausal behandling. 'Ingen är död förrän varm och död'."},
+ {id:"hypoca",namn:"Svår hypokalcemi",rytm:"PEA",bredQRS:true,peaType:"wide",polymorf:false,
+  behandling:["kalcium"],bonus:[],alt:[],postROSC:null,
+  tips:"Svår hypokalcemi: kalciumklorid iv är kausal behandling, smalnar QRS och normaliserar QT. Leta orsak (massiv transfusion, pankreatit, tumörlys)."},
+ {id:"hypok",namn:"Svår hypokalemi (torsades)",rytm:"pVT",bredQRS:false,peaType:null,polymorf:true,
+  behandling:["magnesium"],bonus:[],alt:[],postROSC:null,
+  tips:"Svår hypokalemi med torsades/VF: ge magnesiumsulfat iv (och ersätt kalium), VF är ofta refraktärt mot enbart defibrillering tills detta korrigerats."},
+ {id:"longqt",namn:"Läkemedelsinducerat långt QT (torsades)",rytm:"pVT",bredQRS:false,peaType:"narrow",polymorf:true,
+  behandling:["magnesium"],bonus:["kalium"],alt:[],postROSC:null,
+  tips:"Torsades de pointes vid långt QT: magnesiumsulfat iv är förstahandsval. Sätt ut QT-förlängande läkemedel, korrigera K⁺ och Mg²⁺. Chocka pulslös torsades, men den återkommer tills QT normaliserats."},
+ {id:"wpw",namn:"WPW med preexciterat förmaksflimmer",rytm:"pVT",bredQRS:true,peaType:"narrow",polymorf:true,
+  behandling:["defib"],bonus:[],alt:[],postROSC:null,
+  tips:"WPW med preexciterat förmaksflimmer: AV-nodsblockerare (adenosin, verapamil, diltiazem, digoxin, betablockad) är <b>kontraindicerade</b>, de driver ledningen ned i den accessoriska banan och kan utlösa VF. Pulslös patient: defibrillera. Vaken instabil: elkonvertera. Farmakologiskt alternativ är procainamid eller ibutilid, aldrig amiodaron iv som förstahandsval."},
+ {id:"commotio",namn:"Commotio cordis",rytm:"pVT",bredQRS:false,peaType:"narrow",polymorf:false,
+  behandling:["defib"],bonus:[],alt:[],postROSC:null,
+  tips:"Commotio cordis: ett slag mot bröstkorgen under hjärtcykelns vulnerabla fas (uppåtgående T-våg) utlöser kammararytmi i ett strukturellt friskt hjärta. Tidig defibrillering är allt som behövs, prognosen är god om chocken kommer snabbt."},
+ {id:"digitalis",namn:"Digitalisintoxikation",rytm:"pVT",bredQRS:true,peaType:"idio",polymorf:false,
+  behandling:["digfab"],bonus:["magnesium"],alt:[],postROSC:null,
+  tips:"Digitalisintox: bidirektionell VT är närmast patognomont. Ge digoxinspecifika antikroppsfragment (Fab). Hyperkalemin speglar förgiftningens svårighetsgrad, ge <b>inte</b> kalcium (klassisk varning; evidensen är svagare än ryktet, men Fab är ändå kausal behandling)."}
+],
+CASES:[
+ {cid:"stemi",diff:1,anamnes:"62-årig PKÖN som insjuknade med tryck över bröstet och utstrålning i vänster arm under en promenad. Känd hypertoni och höga blodfetter, röker ett paket cigaretter om dagen. Ringde själv 112 och kollapsade när ambulansen anlände. Bevittnat stopp med omedelbar HLR och en defibrillering på plats. Anhörig uppger ingen tidigare känd hjärtsjukdom."},
+ {cid:"stemi",diff:2,anamnes:"74-årig PKÖN med diabetes som sökte för illamående och andfåddhet sedan i morse, helt utan bröstsmärta. I journalen finns en tidigare 'tyst' hjärtinfarkt. Blek och kallsvettig hemma, plötslig kollaps framför anhörig. Ambulansen gav två chocker under transport. Anhörig är övertygad om att det 'bara är magsjuka'."},
+ {cid:"pe",diff:1,anamnes:"68-årig PKÖN som opererades med knäprotes för tio dagar sedan och suttit mycket stilla sedan dess. Fick plötslig andnöd och svimmade på toaletten i morse. Ambulansen såg först uttalad takykardi som föregick kollapsen. Ingen bröstsmärta uppgavs innan kollapsen."},
+ {cid:"pe",diff:3,peaType:"narrowfast",anamnes:"34-årig PKÖN som igår kom hem från en elva timmar lång flygresa. Kollapsade akut efter att ha klagat på andfåddhet och en vass smärta vid djupa andetag. Använder p-piller och röker. Anhörig uppger bestämt att patienten 'har astma', men i journalen finns ingen astmadiagnos. Pulslös vid ambulansens ankomst."},
+ {cid:"hyperk",diff:1,anamnes:"70-årig PKÖN med dialyskrävande njursvikt som missat de två senaste dialystillfällena. Tilltagande trötthet och muskelsvaghet, därefter kollaps i hemmet. Anhörig nämner att patienten ätit ovanligt mycket frukt och 'saltersättning' de senaste dagarna."},
+ {cid:"hyperk",diff:2,anamnes:"52-årig PKÖN som legat fastklämd under en vält traktor i flera timmar innan räddning. Frigjordes och försämrades sedan snabbt med kollaps. Mörk, rödbrun urin noterades i ambulansen. Ingen tidigare känd njursjukdom."},
+ {cid:"hypovol",diff:1,peaType:"narrowfast",anamnes:"55-årig PKÖN med känd levercirros och tidigare åderbråck i matstrupen. Kräktes stora mängder färskt blod hemma och blev snabbt blek och medvetslös. Kall och kladdig hud med en svag puls som försvann i ambulansen. Anhörig uppger svart, tjärlik avföring det senaste dygnet. Uttalad alkoholanamnes."},
+ {cid:"hypovol",diff:2,fast:true,peaType:"narrowfast",anamnes:"28-årig PKÖN efter högenergivåld i en trafikolycka. Deformerat bäcken och spänd, öm buk, samt kraftig yttre blödning från låret som stoppats med tryckförband. Blek med snabb svag puls som övergick i pulslöshet under transport. Mycket dålig effekt av given vätska hittills."},
+ {cid:"hypovol",diff:3,fast:true,peaType:"brady",anamnes:"76-årig PKÖN med plötslig, svår buk- och ryggsmärta hemma och svimning på golvet. Har en känd 'utbuktning på stora kroppspulsådern' men avstått planerad operation. Snabbt sjunkande blodtryck och därefter pulslös. Blek och marmorerad hud."},
+ {cid:"tension",diff:1,anamnes:"31-årig PKÖN med svår astma som försämrades under pågående NIV-behandling på vårdavdelning. Fick plötslig cirkulationskollaps och blev mycket svår att ventilera."},
+ {cid:"tension",diff:2,peaType:"narrowfast",anamnes:"60-årig PKÖN som fick en central venkateter inlagd på höger sida för en timme sedan. Akut andnöd och blodtrycksfall, sedan pulslös. Stigande ventilationstryck noterades av personalen."},
+ {cid:"tamponad",diff:1,anamnes:"58-årig PKÖN som genomgick kranskärlsröntgen med PCI för tre timmar sedan. Tilltagande blodtrycksfall på avdelningen trots vätska, därefter pulslös. Nyligen insatt blodförtunning. Bröstsmärtan återkom före kollapsen."},
+ {cid:"tamponad",diff:2,peaType:"narrow",anamnes:"66-årig PKÖN med spridd lungcancer och tilltagande andfåddhet den senaste veckan. Plötslig kollaps i väntrummet. Ingen bröstsmärta angavs."},
+ {cid:"hypoxi",diff:1,anamnes:"24-årig PKÖN med svår astma och tilltagande andnöd under natten trots upprepade inhalationer. Hittad cyanotisk och medvetslös av sambon, med agonal andning som sedan upphörde. Tysta lungor och mycket svår att ventilera. Aldrig tidigare intuberad. Har enligt sambon använt sin blå inhalator 'väldigt många gånger'."},
+ {cid:"hypoxi",diff:2,anamnes:"22-årig PKÖN som hittades flytande livlös i en sjö efter bad, okänd tid i vattnet. Drogs upp blå och slapp, utan egen andning. Kollapsen bevittnades av en vän som larmade omedelbart. Ambulansen fann asystoli och vatten vällde upp vid ventilation. Alkohol finns med i bilden."},
+ {cid:"hypoxi",diff:2,anamnes:"40-årig PKÖN som satte en köttbit i halsen under middagen, kunde inte andas och kollapsade. Kraftiga hostförsök övergick i medvetslöshet. Anhörig utförde Heimlichmanöver utan effekt. Djupt cyanotisk och initialt omöjlig att ventilera. Något lossnade vid laryngoskopi enligt ambulanspersonalen."},
+ {cid:"cico",diff:3,anamnes:"58-årig PKÖN som under en middag plötsligt grep sig om halsen, blev cyanotisk och kollapsade. En stor, fastkilad köttbit i svalget. Upprepade Heimlichmanövrar och svalgrensning utan effekt. Ambulansen fick varken luft på mask eller ned en larynxmask, och ingenting lossnade vid försök till laryngoskopi. Total övre luftvägsobstruktion, patienten går inte att syresätta."},
+ {cid:"cico",diff:3,anamnes:"63-årig PKÖN med känd struphuvudscancer och tilltagande stridor senaste veckan. Kollapsade akut hemma med total andningsvägsobstruktion. Massiv svullnad och förvrängd anatomi i övre luftvägen. Ambulansen kunde inte ventilera, larynxmasken tätade inte och stämbanden gick inte att visualisera. Djupt cyanotisk vid ankomst."},
+ {cid:"toxin",diff:2,hidden:true,anamnes:"19-årig PKÖN som hittades medvetslös hemma efter ett gräl, med tomma läkemedelskartor bredvid sig (okänt preparat). Fick kramper i ambulansen som följdes av cirkulationsstillestånd. Ingen känd hjärtsjukdom sedan tidigare."},
+ {cid:"toxin",diff:3,hidden:true,peaType:"idio",anamnes:"27-årig PKÖN med känd depression, påträffad förvirrad och därefter medvetslös, med uppgift om intag av 'sina tabletter'. Snabb försämring och kollaps. Anhörig är osäker på vilket läkemedel det rör sig om och hur mycket. Blodtrycket rasade strax före stoppet."},
+ {cid:"hypotermi",diff:2,anamnes:"47-årig PKÖN som hittades utomhus efter en kall vinternatt i −10 °C, kraftigt alkoholpåverkad. Iskall och stel, till en början oklart om det fanns livstecken. Chocker på plats utan effekt."},
+ {cid:"hypotermi",diff:3,anamnes:"35-årig PKÖN som föll genom isen och låg i kallt vatten en längre stund innan räddning. Bärgad medvetslös och iskall. Upprepade chocker utan effekt. Blek och stel kropp."},
+ {cid:"hypoca",diff:3,anamnes:"63-årig PKÖN som fått stora mängder blodtransfusioner under en pågående kraftig blödning. Utvecklade plötsliga spasmer i händerna följt av kollaps. Nyligen genomgången svår bukspottkörtelinflammation enligt journal."},
+ {cid:"hypoca",diff:3,anamnes:"58-årig PKÖN under pågående cellgiftsbehandling för leukemi. Fick domningar runt munnen och stickningar i fingrarna, sedan kramper och kollaps. Tidigare bortopererad sköldkörtel. Anhörig nämner att patienten haft 'kalkbrist' förr."},
+ {cid:"hypok",diff:3,anamnes:"70-årig PKÖN som står på vätskedrivande läkemedel och haft flera dygns kräkningar och diarré. Uttalad muskelsvaghet och hjärtklappning strax före kollapsen."},
+ {cid:"longqt",diff:3,anamnes:"66-årig PKÖN som nyligen fått både ett antibiotikum och ett medel mot illamående utskrivet, utöver sin vanliga hjärtmedicin. Yrsel och upprepade svimningsattacker det senaste dygnet. Kollapsade på akutmottagningens väntrum."},
+ {cid:"longqt",diff:3,anamnes:"29-årig PKÖN med anorexi och pågående behandling för depression, inlagd för näringsupptrappning. Fick återkommande korta svimningar under natten och därefter cirkulationsstillestånd. Ingen känd hjärtsjukdom i släkten."},
+ {cid:"wpw",diff:3,anamnes:"23-årig PKÖN, tidigare frisk, som fick plötslig kraftig hjärtklappning under fotbollsträning och kollapsade efter någon minut. Ambulansen fann en mycket snabb, oregelbunden takykardi som därefter blev pulslös. Ett gammalt EKG finns i journalen. Ingen medicinering."},
+ {cid:"commotio",diff:2,anamnes:"15-årig PKÖN som träffades av en hårt slagen boll rakt över bröstbenet under en innebandymatch. Tog några steg, blev askgrå och föll ihop framför lagkamraterna. Bevittnat stopp med omedelbar HLR av en tränare. Helt frisk sedan tidigare, inga yttre skador på bröstkorgen."},
+ {cid:"digitalis",diff:3,anamnes:"78-årig PKÖN med förmaksflimmer och hjärtsvikt som står på digoxin. Har haft en maginfluensa med kräkningar och intorkning i tre dagar, och kreatininet har stigit kraftigt. Illamående, aptitlöshet och 'gulaktiga ringar runt lamporna' senaste dygnet. Kollapsade i hemmet."},
+ {cid:"tamponad",diff:3,trauma:"penetrerande",pneumo:true,anamnes:"26-årig PKÖN med ett knivstick i vänstra bröstkorgen, precis över hjärtat. Snabb chock och därefter pulslöshet. Ett litet blödande sår parasternalt. Bevittnat stopp med kort nedtid."},
+ {cid:"hypovol",diff:3,trauma:"penetrerande",pneumo:true,fast:true,peaType:"brady",anamnes:"31-årig PKÖN skjuten i buken och flanken. Blek och medvetslös, pulslös. Kort transport, bevittnat stopp."},
+ {cid:"tension",diff:2,trauma:"trubbigt",peaType:"narrowfast",anamnes:"48-årig PKÖN efter fall från hög höjd med krosskada mot höger bröstkorg. Mycket svårventilerad, därefter pulslös. Trubbigt toraxtrauma."},
+ {cid:"hypovol",diff:3,trauma:"trubbigt",pneumo:true,fast:true,peaType:"brady",anamnes:"39-årig PKÖN efter frontalkrock i hög hastighet. Instabilt bäcken, spänd buk och yttre blödning från låret. Blek, pulslös. Trubbigt högenergivåld. Ingen effekt av kristalloid vätska hittills."},
+ {cid:"hypoxi",diff:3,futile:true,anamnes:"84-årig PKÖN, obevittnat hjärtstopp i hemmet. Hittad kall och livlös av hemtjänsten, okänd nedtid, sågs senast för över ett dygn sedan. Asystoli hela den 40 minuter långa ambulanstransporten utan minsta livstecken. Ingen HLR gavs innan ambulansen kom. Uttalad kakexi och skör grundhälsa."},
+ {cid:"hypovol",diff:3,futile:true,fast:true,peaType:"idio",anamnes:"32-årig PKÖN efter fall från hög höjd (>15 m). Omfattande, icke överlevbara skador med öppen skallskada, instabilt bäcken och massiv okontrollerbar blödning. Pulslös redan på skadeplatsen, lång transport. Ingen respons på volym eller andra åtgärder under färden. Vidöppna, ljusstela pupiller."},
+ {cid:"stemi",diff:3,futile:true,anamnes:"71-årig PKÖN med långvarigt hjärtstopp, över 45 minuter av refraktärt kammarflimmer trots upprepade defibrilleringar under en lång transport. Massiv, utbredd framväggsinfarkt. Ingen tillstymmelse till organiserad rytm eller cirkulation. Grav acidos på blodgas. Tidigare svår hjärtsvikt."},
+ {cid:"pe",diff:3,futile:true,peaType:"idio",anamnes:"79-årig PKÖN med spridd cancersjukdom i sent palliativt skede. Kollaps hemma, okänd nedtid, långsam transport. Pulslös elektrisk aktivitet som successivt övergått i asystoli. Anhöriga är på väg in."},
+ {cid:"hypoxi",diff:3,futile:true,anamnes:"88-årig PKÖN, obevittnat stopp på äldreboende. Lång framkörningstid och ytterligare 35 minuters transport med kvarstående asystoli. Kall, marmorerad kropp. Multisjuk med svår demens och grav skörhet. Ingen HLR före ambulansens ankomst."}
+],
+GAS:{
+ stemi:{pH:7.19,pCO2:6.6,pO2:8.8,HCO3:19,BE:-7,Lakt:8.4,Krea:96,Hb:141,Na:139,K:4.3,Ca:1.14,Glu:9.1,metHb:0.8,COHb:1.1},
+ pe:{pH:7.17,pCO2:3.8,pO2:6.8,HCO3:17,BE:-9,Lakt:9.2,Krea:88,Hb:132,Na:140,K:4.0,Ca:1.15,Glu:7.3,metHb:0.9,COHb:0.7},
+ hyperk:{pH:7.04,pCO2:5.9,pO2:10.5,HCO3:13,BE:-14,Lakt:6.1,Krea:892,Hb:104,Na:136,K:8.1,Ca:0.94,Glu:6.8,metHb:0.7,COHb:0.8},
+ hypovol:{pH:7.11,pCO2:4.4,pO2:11.8,HCO3:15,BE:-13,Lakt:12.4,Krea:118,Hb:54,Na:141,K:3.9,Ca:1.05,Glu:6.2,metHb:0.9,COHb:0.9},
+ tension:{pH:7.14,pCO2:9.7,pO2:5.2,HCO3:22,BE:-4,Lakt:5.6,Krea:92,Hb:138,Na:139,K:4.4,Ca:1.16,Glu:7.9,metHb:1.0,COHb:1.3},
+ tamponad:{pH:7.18,pCO2:5.6,pO2:9.6,HCO3:20,BE:-6,Lakt:7.1,Krea:97,Hb:96,Na:140,K:4.1,Ca:1.12,Glu:8.0,metHb:0.8,COHb:0.9},
+ hypoxi:{pH:6.97,pCO2:12.8,pO2:3.4,HCO3:18,BE:-11,Lakt:10.6,Krea:90,Hb:139,Na:139,K:5.1,Ca:1.10,Glu:8.4,metHb:1.1,COHb:1.6},
+ cico:{pH:6.92,pCO2:14.2,pO2:2.9,HCO3:17,BE:-12,Lakt:11.8,Krea:92,Hb:140,Na:139,K:5.2,Ca:1.09,Glu:8.6,metHb:1.2,COHb:1.5},
+ toxin:{pH:7.01,pCO2:6.1,pO2:10.2,HCO3:12,BE:-16,Lakt:8.0,Krea:86,Hb:136,Na:139,K:4.0,Ca:1.13,Glu:7.0,metHb:1.2,COHb:0.9},
+ hypotermi:{pH:7.10,pCO2:5.1,pO2:12.4,HCO3:20,BE:-6,Lakt:5.2,Krea:104,Hb:148,Na:140,K:4.8,Ca:1.18,Glu:9.8,metHb:0.8,COHb:0.9},
+ hypoca:{pH:7.14,pCO2:5.4,pO2:11.0,HCO3:20,BE:-5,Lakt:6.0,Krea:95,Hb:130,Na:139,K:4.3,Ca:0.62,Glu:7.0,metHb:0.8,COHb:0.9},
+ hypok:{pH:7.46,pCO2:5.2,pO2:12.0,HCO3:26,BE:2,Lakt:3.0,Krea:90,Hb:135,Na:140,K:2.1,Ca:1.15,Glu:7.0,metHb:0.8,COHb:0.9},
+ commotio:{pH:7.18,pCO2:5.6,pO2:10.0,HCO3:19,BE:-6,Lakt:6.0,Krea:78,Hb:142,Na:140,K:4.0,Ca:1.16,Glu:7.2,metHb:0.8,COHb:0.9},
+ wpw:{pH:7.18,pCO2:5.6,pO2:10.0,HCO3:19,BE:-6,Lakt:6.0,Krea:78,Hb:142,Na:140,K:4.0,Ca:1.16,Glu:7.2,metHb:0.8,COHb:0.9},
+ longqt:{pH:7.20,pCO2:5.3,pO2:10.5,HCO3:21,BE:-4,Lakt:4.5,Krea:85,Hb:135,Na:138,K:3.0,Ca:1.15,Glu:7.0,metHb:0.8,COHb:0.9},
+ digitalis:{pH:7.10,pCO2:5.8,pO2:9.5,HCO3:16,BE:-10,Lakt:6.5,Krea:220,Hb:148,Na:144,K:6.8,Ca:1.10,Glu:6.5,metHb:0.8,COHb:0.9}
+},
+ABCDE_SRC:{
+ stemi:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud, thorax höjs symmetriskt, ingen halsvenstas"',C:'S.rosc?"svag central puls återkommen, fortsatt marmorerad perifert":"pulslös, blek och marmorerad, kapillär återfyllnad >4 s"',D:'"medvetslös, GCS 3, ljusstela normalstora pupiller"',E:'"kallsvettig, inga yttre skador · temp "+coreTemp().toFixed(1)+" °C"'},
+ pe:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud, svår att syresätta trots god ventilation"',C:'S.treatProgress.trombolys||S.causeTreatedAt?"★ halsvenstasen avtar, begynnande central cirkulation efter trombolys":"pulslös, uppdriven halsvenstas, cyanos i övre kroppshalvan"',D:'"medvetslös, GCS 3, vida pupiller"',E:'"ensidigt svullet, ömt vadben (DVT-tecken) · temp "+coreTemp().toFixed(1)+" °C"'},
+ hyperk:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'S.treatProgress.kalcium?"★ QRS smalnar på monitorn efter kalcium (membranstabilisering)":"pulslös, breddökade QRS på monitorn"',D:'"medvetslös, GCS 3"',E:'"AV-fistel vänster underarm, perifera ödem (dialyspatient) · temp "+coreTemp().toFixed(1)+" °C"'},
+ hypovol:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'S.fluids>=2||S.causeTreatedAt?"★ begynnande perifer återfyllnad, mindre uttalad blekhet efter volym/blod":"pulslös, uttalat blek, tomma perifera kärl, inga halsvener syns"',D:'"medvetslös, GCS 3"',E:'"uppspänd, öm buk · blek och kall perifert · temp "+coreTemp().toFixed(1)+" °C"'},
+ tension:{A:'"fri, trachea "+(S.treatProgress.naldekomp?"i medellinjen":"devierad åt motsatt sida")',B:'S.treatProgress.naldekomp?"★ andningsljud åter bilateralt, nu lättventilerad (efter dekompression)":"ensidigt upphävda andningsljud, hypersonor perkussion, svårventilerad, halsvenstas"',C:'"pulslös"+(S.treatProgress.naldekomp?", halsvenstasen avtagande":", kraftig halsvenstas")',D:'"medvetslös, GCS 3"',E:'"subkutant emfysem över thorax · temp "+coreTemp().toFixed(1)+" °C"'},
+ tamponad:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'S.treatProgress.perikard?"★ halsvenstasen avtar och hjärttonerna blir tydligare efter perikardiocentes":"pulslös, kraftig halsvenstas, dämpade hjärttoner, smalt pulstryck (Becks triad)"',D:'"medvetslös, GCS 3"',E:'"sternotomiärr (nyligen hjärtopererad) · temp "+coreTemp().toFixed(1)+" °C"'},
+ hypoxi:{A:'"segt sekret i luftvägen, "+airwayNote()',B:'S.o2max&&(S.airway==="tub"||S.airway==="igel")?"★ andningsljuden förbättras och cyanosen minskar med syrgas och god ventilation":"kraftigt obstruktiva/upphävda andningsljud, förlängt expirium, mycket svårventilerad"',C:'"pulslös, central cyanos"+(S.o2max?", avtagande":"")',D:'"medvetslös, GCS 3"',E:'"inga yttre skador · temp "+coreTemp().toFixed(1)+" °C"'},
+ cico:{A:'S.airway==="koniotomi"?"★ kirurgisk luftväg (koniotomi) på plats, fri passage nedanför obstruktionen":"TOTAL övre luftvägsobstruktion, går ej att ventilera, i-gel tätar ej, tuben passerar ej"',B:'S.airway==="koniotomi"&&S.o2max?"★ nu ventilerbar via koniotomin, cyanosen minskar":"ingen luft in eller ut, ingen bröstkorgsrörelse, tysta lungor"',C:'"pulslös, djup central cyanos"+(S.airway==="koniotomi"?", avtagande":"")',D:'"medvetslös, GCS 3"',E:'"griper reflexmässigt mot halsen initialt (kvävningstecken) · temp "+coreTemp().toFixed(1)+" °C"'},
+ toxin:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'S.treatProgress.bikarbonat?"★ breddökade QRS smalnar efter natriumbikarbonat":"pulslös, breddökade QRS på monitorn"',D:'"medvetslös, GCS 3, vida pupiller (antikolinergt)"',E:'"tomma tablettkartor i fickorna · temp "+coreTemp().toFixed(1)+" °C"'},
+ hypotermi:{A:'"fri, "+airwayNote()',B:'"långsam, ytlig egenandning saknas · sidlika andningsljud"',C:'"pulslös, iskall och stel, svårpalperade kärl"',D:'"medvetslös, ljusstela pupiller"',E:'(S.warming?"★ kärntemperaturen stiger under aktiv uppvärmning · ":"iskall, marmorerad hud, våta kläder · ")+"kärntemp "+coreTemp().toFixed(1)+" °C"+(S.kad?" (kontinuerligt via KAD)":"")'},
+ hypoca:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'S.treatProgress.kalcium?"★ QRS smalnar och QT normaliseras efter kalcium":"pulslös, breddökade QRS med förlängt QT på monitorn"',D:'"medvetslös, GCS 3"',E:'"karpopedala spasmer (hopdragna händer) · temp "+coreTemp().toFixed(1)+" °C"'},
+ hypok:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'S.treatProgress.magnesium?"★ myokardiet stabiliserat efter magnesium, flimret bör nu gå att bryta":"pulslös, refraktärt kammarflimmer (föregånget av polymorf VT/torsades)"',D:'"medvetslös, GCS 3"',E:'"uttalad muskelsvaghet noterad före stoppet · temp "+coreTemp().toFixed(1)+" °C"'},
+ commotio:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud, ingen halsvenstas"',C:'"pulslös, i övrigt välcirkulerad ung patient, inga tecken till annan orsak"',D:'"medvetslös, GCS 3, normalstora pupiller"',E:'"ung, tidigare frisk, tydligt märke efter slaget mot bröstbenet, i övrigt inga yttre skador · temp "+coreTemp().toFixed(1)+" °C"'},
+ wpw:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'"pulslös, i övrigt välcirkulerad, inga tecken till strukturell hjärtsjukdom"',D:'"medvetslös, GCS 3"',E:'"ung, tidigare frisk, inga yttre skador · temp "+coreTemp().toFixed(1)+" °C"'},
+ longqt:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'"pulslös, polymorf kammartakykardi (torsades) föregick stoppet"',D:'"medvetslös, GCS 3"',E:'"inga yttre skador · temp "+coreTemp().toFixed(1)+" °C"'},
+ digitalis:{A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'"pulslös, bidirektionell kammartakykardi föregick stoppet"',D:'"medvetslös, GCS 3, illamående och synrubbningar (gulseende) enligt anhörig innan kollapsen"',E:'"inga yttre skador · temp "+coreTemp().toFixed(1)+" °C"'}
+},
+CARETEAM:{stemi:"Kardiologen",tamponad:"Kardiologen",pe:"Medicinkliniken",hyperk:"Medicinkliniken",
+  hypoxi:"Medicinkliniken",toxin:"Medicinkliniken",hypoca:"Medicinkliniken",hypok:"Medicinkliniken",cico:"ÖNH/Anestesi",
+  hypovol:"Kirurgen",tension:"Kirurgen",hypotermi:"IVA/Anestesi",
+  commotio:"Kardiologen",wpw:"Kardiologen",longqt:"Kardiologen",digitalis:"Medicinkliniken"},
+SBAR_CAUSE:{
+ stemi:{bg:"sannolik STEMI, vi defibrillerade och har nu en organiserad rytm",rec:"akut koronarangiografi med PCI"},
+ pe:{bg:"massiv lungemboli, vi har gett trombolys",rec:"fortsatt antikoagulation och intensivvårdsövervakning"},
+ hyperk:{bg:"svår hyperkalemi, vi har gett kalcium och membranstabiliserat",rec:"akut dialys och elektrolytkontroll"},
+ hypovol:{bg:"hypovolemi av blödning, vi har gett volym och blod",rec:"blödningskontroll (kirurgi/endoskopi) och fortsatt transfusion"},
+ tension:{bg:"ventilpneumothorax, vi har dekomprimerat höger thorax",rec:"thoraxdränage och lungövervakning"},
+ tamponad:{bg:"hjärttamponad, vi har tömt perikardvätskan",rec:"ekokardiografi och kardiologisk/thoraxkirurgisk bedömning"},
+ hypoxi:{bg:"ett hypoxiskt stopp, vi har säkrat luftvägen och syresatt",rec:"kontrollerad ventilation och utredning av luftvägsorsaken"},
+ cico:{bg:"ett kvävningsstopp där mask, i-gel och intubation alla misslyckades, vi har säkrat luftvägen med en koniotomi och syresatt",rec:"ÖNH-bedömning, definitiv luftväg och åtgärd av obstruktionen (bronkoskopi/kirurgi)"},
+ toxin:{bg:"en förgiftning med kraftigt breddökade QRS, vi har gett natriumbikarbonat",rec:"fortsatt intoxvård med upprepad bikarbonat och övervakning"},
+ hypotermi:{bg:"svår hypotermi, vi har inlett aktiv återuppvärmning",rec:"fortsatt uppvärmning, eventuellt ECMO, och långsam handläggning"},
+ hypoca:{bg:"svår hypokalcemi, vi har gett kalcium",rec:"elektrolytkorrektion och utredning av orsaken"},
+ hypok:{bg:"svår hypokalemi med torsades, vi har gett magnesium och kalium",rec:"elektrolytkorrektion och telemetriövervakning"},
+ commotio:{bg:"sannolik commotio cordis efter ett slag mot bröstkorgen, vi har defibrillerat",rec:"telemetriövervakning och kardiologisk bedömning, ingen ytterligare akut åtgärd krävs"},
+ wpw:{bg:"pulslöst kammarflimmer utlöst av preexciterat förmaksflimmer vid WPW, vi har defibrillerat",rec:"kardiologisk bedömning och elektrofysiologisk utredning (ablation)"},
+ longqt:{bg:"torsades de pointes vid läkemedelsinducerat långt QT, vi har gett magnesium",rec:"seponering av QT-förlängande läkemedel, elektrolytkorrektion och telemetriövervakning"},
+ digitalis:{bg:"digitalisintoxikation med bidirektionell kammartakykardi, vi har gett digoxinspecifika antikroppsfragment (Fab)",rec:"fortsatt övervakning, elektrolytkorrektion och njurfunktionsbedömning"}
+},
+NURSE_HINT:{
+  stemi:"Vi har chockat flera gånger utan att flimret bryts, ska vi dubbelkolla plattornas placering och överväga vektorbyte, och tänka på att detta troligen är kardiellt?",
+  pe:"Med tanke på anamnesen, kan det vara en massiv lungemboli? Har du tänkt på trombolys?",
+  hyperk:"Med njursvikten/dialysbakgrunden, kan kaliumet vara högt? Har du tänkt på kalciumklorid?",
+  hypovol:"Hen har ju blött rejält, kan det vara hypovolemi? Har du tänkt på vätska och blod?",
+  tension:"Ensidiga andningsljud och halsvenstas, kan det vara en tryckpneumothorax? Har du tänkt på att avlasta?",
+  tamponad:"Dämpade hjärttoner och halsvenstas, kan det vara en hjärttamponad? Har du tänkt på ultraljud och tömning?",
+  hypoxi:"Det började som en luftvägshändelse, kan det vara hypoxi? Har vi verkligen fri luftväg och god ventilation?",
+  cico:"Vi får ju ingen luft in, mask, i-gel och tub, ingenting fungerar. Är det dags för en kirurgisk luftväg (koniotomi)?",
+  toxin:"Med tabletterna hen tagit, kan det vara en förgiftning? Har du tänkt på buffert/motgift?",
+  hypotermi:"Hen var ju rejält nedkyld, kan hypotermi ligga bakom? Har du tänkt på att mäta tempen och värma aktivt?",
+  hypoca:"Kan kalknivån vara låg? Har du tänkt på att ge kalcium?",
+  hypok:"De breda, polymorfa komplexen, kan det vara lågt kalium/magnesium? Har du tänkt på magnesiumsulfat?",
+  commotio:"Ett kraftigt slag mot bröstet precis innan kollapsen, ung och tidigare frisk, kan det här vara commotio cordis? Tidig defibrillering är allt som behövs.",
+  wpw:"Ett gammalt EKG med deltavåg och kraftig hjärtklappning som blev pulslös, kan det här vara WPW med preexciterat förmaksflimmer? Kom ihåg att AV-nodsblockerare är kontraindicerade.",
+  longqt:"Återkommande svimningar och nyinsatta QT-förlängande läkemedel före kollapsen, kan det här vara torsades vid förvärvat långt QT? Har du tänkt på magnesium?",
+  digitalis:"Patienten står på digoxin och har varit uttorkad med stigande kreatinin, med bidirektionell VT, kan det här vara digitalisintoxikation? Har du tänkt på Fab-antikroppar?"
+},
+EKG_FIND:{
+  stemi:"Kraftiga ST-höjningar i V2–V4 med reciproka ST-sänkningar inferiort. Begynnande Q-vågor anteriort.",
+  hyperk:"Höga, spetsiga T-vågor, breddökat QRS och utslätade P-vågor. Ingen ST-höjning.",
+  pe:"Sinustakykardi, S1Q3T3-mönster och T-negativitet i V1–V3. Högerkammarbelastning, ingen ST-höjning.",
+  hypotermi:"Bradykardi med tydliga Osborn-vågor (J-vågor) i inferolaterala avledningar. Ingen ST-höjning.",
+  toxin:"Breddökat QRS och förlängt QT. Högerställd axel i aVR. Ingen ST-höjning.",
+  longqt:"Uttalat förlängt QTc (>520 ms). Sinusrytm, ingen ST-höjning.",
+  wpw:"Kort PQ med deltavåg och sekundära ST-T-förändringar. Ingen äkta ST-höjning.",
+  digitalis:"Hängmatteformad ST-sänkning, förkortat QT och AV-block I. Ingen ST-höjning.",
+  tamponad:"Låg amplitud i samtliga avledningar och elektrisk alternans. Ingen ST-höjning.",
+  tension:"Sinustakykardi med låg amplitud högersidigt och högerställd axel. Ingen ST-höjning."
+}
+};
+
+const GAS_FIELDS=[["pH","pH",""],["pCO2","pCO₂","kPa"],["pO2","pO₂","kPa"],["HCO3","HCO₃⁻","mmol/L"],
+ ["BE","BE",""],["Lakt","Laktat","mmol/L"],["Krea","Krea","µmol/L"],["Hb","Hb","g/L"],
+ ["Na","Na⁺","mmol/L"],["K","K⁺","mmol/L"],["Ca","Ca²⁺","mmol/L"],["Glu","Glukos","mmol/L"],
+ ["metHb","metHb","%"],["COHb","COHb","%"]];
+const GAS_NORM={pH:[7.35,7.45],pCO2:[4.6,6.0],pO2:[10,13],HCO3:[22,26],BE:[-3,3],Lakt:[0,1.6],
+  Krea:[60,105],Hb:[117,170],Na:[137,145],K:[3.5,4.6],Ca:[1.15,1.33],Glu:[4,7.8],metHb:[0,1.5],COHb:[0,2]};
+const REQUIRED_DICTS=["GAS","ABCDE_SRC","CARETEAM","SBAR_CAUSE","NURSE_HINT"];
+const TEAM_OPTIONS=["Kardiologen","Medicinkliniken","Kirurgen","IVA/Anestesi","ÖNH/Anestesi"];
+const $=id=>document.getElementById(id);
+
+/* ===== arbetskopia (localStorage-persisterad) ===== */
+let DATA=null;
+function loadSaved(){
+  try{ const raw=localStorage.getItem("caseEditorData"); if(raw) return JSON.parse(raw); }catch(e){}
+  return null;
+}
+DATA = loadSaved() || JSON.parse(JSON.stringify(ORIGINAL));
+let selId = DATA.CAUSES[0].id;
+let curTab = "basic";
+let selVariantIdx = -1;
+
+function causeById(id){ return DATA.CAUSES.find(c=>c.id===id); }
+function casesFor(id){ return DATA.CASES.map((k,i)=>({k,i})).filter(x=>x.k.cid===id); }
+function save(){
+  localStorage.setItem("caseEditorData", JSON.stringify(DATA));
+  $("saveStatus").textContent="Sparat lokalt (autosave) "+new Date().toLocaleTimeString("sv-SE");
+  renderSidebar(); renderCompleteness();
+}
+
+/* ===== fullständighetskontroll ===== */
+function missingFor(id){
+  return REQUIRED_DICTS.filter(d=>!DATA[d][id]);
+}
+function renderCompleteness(){
+  let html="";
+  let okCount=0;
+  DATA.CAUSES.forEach(c=>{
+    const miss=missingFor(c.id);
+    if(!miss.length) okCount++;
+    else html+=`<div class="miss">✖ <b>${c.namn||c.id}</b>: saknar ${miss.join(", ")}</div>`;
+  });
+  $("completeness").innerHTML = `<div style="margin-bottom:6px">${okCount} / ${DATA.CAUSES.length} orsaker kompletta</div>` + (html||`<div style="color:var(--accent)">Allt komplett ✓</div>`);
+}
+
+/* ===== sidopanel: orsakslista ===== */
+function renderSidebar(){
+  const list=$("causeList"); list.innerHTML="";
+  DATA.CAUSES.forEach(c=>{
+    const miss=missingFor(c.id);
+    const row=document.createElement("div");
+    row.className="crow"+(c.id===selId?" active":"");
+    row.innerHTML=`<span class="dot ${miss.length?'bad':'ok'}"></span><span class="nm">${c.namn||"(namnlös)"}</span>`;
+    row.onclick=()=>{selId=c.id; selVariantIdx=-1; renderSidebar(); renderMain();};
+    list.appendChild(row);
+  });
+}
+
+/* ===== ABCDE mock-eval (förhandsvisning) ===== */
+function evalABCDE(expr, treated){
+  const mockS={
+    rosc:false, fluids:treated?2:0, causeTreatedAt:treated?1:null, o2max:treated,
+    warming:treated?1:null, kad:false, airway:treated?"tub":"mask",
+    treatProgress: new Proxy({}, {get:()=>treated})
+  };
+  const mockCoreTemp=()=>36.4;
+  const mockAirwayNote=()=>mockS.airway==="tub"?"trakealtub, kapnografi ej kopplad":"mask–blåsa";
+  try{
+    const fn=new Function("S","coreTemp","airwayNote","return ("+expr+");");
+    return {ok:true,val:fn(mockS,mockCoreTemp,mockAirwayNote)};
+  }catch(e){ return {ok:false,val:e.message}; }
+}
+
+/* ===== rytm-förhandsvisning (canvas) ===== */
+let rhythmRAF=null, rhythmT=0;
+function drawRhythmPreview(cause){
+  const cv=$("rhythmPrev"); if(!cv)return;
+  const g=cv.getContext("2d"), W=cv.width,H=cv.height,mid=H*0.55;
+  const spec=waveSpecFor(cause);
+  if(rhythmRAF)cancelAnimationFrame(rhythmRAF);
+  let x=0,last=mid,t=0;
+  g.fillStyle="#0b120f"; g.fillRect(0,0,W,H);
+  let lastTime=performance.now();
+  (function loop(now){
+    if(!document.body.contains(cv))return;   // panelen har bytts, sluta rita
+    const dt=Math.min(0.05,(now-lastTime)/1000); lastTime=now;
+    t+=dt;
+    const step=Math.max(1,Math.round(90*dt));
+    g.fillStyle="#0b120f"; g.fillRect(x,0,step+10,H);
+    const v=WaveModel.rhythmSample(spec,t);
+    const y=mid - v*H*0.36;
+    g.strokeStyle="#35e08e"; g.lineWidth=1.6; g.beginPath();
+    g.moveTo(x===0?0:x-1,last); g.lineTo(x+step,y); g.stroke();
+    last=y; x+=step; if(x>=W){x=0;last=y;}
+    rhythmRAF=requestAnimationFrame(loop);
+  })(lastTime);
+}
+
+/* ===== huvudpanel ===== */
+function tabBtn(id,label){ return `<button class="tabbtn${curTab===id?' active':''}" data-tab="${id}">${label}</button>`; }
+function renderMain(){
+  const c=causeById(selId);
+  const main=$("main");
+  if(!c){ main.innerHTML="<p class='hint'>Inga orsaker kvar. Skapa en ny i sidopanelen.</p>"; return; }
+  main.innerHTML = `
+   <div class="toolbar">
+     <h2 style="margin:0;flex:1">${c.namn||"(namnlös)"} <span class="badge">${c.id}</span></h2>
+     <button class="sm" id="btnDupCause">Duplicera orsak</button>
+     <button class="sm warn" id="btnDelCause">Ta bort orsak</button>
+   </div>
+   <div class="tabs">
+     ${tabBtn("basic","Grunddata &amp; rytm")}
+     ${tabBtn("gas","Blodgas")}
+     ${tabBtn("abcde","ABCDE")}
+     ${tabBtn("handoff","Överlämning &amp; tips")}
+     ${tabBtn("cases","Fall-varianter ("+casesFor(c.id).length+")")}
+   </div>
+   <div id="paneHost"></div>
+  `;
+  document.querySelectorAll(".tabbtn").forEach(b=>b.onclick=()=>{curTab=b.dataset.tab; renderMain();});
+  $("btnDupCause").onclick=()=>{
+    const copy=JSON.parse(JSON.stringify(c));
+    let n=2, base=c.id;
+    while(causeById(base+n))n++;
+    copy.id=base+n; copy.namn=(c.namn||c.id)+" (kopia)";
+    DATA.CAUSES.push(copy);
+    ["GAS","ABCDE_SRC","CARETEAM","SBAR_CAUSE","NURSE_HINT","EKG_FIND"].forEach(d=>{ if(DATA[d][c.id]) DATA[d][copy.id]=JSON.parse(JSON.stringify(DATA[d][c.id])); });
+    selId=copy.id; save(); renderMain();
+  };
+  $("btnDelCause").onclick=()=>{
+    if(!confirm("Ta bort orsaken \""+(c.namn||c.id)+"\" och alla dess fall-varianter?"))return;
+    DATA.CAUSES=DATA.CAUSES.filter(x=>x.id!==c.id);
+    DATA.CASES=DATA.CASES.filter(k=>k.cid!==c.id);
+    ["GAS","ABCDE_SRC","CARETEAM","SBAR_CAUSE","NURSE_HINT","EKG_FIND"].forEach(d=>{ delete DATA[d][c.id]; });
+    selId=(DATA.CAUSES[0]||{}).id; save(); renderMain();
+  };
+  const host=$("paneHost");
+  if(curTab==="basic") host.innerHTML=paneBasic(c);
+  else if(curTab==="gas") host.innerHTML=paneGas(c);
+  else if(curTab==="abcde") host.innerHTML=paneAbcde(c);
+  else if(curTab==="handoff") host.innerHTML=paneHandoff(c);
+  else if(curTab==="cases") host.innerHTML=paneCases(c);
+  wireCurrentPane(c);
+  if(curTab==="basic") drawRhythmPreview(c);
+}
+
+function paneBasic(c){
+  return `<div class="card">
+    <h3>Identitet</h3>
+    <div class="grid2">
+      <label class="f"><span class="lb">Id (nyckel, används i CASES/GAS/ABCDE osv)</span><input type="text" id="f_id" value="${c.id}"></label>
+      <label class="f"><span class="lb">Namn (visas för spelaren)</span><input type="text" id="f_namn" value="${c.namn||''}"></label>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Rytm <span class="mini">(styr vilken vågform som visas på monitor/defib/EKG-remsa)</span></h3>
+    <div class="grid3">
+      <label class="f"><span class="lb">Initial rytm</span>
+        <select id="f_rytm">
+          ${["VF","PEA","asystoli","pVT"].map(r=>`<option value="${r}" ${c.rytm===r?"selected":""}>${r}</option>`).join("")}
+        </select>
+      </label>
+      <label class="f"><span class="lb">PEA-morfologi (endast rytm=PEA)</span>
+        <select id="f_peaType" ${c.rytm!=="PEA"?"disabled":""}>
+          ${["","narrow","narrowfast","brady","idio","sine","wide"].map(p=>`<option value="${p}" ${(c.peaType||"")===p?"selected":""}>${p||"(smal, standard)"}</option>`).join("")}
+        </select>
+      </label>
+      <div>
+        <div class="chk" style="margin-top:22px"><input type="checkbox" id="f_bredQRS" ${c.bredQRS?"checked":""}> Breda QRS (bredQRS)</div>
+        <div class="chk"><input type="checkbox" id="f_polymorf" ${c.polymorf?"checked":""} ${c.rytm!=="pVT"?"disabled":""}> Polymorf/torsades (endast rytm=pVT)</div>
+      </div>
+    </div>
+    ${c.rytm==="pVT"&&c.id==="digitalis"?`<div class="mini flag">OBS: bidirektionell VT-vågform är hårdkodad till id "digitalis" i spelmotorn (room-render.js), inte styrd av ett fält. Byter du id här måste jag uppdatera den koden också.</div>`:""}
+    <div class="mini" style="margin-top:8px">Förhandsvisning av resulterande vågform:</div>
+    <canvas id="rhythmPrev" width="420" height="90"></canvas>
+  </div>
+  <div class="card">
+    <h3>Behandling &amp; instruktörstext</h3>
+    <label class="f"><span class="lb">Kausal behandling (kommaseparerad åtgärds-id, t.ex. kalcium, vatska, defib) — lämna tomt om ingen (t.ex. ren defib-rytm)</span><input type="text" id="f_behandling" value="${(c.behandling||[]).join(', ')}"></label>
+    <label class="f"><span class="lb">Bonusåtgärder (kommaseparerat)</span><input type="text" id="f_bonus" value="${(c.bonus||[]).join(', ')}"></label>
+    <label class="f"><span class="lb">Alternativ åtgärd (kommaseparerat)</span><input type="text" id="f_alt" value="${(c.alt||[]).join(', ')}"></label>
+    <label class="f"><span class="lb">Post-ROSC-spår (t.ex. "pci", eller tomt)</span><input type="text" id="f_postROSC" value="${c.postROSC||''}"></label>
+    <label class="f"><span class="lb">Instruktörstips (visas på resultatskärmen, html-taggar som &lt;b&gt; funkar)</span><textarea id="f_tips" rows="3">${c.tips||''}</textarea></label>
+  </div>`;
+}
+function paneGas(c){
+  const g=DATA.GAS[c.id]||{};
+  const missing=!DATA.GAS[c.id];
+  return `<div class="card">
+    <h3>Artärblodgas ${missing?'<span class="badge miss">saknas — fylls i med standardvärden</span>':''}</h3>
+    <div class="grid4">
+      ${GAS_FIELDS.map(([k,lbl,unit])=>{
+        const norm=GAS_NORM[k]; const val=(g[k]!=null?g[k]:(norm[0]+norm[1])/2);
+        return `<label class="f"><span class="lb">${lbl}${unit?" ("+unit+")":""} · normalt ${norm[0]}–${norm[1]}</span><input type="number" step="0.01" id="gas_${k}" value="${val}"></label>`;
+      }).join("")}
+    </div>
+  </div>`;
+}
+function paneAbcde(c){
+  const src=DATA.ABCDE_SRC[c.id];
+  const missing=!src;
+  const letters=[["A","Luftväg"],["B","Andning"],["C","Cirkulation"],["D","Medvetande"],["E","Exponering"]];
+  const defaults={A:'"fri, "+airwayNote()',B:'"sidlika andningsljud"',C:'"pulslös"',D:'"medvetslös, GCS 3"',E:'"inga yttre skador · temp "+coreTemp().toFixed(1)+" °C"'};
+  return `<div class="card">
+    <h3>ABCDE-fynd ${missing?'<span class="badge miss">saknas — mall ifylld</span>':''}</h3>
+    <div class="mini" style="margin-bottom:10px">Varje fält är ett litet JS-uttryck (samma som körs i spelet). <code>S</code>, <code>coreTemp()</code> och <code>airwayNote()</code> är tillgängliga. Förhandsvisningen visar resultatet obehandlat / efter åtgärd (via en generisk mock, inte exakt spellogik).</div>
+    ${letters.map(([l,name])=>{
+      const expr=(src&&src[l])||defaults[l];
+      return `<div class="abcderow">
+        <div class="lt">${l}</div>
+        <div>
+          <div class="mini">${name}</div>
+          <textarea class="abcde-in" data-letter="${l}" rows="2">${expr}</textarea>
+        </div>
+        <div>
+          <div class="mini">Förhandsvisning</div>
+          <div class="prevbox" data-prev="${l}-u">obehandlat: …</div>
+          <div class="prevbox" data-prev="${l}-t">åtgärdat: …</div>
+        </div>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+function paneHandoff(c){
+  const sbar=DATA.SBAR_CAUSE[c.id]||{bg:"",rec:""};
+  const team=DATA.CARETEAM[c.id]||"";
+  const hint=DATA.NURSE_HINT[c.id]||"";
+  const ekg=DATA.EKG_FIND[c.id]||"";
+  return `<div class="card">
+    <h3>SBAR-överlämning ${!DATA.SBAR_CAUSE[c.id]?'<span class="badge miss">saknas</span>':''}</h3>
+    <label class="f"><span class="lb">Mottagande specialitet (rätt svar i överlämningsquizet)</span>
+      <input type="text" id="f_team" list="teamOpts" value="${team}"></label>
+    <datalist id="teamOpts">${TEAM_OPTIONS.map(t=>`<option value="${t}">`).join("")}</datalist>
+    <label class="f"><span class="lb">Bakgrund (efter "Orsaken bedöms vara …")</span><input type="text" id="f_sbarBg" value="${sbar.bg||''}"></label>
+    <label class="f"><span class="lb">Rekommendation (efter "…kontrollerad ventilation, temperaturkontroll och …")</span><input type="text" id="f_sbarRec" value="${sbar.rec||''}"></label>
+  </div>
+  <div class="card">
+    <h3>Sjuksköterskans ledtråd ${!DATA.NURSE_HINT[c.id]?'<span class="badge miss">saknas</span>':''}</h3>
+    <textarea id="f_hint" rows="3">${hint}</textarea>
+  </div>
+  <div class="card">
+    <h3>12-avlednings-EKG-fynd <span class="mini">(valfritt — generisk sinusrytmstext visas annars)</span></h3>
+    <textarea id="f_ekg" rows="2">${ekg}</textarea>
+  </div>`;
+}
+function paneCases(c){
+  const variants=casesFor(c.id);
+  return `<div class="toolbar"><button class="sm primary" id="btnAddVariant">+ Ny fall-variant</button></div>` +
+    variants.map(({k,i})=>caseVariantHtml(k,i)).join("") +
+    (variants.length?"":"<p class='mini'>Inga varianter ännu.</p>");
+}
+function caseVariantHtml(k,i){
+  return `<div class="variant" data-idx="${i}">
+    <div class="vhead">
+      <b>Variant #${i}</b>
+      <div class="toolbar" style="margin:0">
+        <button class="sm" data-act="preview" data-idx="${i}">▶ Förhandsgranska i spelet</button>
+        <button class="sm" data-act="dup" data-idx="${i}">Duplicera</button>
+        <button class="sm warn" data-act="del" data-idx="${i}">Ta bort</button>
+      </div>
+    </div>
+    <div class="grid4">
+      <label class="f"><span class="lb">Svårighet (diff)</span><select class="v-diff" data-idx="${i}">${[1,2,3].map(d=>`<option value="${d}" ${k.diff===d?"selected":""}>${d}</option>`).join("")}</select></label>
+      <label class="f"><span class="lb">PEA-morfologi (override, tomt = ärv från orsak)</span>
+        <select class="v-peaType" data-idx="${i}">${["","narrow","narrowfast","brady","idio","sine","wide"].map(p=>`<option value="${p}" ${(k.peaType||"")===p?"selected":""}>${p||"(ärv)"}</option>`).join("")}</select></label>
+      <label class="f"><span class="lb">Trauma</span><select class="v-trauma" data-idx="${i}">${["","trubbigt","penetrerande"].map(t=>`<option value="${t}" ${(k.trauma||"")===t?"selected":""}>${t||"(inget)"}</option>`).join("")}</select></label>
+      <div style="padding-top:20px">
+        <div class="chk"><input type="checkbox" class="v-pneumo" data-idx="${i}" ${k.pneumo?"checked":""}> pneumo</div>
+        <div class="chk"><input type="checkbox" class="v-fast" data-idx="${i}" ${k.fast?"checked":""}> FAST-positiv</div>
+        <div class="chk"><input type="checkbox" class="v-hidden" data-idx="${i}" ${k.hidden?"checked":""}> dold diagnos</div>
+        <div class="chk"><input type="checkbox" class="v-futile" data-idx="${i}" ${k.futile?"checked":""}> utsiktslöst</div>
+      </div>
+    </div>
+    <label class="f"><span class="lb">Anamnes (ambulansrapport, "PKÖN" ersätts med man/kvinna)</span><textarea class="v-anamnes" data-idx="${i}" rows="3">${k.anamnes||''}</textarea></label>
+  </div>`;
+}
+
+function wireCurrentPane(c){
+  if(curTab==="basic"){
+    $("f_id").onchange=e=>{
+      const nv=e.target.value.trim(); if(!nv||causeById(nv)){ e.target.value=c.id; return; }
+      const old=c.id; c.id=nv;
+      DATA.CASES.forEach(k=>{ if(k.cid===old)k.cid=nv; });
+      ["GAS","ABCDE_SRC","CARETEAM","SBAR_CAUSE","NURSE_HINT","EKG_FIND"].forEach(d=>{ if(DATA[d][old]!=null){DATA[d][nv]=DATA[d][old]; delete DATA[d][old];} });
+      selId=nv; save(); renderMain();
+    };
+    $("f_namn").oninput=e=>{c.namn=e.target.value; save();};
+    $("f_rytm").onchange=e=>{c.rytm=e.target.value; save(); renderMain();};
+    $("f_peaType").onchange=e=>{c.peaType=e.target.value||null; save(); drawRhythmPreview(c);};
+    $("f_bredQRS").onchange=e=>{c.bredQRS=e.target.checked; save(); drawRhythmPreview(c);};
+    $("f_polymorf").onchange=e=>{c.polymorf=e.target.checked; save(); drawRhythmPreview(c);};
+    $("f_behandling").onchange=e=>{c.behandling=e.target.value.split(",").map(s=>s.trim()).filter(Boolean); c.behandling=c.behandling.length?c.behandling:null; save();};
+    $("f_bonus").onchange=e=>{c.bonus=e.target.value.split(",").map(s=>s.trim()).filter(Boolean); save();};
+    $("f_alt").onchange=e=>{c.alt=e.target.value.split(",").map(s=>s.trim()).filter(Boolean); save();};
+    $("f_postROSC").onchange=e=>{c.postROSC=e.target.value.trim()||null; save();};
+    $("f_tips").onchange=e=>{c.tips=e.target.value; save();};
+  } else if(curTab==="gas"){
+    if(!DATA.GAS[c.id])DATA.GAS[c.id]={};
+    GAS_FIELDS.forEach(([k])=>{
+      $("gas_"+k).onchange=e=>{ DATA.GAS[c.id][k]=parseFloat(e.target.value); save(); };
+    });
+  } else if(curTab==="abcde"){
+    if(!DATA.ABCDE_SRC[c.id])DATA.ABCDE_SRC[c.id]={};
+    document.querySelectorAll(".abcde-in").forEach(ta=>{
+      const letter=ta.dataset.letter;
+      const update=()=>{
+        DATA.ABCDE_SRC[c.id][letter]=ta.value; save();
+        const pu=evalABCDE(ta.value,false), pt=evalABCDE(ta.value,true);
+        const bu=document.querySelector(`[data-prev="${letter}-u"]`), bt=document.querySelector(`[data-prev="${letter}-t"]`);
+        bu.className="prevbox"+(pu.ok?"":" err"); bu.innerHTML="<b>obehandlat:</b> "+(pu.ok?pu.val:"⚠ "+pu.val);
+        bt.className="prevbox"+(pt.ok?"":" err"); bt.innerHTML="<b>åtgärdat:</b> "+(pt.ok?pt.val:"⚠ "+pt.val);
+      };
+      ta.oninput=update; update();
+    });
+  } else if(curTab==="handoff"){
+    $("f_team").onchange=e=>{DATA.CARETEAM[c.id]=e.target.value; save();};
+    if(!DATA.SBAR_CAUSE[c.id])DATA.SBAR_CAUSE[c.id]={bg:"",rec:""};
+    $("f_sbarBg").onchange=e=>{DATA.SBAR_CAUSE[c.id].bg=e.target.value; save();};
+    $("f_sbarRec").onchange=e=>{DATA.SBAR_CAUSE[c.id].rec=e.target.value; save();};
+    $("f_hint").onchange=e=>{DATA.NURSE_HINT[c.id]=e.target.value; save();};
+    $("f_ekg").onchange=e=>{ if(e.target.value.trim())DATA.EKG_FIND[c.id]=e.target.value; else delete DATA.EKG_FIND[c.id]; save();};
+  } else if(curTab==="cases"){
+    const btnAdd=$("btnAddVariant");
+    if(btnAdd) btnAdd.onclick=()=>{
+      DATA.CASES.push({cid:c.id,diff:1,anamnes:"Ny fall-variant, beskriv anamnesen här."});
+      save(); renderMain();
+    };
+    document.querySelectorAll(".v-diff").forEach(el=>el.onchange=e=>{DATA.CASES[+e.target.dataset.idx].diff=+e.target.value; save();});
+    document.querySelectorAll(".v-peaType").forEach(el=>el.onchange=e=>{const v=e.target.value; const k=DATA.CASES[+e.target.dataset.idx]; if(v)k.peaType=v; else delete k.peaType; save();});
+    document.querySelectorAll(".v-trauma").forEach(el=>el.onchange=e=>{const v=e.target.value; const k=DATA.CASES[+e.target.dataset.idx]; if(v)k.trauma=v; else delete k.trauma; save();});
+    document.querySelectorAll(".v-pneumo").forEach(el=>el.onchange=e=>{const k=DATA.CASES[+e.target.dataset.idx]; if(e.target.checked)k.pneumo=true; else delete k.pneumo; save();});
+    document.querySelectorAll(".v-fast").forEach(el=>el.onchange=e=>{const k=DATA.CASES[+e.target.dataset.idx]; if(e.target.checked)k.fast=true; else delete k.fast; save();});
+    document.querySelectorAll(".v-hidden").forEach(el=>el.onchange=e=>{const k=DATA.CASES[+e.target.dataset.idx]; if(e.target.checked)k.hidden=true; else delete k.hidden; save();});
+    document.querySelectorAll(".v-futile").forEach(el=>el.onchange=e=>{const k=DATA.CASES[+e.target.dataset.idx]; if(e.target.checked)k.futile=true; else delete k.futile; save();});
+    document.querySelectorAll(".v-anamnes").forEach(el=>el.onchange=e=>{DATA.CASES[+e.target.dataset.idx].anamnes=e.target.value; save();});
+    document.querySelectorAll('[data-act="preview"]').forEach(b=>b.onclick=e=>{
+      const idx=+e.target.dataset.idx;
+      window.open("../ahlr.html?case="+idx, "_blank");
+    });
+    document.querySelectorAll('[data-act="dup"]').forEach(b=>b.onclick=e=>{
+      const idx=+e.target.dataset.idx;
+      DATA.CASES.splice(idx+1,0,JSON.parse(JSON.stringify(DATA.CASES[idx])));
+      save(); renderMain();
+    });
+    document.querySelectorAll('[data-act="del"]').forEach(b=>b.onclick=e=>{
+      const idx=+e.target.dataset.idx;
+      if(!confirm("Ta bort denna fall-variant?"))return;
+      DATA.CASES.splice(idx,1);
+      save(); renderMain();
+    });
+  }
+}
+
+/* ===== ny orsak ===== */
+$("btnAddCause").onclick=()=>{
+  let n=1; while(causeById("ny_orsak"+n))n++;
+  const id="ny_orsak"+n;
+  DATA.CAUSES.push({id,namn:"Ny orsak "+n,rytm:"PEA",bredQRS:false,peaType:"narrow",polymorf:false,behandling:null,bonus:[],alt:[],postROSC:null,tips:""});
+  selId=id; save(); renderMain();
+};
+
+/* ===== export / import ===== */
+$("btnExport").onclick=()=>{
+  const json=JSON.stringify(DATA,null,1);
+  $("exportJson").value=json;
+  navigator.clipboard&&navigator.clipboard.writeText(json).catch(()=>{});
+  const b=$("btnExport"),t=b.textContent; b.textContent="✓ Kopierat!"; setTimeout(()=>b.textContent=t,1200);
+};
+$("btnImport").onclick=()=>{
+  try{
+    const parsed=JSON.parse($("exportJson").value);
+    if(!parsed.CAUSES||!parsed.CASES) throw new Error("saknar CAUSES/CASES");
+    DATA=parsed; selId=DATA.CAUSES[0].id; selVariantIdx=-1;
+    save(); renderMain();
+  }catch(e){ alert("JSON-fel: "+e.message); }
+};
+$("btnResetOrig").onclick=()=>{
+  if(!confirm("Kasta alla dina ändringar och återställa till spelets nuvarande data?"))return;
+  DATA=JSON.parse(JSON.stringify(ORIGINAL));
+  selId=DATA.CAUSES[0].id; selVariantIdx=-1;
+  save(); renderMain();
+};
+
+/* ===== boot ===== */
+renderSidebar(); renderCompleteness(); renderMain();
+</script>
+</body>
+</html>

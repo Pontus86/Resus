@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A-HLR · Ultraljuds-vektoreditor (hjärta)</title>
+<style>
+  :root{--bg:#0f1417;--panel:#171d21;--line:#2a343a;--ink:#e8ebee;--muted:#8b98a2;--accent:#35e08e;--accent2:#f4a93b;--red:#e5544b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:13px}
+  header{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  header h1{font-size:15px;margin:0}
+  .hint{color:var(--muted);font-size:12px}
+  .wrap{display:flex;gap:14px;padding:14px;align-items:flex-start;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px}
+  .card h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  canvas#us{background:#060d0b;border:1px solid var(--line);border-radius:6px;cursor:crosshair}
+  button{background:#26303a;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-family:inherit}
+  button:hover{background:#2f3b45}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#062}
+  button.sel{outline:2px solid var(--accent)}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+  .pathbtns{display:flex;flex-direction:column;gap:4px}
+  .pathbtns button{text-align:left}
+  select,input[type=number],input[type=text]{background:#0c1114;color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:4px 6px;font-family:inherit}
+  table{border-collapse:collapse;font-size:11.5px}
+  td,th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left}
+  th{color:var(--muted);font-weight:600}
+  input.pnum{width:64px}
+  textarea{width:100%;height:220px;background:#0c1114;color:#bfe6c8;border:1px solid var(--line);border-radius:6px;font-family:ui-monospace,monospace;font-size:11px;padding:8px}
+  .mini{font-size:11px;color:var(--muted)}
+  .legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+  .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+</style>
+</head>
+<body>
+<header>
+  <h1>A-HLR · Ultraljuds-vektoreditor (subxifoidalt hjärta)</h1>
+  <span class="hint">Samma renderingskod som spelet. Välj struktur att redigera, dra i punkterna. Grönt = ankarpunkter, orange = kurv-handtag. Export skickas till mig i chatten så uppdaterar jag <code>ultrasound.js</code>.</span>
+</header>
+<div class="wrap">
+  <div class="col">
+    <div class="card">
+      <h3>Läge (för förhandsvisning)</h3>
+      <div class="toolbar">
+        <label class="mini">Struktur<br><select id="structSel">
+          <option value="normal">Normal</option>
+          <option value="tamponad">Tamponad</option>
+          <option value="rv">RV-dilatation (PE)</option>
+          <option value="empty">Hypovolemi (tom/hyperdynamisk)</option>
+        </select></label>
+        <label class="mini">Funktion<br><select id="funcSel">
+          <option value="good">God kontraktilitet</option>
+          <option value="weak">Svag (PEA)</option>
+          <option value="vf">VF (quiver)</option>
+          <option value="still">Stillastående (asystoli)</option>
+        </select></label>
+      </div>
+      <div class="toolbar">
+        <label class="mini"><input type="checkbox" id="playChk" checked> Animera hjärtcykel</label>
+      </div>
+      <div class="toolbar">
+        <label class="mini"><input type="checkbox" id="showCore" checked> Visa kärnanatomi (hjärta)</label>
+      </div>
+      <div class="mini">Stäng av för att komponera helt fritt med bara dina egna former, utan hjärtat i vägen.</div>
+      <div class="toolbar">
+        <label class="mini" style="flex:1">Rotation (grader)<br>
+          <input type="range" id="rotSlider" min="-180" max="180" step="0.5" style="width:160px">
+          <input type="number" id="rotNum" class="pnum" step="0.5">
+        </label>
+      </div>
+      <div class="mini">Spelets ursprungliga vinkel var felroterad ~60° medurs, redan korrigerad här som standard. Justera vidare om det behövs.</div>
+      <div class="toolbar" style="margin-top:10px">
+        <label class="mini" style="flex:1">Position X (spelets canvas, 300 px bred)<br>
+          <input type="range" id="posXSlider" min="-100" max="400" step="1" style="width:160px">
+          <input type="number" id="posXNum" class="pnum" step="1">
+        </label>
+      </div>
+      <div class="toolbar">
+        <label class="mini" style="flex:1">Position Y (spelets canvas, 200 px hög)<br>
+          <input type="range" id="posYSlider" min="-100" max="300" step="1" style="width:160px">
+          <input type="number" id="posYNum" class="pnum" step="1">
+        </label>
+      </div>
+      <div class="mini">Koordinaterna är i spelets egna 300×200-canvas (samma tal går rakt in i <code>ultrasound.js</code>), inte editorns förstorade 600×400-vy.</div>
+      <div class="toolbar" style="margin-top:8px">
+        <label class="mini"><input type="checkbox" id="panMode"> Flytta hela figuren (dra i bilden istället för punkter)</label>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Redigera kontur</h3>
+      <div class="pathbtns" id="pathBtns"></div>
+      <div class="toolbar" style="margin-top:8px"><button class="primary" id="btnAddShape">+ Ny form</button></div>
+      <div id="shapeStyle"></div>
+      <div class="legend">
+        <span><span class="sw" style="background:#35e08e"></span>ankare</span>
+        <span><span class="sw" style="background:#f4a93b"></span>kurv-handtag</span>
+      </div>
+      <div class="mini" style="margin-top:8px" id="pointHint">Dubbelklick på konturen = lägg till punkt · Alt-klick på ett ankare = ta bort punkt</div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h3>Livevy</h3>
+      <canvas id="us" width="600" height="400"></canvas>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card" style="width:300px">
+      <h3>Strukturberoende parametrar</h3>
+      <table id="paramTable"></table>
+      <div class="mini" style="margin-top:8px">Dessa styr skalning/kollaps per patologi, oberoende av konturpunkterna till vänster.</div>
+      <div class="mini" style="margin-top:6px">Septum-bulen vid RV-dilatation (D-form) styrs separat: din LV-kontur (septal kontrollpunkt) är baslinjen, och vid RV-dilatation adderas ett fast tillägg (RV_SEPTUM_BULGE=0.85) till dess x-koordinat.</div>
+    </div>
+    <div class="card" style="width:300px">
+      <h3>Hjärtfrekvens (bpm)</h3>
+      <div class="toolbar"><label class="mini">ROSC<br><input class="pnum" type="number" id="rateRosc"></label>
+        <label class="mini">God kontraktilitet<br><input class="pnum" type="number" id="rateGood"></label>
+        <label class="mini">Övrigt (PEA/VF/asystoli)<br><input class="pnum" type="number" id="rateOther"></label></div>
+    </div>
+    <div class="card" style="width:300px">
+      <h3>Export / Import</h3>
+      <div class="mini" style="margin-bottom:6px">Kopiera och skicka till mig i chatten, så lägger jag in de justerade vektorerna i spelets <code>ultrasound.js</code>.</div>
+      <div class="toolbar"><button class="primary" id="btnExport">⬇ Kopiera JSON</button><button id="btnImport">⬆ Läs in</button><button id="btnReset">↺ Återställ original</button></div>
+      <textarea id="json" spellcheck="false"></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/* ===== Original vektordata, extraherad ur ultrasound.js drawUSPanel() ===== */
+/* Varje kontur: pts = delade ankarpunkter (samma objekt återanvänds där konturen
+   sluter sig mot en tidigare punkt), segs = hur man tar sig mellan på varandra
+   följande punkter: {type:'bezier',c1,c2} | {type:'line'} | {type:'quad',c1} */
+const ORIGINAL = {
+  paths:{
+    outline:{
+      pts:[[0.16,-2.55],[1.94,0.05],[1.7,1.0],[0.12,2.0],[-1.6,1.0],[-1.7,0.05],[-0.35,-2.3]],
+      segs:[
+        {type:'bezier',c1:[1.35,-2.2],c2:[2.02,-1.0]},
+        {type:'bezier',c1:[1.9,0.5],c2:[1.86,0.75]},
+        {type:'bezier',c1:[1.55,1.75],c2:[0.95,2.06]},
+        {type:'bezier',c1:[-0.75,2.06],c2:[-1.4,1.7]},
+        {type:'bezier',c1:[-1.75,0.72],c2:[-1.72,0.4]},
+        {type:'bezier',c1:[-1.66,-1.0],c2:[-1.15,-2.05]},
+        {type:'bezier',c1:[-0.1,-2.42],c2:[0.02,-2.5]}
+      ]
+    },
+    lvCav:{
+      pts:[[0.22,-2.0],[1.16,0.06],[0.28,0.12]],
+      segs:[
+        {type:'bezier',c1:[1.15,-1.7],c2:[1.46,-0.7]},
+        {type:'line'},
+        {type:'quad',c1:[0.10,-1.0]}
+      ]
+    },
+    rvCav:{
+      pts:[[-0.22,-1.55],[-1.02,0.02],[-0.16,-0.02]],
+      segs:[
+        {type:'bezier',c1:[-1.05,-1.15],c2:[-1.28,-0.35]},
+        {type:'line'},
+        {type:'quad',c1:[-0.04,-0.9]}
+      ]
+    },
+    laCav:{
+      pts:[[0.30,0.2],[0.7,1.62],[0.16,0.9]],
+      segs:[
+        {type:'bezier',c1:[1.25,0.35],c2:[1.35,1.25]},
+        {type:'bezier',c1:[0.4,1.78],c2:[0.16,1.5]},
+        {type:'bezier',c1:[0.16,0.5],c2:[0.2,0.28]}
+      ]
+    },
+    raCav:{
+      pts:[[-0.24,0.1],[-0.66,1.56],[-0.14,0.85]],
+      segs:[
+        {type:'bezier',c1:[-1.15,0.28],c2:[-1.28,1.2]},
+        {type:'bezier',c1:[-0.36,1.72],c2:[-0.14,1.45]},
+        {type:'bezier',c1:[-0.14,0.45],c2:[-0.18,0.2]}
+      ]
+    }
+  },
+  /* struktur-beroende parametrar (från drawUSPanel: lvScale/rvScale/septX/lvSq/rvSq/atG/raC/rvC) */
+  params:{
+    normal:  {lvScale:1,   rvScale:1,   septX:0.10, lvSqBase:0.46, rvSqBase:0.40, raCollapse:1,    rvCollapse:1},
+    tamponad:{lvScale:1,   rvScale:1,   septX:0.10, lvSqBase:0.46, rvSqBase:0.40, raCollapse:0.62, rvCollapse:0.6},
+    rv:      {lvScale:0.82,rvScale:1.7, septX:0.95, lvSqBase:0.46, rvSqBase:0.12, raCollapse:1,    rvCollapse:1},
+    empty:   {lvScale:0.62,rvScale:0.7, septX:0.10, lvSqBase:0.72, rvSqBase:0.40, raCollapse:1,    rvCollapse:1}
+  },
+  rvApexY:-1.55,
+  atrialGain:0.14,
+  rates:{rosc:92, good:70, other:64},
+  // OBS: spelets ursprungliga ang=1.95 rad (≈111.7°) var felroterad ~60° medurs.
+  // Korrigerat värde nedan (≈51.7°), justerbart live med reglaget.
+  rotationDeg: (1.95-Math.PI/3)*180/Math.PI,
+  // hjärtplanets origo, i SPELETS egna kanvas-koordinater (300×200, samma som ultrasound.js "us"-canvasen).
+  // Motsvarar spelets hx=apexX-4, hy=112 (apexX=150 i spelet). Redigeras här, sen samma tal in i ultrasound.js.
+  originX: 146, originY: 112,
+  pathOrder:["outline","lvCav","rvCav","laCav","raCav"]
+};
+const CORE_PATHS=["outline","lvCav","rvCav","laCav","raCav"];
+const PATH_LABELS={outline:"Hjärtkontur (myokard)",lvCav:"Vänster kammare (LV)",rvCav:"Höger kammare (RV)",laCav:"Vänster förmak (LA)",raCav:"Höger förmak (RA)"};
+
+function loadSaved(){ try{const raw=localStorage.getItem("usVectorData"); if(raw)return JSON.parse(raw);}catch(e){} return null; }
+let DATA = loadSaved() || JSON.parse(JSON.stringify(ORIGINAL));
+if(!DATA.pathOrder) DATA.pathOrder=[...CORE_PATHS];          // migrera äldre sparad data
+if(DATA.rotationDeg==null) DATA.rotationDeg=ORIGINAL.rotationDeg;
+if(DATA.originX==null) DATA.originX=ORIGINAL.originX;
+if(DATA.originY==null) DATA.originY=ORIGINAL.originY;
+let curPath = DATA.pathOrder[0];
+let dragging = null; // {kind:'pt'|'c1'|'c2', segIdx, ptIdx}
+
+function save(){ localStorage.setItem("usVectorData", JSON.stringify(DATA)); }
+function pathLabel(name){ const spec=DATA.paths[name]; return (spec&&spec.label)||PATH_LABELS[name]||name; }
+function isCore(name){ return CORE_PATHS.includes(name); }
+
+/* ===== canvas geometri ===== */
+const cv=$("us"), g=cv.getContext("2d");
+const W=600,H=400, apexX=W/2, apexY=4, half=0.62, R=W*0.64;
+const u=46;               // skala (canonical units -> px), större än i spelet för redigerbarhet
+const EDITOR_SCALE=2;     // editorns canvas är exakt 2x spelets (600x400 vs 300x200, u=46 vs u=23)
+function curAng(){ return DATA.rotationDeg*Math.PI/180; }
+function hx(){ return DATA.originX*EDITOR_SCALE; }
+function hy(){ return DATA.originY*EDITOR_SCALE; }
+function toScreen(x,y){
+  // motsvarar g.translate(hx,hy) + g.rotate(ang) i spelkoden, applicerat manuellt här
+  const ang=curAng();
+  const rx = x*Math.cos(ang) - y*Math.sin(ang);
+  const ry = x*Math.sin(ang) + y*Math.cos(ang);
+  return [hx()+rx*u, hy()+ry*u];
+}
+function toWorld(px,py){
+  const ang=curAng();
+  const dx=px-hx(), dy=py-hy();
+  const rx=dx/u, ry=dy/u;
+  const c=Math.cos(-ang), s=Math.sin(-ang);
+  return [rx*c-ry*s, rx*s+ry*c];
+}
+
+function smooth(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);}
+
+// Septum-kontrollpunkten i lvCav buktar in i LV vid RV-dilatation (D-formad septum, äkta POCUS-fynd vid
+// lungemboli). Den redigerbara punkten i lvCav.segs är BASLINJEN (som du ser/drar i alla andra lägen);
+// vid struct="rv" adderas denna delta till dess x, istället för att skriva över punkten helt.
+const RV_SEPTUM_BULGE=0.85;
+function buildPathObj(pathName, params, struct){
+  const spec=DATA.paths[pathName];
+  return function(){
+    g.beginPath();
+    const p0=spec.pts[0];
+    g.moveTo(...toScreen(p0[0],p0[1]));
+    for(let i=0;i<spec.segs.length;i++){
+      const seg=spec.segs[i];
+      const to=spec.pts[(i+1)%spec.pts.length];
+      if(seg.type==='bezier'){ g.bezierCurveTo(...toScreen(seg.c1[0],seg.c1[1]),...toScreen(seg.c2[0],seg.c2[1]),...toScreen(to[0],to[1])); }
+      else if(seg.type==='quad'){
+        let c1=seg.c1;
+        if(pathName==='lvCav' && struct==='rv') c1=[seg.c1[0]+RV_SEPTUM_BULGE, seg.c1[1]];
+        g.quadraticCurveTo(...toScreen(c1[0],c1[1]),...toScreen(to[0],to[1]));
+      }
+      else { g.lineTo(...toScreen(to[0],to[1])); }
+    }
+    g.closePath();
+  };
+}
+
+let t0=performance.now();
+function draw(){
+  const now=(performance.now())/1000;
+  const struct=$("structSel").value, func=$("funcSel").value;
+  const P=DATA.params[struct];
+  g.clearRect(0,0,W,H);
+  g.save();
+  g.beginPath(); g.moveTo(apexX,apexY); g.arc(apexX,apexY,R,Math.PI/2-half,Math.PI/2+half); g.closePath(); g.clip();
+  g.fillStyle="#060d0b"; g.fillRect(0,0,W,H);
+
+  const playing=$("playChk").checked;
+  const rate = $("structSel").value, rosc=false;
+  const bpm = rosc?+DATA.rates.rosc:(func==="good"?+DATA.rates.good:+DATA.rates.other);
+  const period=60/bpm;
+  const tt = playing? now : 0;
+  const ph=((tt%period)+period)%period/period;
+  const sysFrac=0.42;
+  let c;
+  if(func==="still"||func==="vf") c=0;
+  else c=(ph<sysFrac)?smooth(Math.sin(ph/sysFrac*Math.PI)):0;
+  if(func==="weak") c*=0.16;
+  const diast=(ph>=sysFrac);
+
+  const outline=buildPathObj("outline",P,struct);
+  const showCore=$("showCore").checked;
+
+  function squeezeDraw(cx,cy,s,pathFn){
+    g.save();
+    const [sx,sy]=toScreen(cx,cy);
+    g.translate(sx,sy); g.scale(s,s); g.translate(-sx,-sy);
+    pathFn(); g.fill(); g.stroke();
+    g.restore();
+  }
+  const lvSq=c? (1-P.lvSqBase*c) : 1;
+  const rvSq=c? (1-P.rvSqBase*c) : 1;
+  const atG=1+DATA.atrialGain*c;
+  const raC=(struct==="tamponad"&&diast)?P.raCollapse:1;
+  const rvC=(struct==="tamponad"&&diast)?P.rvCollapse:1;
+  const CAV_CFG={
+    lvCav:{cx:0.75,cy:-0.7,s:lvSq*P.lvScale},
+    rvCav:{cx:-0.6,cy:-0.6,s:rvSq*P.rvScale},
+    laCav:{cx:0.7,cy:1.0,s:atG},
+    raCav:{cx:-0.6,cy:0.95,s:atG*raC}
+  };
+
+  // ---------- enhetlig render-loop: läsordningen i DATA.pathOrder ÄR z-ordningen, kärna som egna ----------
+  DATA.pathOrder.forEach(name=>{
+    if(isCore(name) && !showCore) return;
+    if(name==="outline"){
+      if(struct==="tamponad"){
+        g.save();
+        g.beginPath(); g.ellipse(hx(),hy()-0.2*u,2.5*u,2.2*u,0,0,7);
+        outline(); g.fillStyle="#03110e"; g.fill("evenodd");
+        g.restore();
+        g.strokeStyle="rgba(232,243,236,0.9)"; g.lineWidth=2.0; outline(); g.stroke();
+      }
+      const myoGrad=g.createLinearGradient(0,hy()-2.4*u,0,hy()+2*u);
+      myoGrad.addColorStop(0,"#cfdbd3"); myoGrad.addColorStop(0.5,"#9db0a7"); myoGrad.addColorStop(1,"#b4c3ba");
+      g.fillStyle=myoGrad; outline(); g.fill();
+      g.strokeStyle="rgba(226,240,232,0.8)"; g.lineWidth=1.4; outline(); g.stroke();
+    } else if(CAV_CFG[name]){
+      const cfg=CAV_CFG[name];
+      g.fillStyle="#03100d"; g.strokeStyle="rgba(206,226,217,0.55)"; g.lineWidth=1;
+      squeezeDraw(cfg.cx,cfg.cy,cfg.s, buildPathObj(name,P,struct));
+    } else {
+      const spec=DATA.paths[name]; if(!spec)return;
+      if(spec.visibleStructs && !spec.visibleStructs.includes(struct))return;
+      const pathFn=buildPathObj(name,P);
+      pathFn();
+      if(spec.style&&spec.style.fill){ g.fillStyle=spec.style.fill; g.fill(); }
+      if(spec.style&&spec.style.stroke){ g.strokeStyle=spec.style.stroke; g.lineWidth=spec.style.strokeWidth||1.5; g.stroke(); }
+    }
+  });
+
+  if(showCore && func==="vf"){
+    g.save(); outline(); g.clip();
+    g.strokeStyle="rgba(210,228,218,0.45)"; g.lineWidth=1;
+    for(let i=0;i<12;i++){
+      const yy=-2.4+i*0.42;
+      const [sx0,sy0]=toScreen(-1.8,yy);
+      g.beginPath(); g.moveTo(sx0,sy0);
+      for(let xx=-1.8;xx<2;xx+=0.12){ const [sx,sy]=toScreen(xx,yy+Math.sin(now*38+xx*10+i*1.3)*0.07); g.lineTo(sx,sy); }
+      g.stroke();
+    }
+    g.restore();
+  }
+  g.restore(); // clip
+
+  g.strokeStyle="#2a463f"; g.lineWidth=1.5;
+  g.beginPath(); g.moveTo(apexX,apexY); g.arc(apexX,apexY,R,Math.PI/2-half,Math.PI/2+half); g.closePath(); g.stroke();
+
+  drawHandles();
+  if(playing) requestAnimationFrame(draw);
+}
+
+/* ===== handtag (draggable control points) för vald kontur ===== */
+function allHandles(pathName){
+  const spec=DATA.paths[pathName];
+  const H=[];
+  spec.pts.forEach((p,i)=>H.push({kind:'pt',idx:i,pos:p}));
+  spec.segs.forEach((seg,i)=>{
+    if(seg.c1)H.push({kind:'c1',idx:i,pos:seg.c1});
+    if(seg.c2)H.push({kind:'c2',idx:i,pos:seg.c2});
+  });
+  return H;
+}
+function drawHandles(){
+  const spec=DATA.paths[curPath];
+  // guide-linjer control->anchor
+  g.strokeStyle="rgba(244,169,59,0.35)"; g.lineWidth=1;
+  spec.segs.forEach((seg,i)=>{
+    const from=spec.pts[i], to=spec.pts[(i+1)%spec.pts.length];
+    if(seg.c1){ const [x1,y1]=toScreen(...from),[x2,y2]=toScreen(...seg.c1); g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke(); }
+    if(seg.c2){ const [x1,y1]=toScreen(...to),[x2,y2]=toScreen(...seg.c2); g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke(); }
+  });
+  allHandles(curPath).forEach(h=>{
+    const [sx,sy]=toScreen(h.pos[0],h.pos[1]);
+    g.fillStyle = h.kind==='pt' ? "#35e08e" : "#f4a93b";
+    g.beginPath(); g.arc(sx,sy, h.kind==='pt'?5:4, 0,7); g.fill();
+    g.strokeStyle="#0b120f"; g.lineWidth=1.3; g.stroke();
+  });
+}
+function nearestHandle(px,py){
+  let best=null,bd=12*12;
+  allHandles(curPath).forEach(h=>{
+    const [sx,sy]=toScreen(h.pos[0],h.pos[1]);
+    const d=(sx-px)**2+(sy-py)**2;
+    if(d<bd){bd=d;best=h;}
+  });
+  return best;
+}
+const lerp2=(a,b,t)=>[a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t];
+function evalSeg(from,seg,to,t){
+  if(seg.type==='line') return lerp2(from,to,t);
+  if(seg.type==='quad'){ const L=lerp2(from,seg.c1,t), R=lerp2(seg.c1,to,t); return lerp2(L,R,t); }
+  const L1=lerp2(from,seg.c1,t), M=lerp2(seg.c1,seg.c2,t), R2=lerp2(seg.c2,to,t);
+  const L2=lerp2(L1,M,t), R1=lerp2(M,R2,t);
+  return lerp2(L2,R1,t);
+}
+function splitSeg(from,seg,to,t){
+  if(seg.type==='line') return {left:{type:'line'}, right:{type:'line'}, point:lerp2(from,to,t)};
+  if(seg.type==='quad'){
+    const L1=lerp2(from,seg.c1,t), R1=lerp2(seg.c1,to,t), M=lerp2(L1,R1,t);
+    return {left:{type:'quad',c1:L1}, right:{type:'quad',c1:R1}, point:M};
+  }
+  const L1=lerp2(from,seg.c1,t), M=lerp2(seg.c1,seg.c2,t), R2=lerp2(seg.c2,to,t);
+  const L2=lerp2(L1,M,t), R1=lerp2(M,R2,t), L3=lerp2(L2,R1,t);
+  return {left:{type:'bezier',c1:L1,c2:L2}, right:{type:'bezier',c1:R1,c2:R2}, point:L3};
+}
+function nearestOnCurve(pathName,px,py){
+  const spec=DATA.paths[pathName]; if(!spec)return null;
+  let best=null,bd=14*14;
+  spec.segs.forEach((seg,i)=>{
+    const from=spec.pts[i], to=spec.pts[(i+1)%spec.pts.length];
+    for(let k=1;k<20;k++){
+      const t=k/20;
+      const [wx,wy]=evalSeg(from,seg,to,t);
+      const [sx,sy]=toScreen(wx,wy);
+      const d=(sx-px)**2+(sy-py)**2;
+      if(d<bd){bd=d;best={segIdx:i,t};}
+    }
+  });
+  return best;
+}
+let panning=null; // {startPx,startPy,startX,startY}
+cv.addEventListener('pointerdown',e=>{
+  const r=cv.getBoundingClientRect();
+  const px=e.clientX-r.left, py=e.clientY-r.top;
+  if($("panMode").checked){
+    panning={startPx:px,startPy:py,startX:DATA.originX,startY:DATA.originY};
+    cv.setPointerCapture(e.pointerId);
+    return;
+  }
+  const h=nearestHandle(px,py);
+  if(h && e.altKey && h.kind==='pt'){
+    const spec=DATA.paths[curPath];
+    if(spec.pts.length<=3){ $("pointHint").textContent="Kan inte ta bort, minst 3 ankare krävs."; return; }
+    const i=h.idx;
+    spec.pts.splice(i,1);
+    spec.segs.splice(i,1);
+    // index-aritmetik görs mot den NYA (redan splicade) längden, annars blir wrap-around fallen (i=0 eller sista punkten) fel
+    const m=spec.pts.length;
+    const j=(i-1+m)%m, from=spec.pts[j], to=spec.pts[(j+1)%m];
+    // ge den nya sammanslagna sträckan enkla, raka handtag (justerbara efteråt)
+    spec.segs[j]={type:'bezier', c1:lerp2(from,to,0.33), c2:lerp2(from,to,0.66)};
+    save(); if(!$("playChk").checked)draw();
+    return;
+  }
+  if(h){ dragging=h; cv.setPointerCapture(e.pointerId); }
+});
+cv.addEventListener('dblclick',e=>{
+  const r=cv.getBoundingClientRect();
+  const px=e.clientX-r.left, py=e.clientY-r.top;
+  const hit=nearestOnCurve(curPath,px,py);
+  if(!hit)return;
+  const spec=DATA.paths[curPath];
+  const i=hit.segIdx, from=spec.pts[i], to=spec.pts[(i+1)%spec.pts.length];
+  const {left,right,point}=splitSeg(from,spec.segs[i],to,hit.t);
+  spec.pts.splice(i+1,0,point);
+  spec.segs.splice(i,1,left,right);
+  save(); if(!$("playChk").checked)draw();
+});
+cv.addEventListener('pointermove',e=>{
+  const r=cv.getBoundingClientRect();
+  const px=e.clientX-r.left, py=e.clientY-r.top;
+  if(panning){
+    const dx=(px-panning.startPx)/EDITOR_SCALE, dy=(py-panning.startPy)/EDITOR_SCALE;
+    setPos(Math.round(panning.startX+dx), Math.round(panning.startY+dy));
+    $("pointHint").textContent="Position: ("+DATA.originX+", "+DATA.originY+")";
+    return;
+  }
+  if(!dragging)return;
+  const [wx,wy]=toWorld(px,py);
+  dragging.pos[0]=+wx.toFixed(3); dragging.pos[1]=+wy.toFixed(3);
+  $("pointHint").textContent=(dragging.kind==='pt'?'Ankare':'Handtag')+' #'+dragging.idx+': ('+dragging.pos[0]+', '+dragging.pos[1]+')';
+  if(!$("playChk").checked) draw();
+  syncJSON(); save();
+});
+window.addEventListener('pointerup',()=>{dragging=null; panning=null;});
+
+/* ===== path-väljare ===== */
+function customShapeNames(){ return DATA.pathOrder.filter(n=>!isCore(n)); }
+function moveShape(name,dir){
+  // flyttar i HELA pathOrder (kärna + egna former), så z-ordningen mellan dem verkligen ändras
+  const i=DATA.pathOrder.indexOf(name), j=i+dir;
+  if(j<0||j>=DATA.pathOrder.length)return;
+  [DATA.pathOrder[i],DATA.pathOrder[j]]=[DATA.pathOrder[j],DATA.pathOrder[i]];
+  save(); buildPathBtns(); if(!$("playChk").checked)draw();
+}
+function buildPathBtns(){
+  const host=$("pathBtns"); host.innerHTML="";
+  DATA.pathOrder.forEach((p,i)=>{
+    const row=document.createElement("div");
+    row.style.cssText="display:flex;gap:3px;align-items:center";
+    const b=document.createElement("button");
+    b.style.flex="1";
+    b.textContent=pathLabel(p)+(isCore(p)?" (kärna)":" ✎");
+    b.className=p===curPath?"sel":"";
+    b.onclick=()=>{curPath=p; buildPathBtns(); buildShapeStyle(); if(!$("playChk").checked)draw();};
+    row.appendChild(b);
+    const up=document.createElement("button"); up.textContent="▲"; up.title="Flytta upp (bakre lager)";
+    up.disabled=i===0; up.style.padding="4px 6px"; up.onclick=(e)=>{e.stopPropagation();moveShape(p,-1);};
+    const dn=document.createElement("button"); dn.textContent="▼"; dn.title="Flytta ner (främre lager)";
+    dn.disabled=i===DATA.pathOrder.length-1; dn.style.padding="4px 6px"; dn.onclick=(e)=>{e.stopPropagation();moveShape(p,1);};
+    row.appendChild(up); row.appendChild(dn);
+    host.appendChild(row);
+  });
+  buildShapeStyle();
+}
+function buildShapeStyle(){
+  const host=$("shapeStyle");
+  const spec=DATA.paths[curPath];
+  if(!spec){ host.innerHTML=""; return; }
+  if(isCore(curPath)){
+    host.innerHTML=`<div class="mini" style="margin:6px 0">Kärnform, del av spelmotorns fasta rendering (fyllning/skuggning styrs av parametrarna till höger, inte här).</div>`;
+    return;
+  }
+  spec.style=spec.style||{fill:"#2a7a5e",stroke:"rgba(232,243,236,0.6)",strokeWidth:1.5};
+  const structs=["normal","tamponad","rv","empty"];
+  const structLabels={normal:"Normal",tamponad:"Tamponad",rv:"RV-dil.",empty:"Hypovol."};
+  const vis=spec.visibleStructs||null; // null = synlig i alla lägen (standard)
+  host.innerHTML=`<div class="toolbar" style="margin:8px 0 4px">
+    <label class="mini">Namn<br><input type="text" id="shapeName" value="${curPath}"></label>
+    <label class="mini">Fyllning<br><input type="text" id="shapeFill" value="${spec.style.fill||''}" style="width:90px"></label>
+    <label class="mini">Kontur<br><input type="text" id="shapeStroke" value="${spec.style.stroke||''}" style="width:110px"></label>
+  </div>
+  <div class="mini" style="margin:6px 0 3px">Synlig vid struktur (avmarkerade = dold i det läget)</div>
+  <div class="toolbar">${structs.map(s=>`<label class="chk"><input type="checkbox" class="visChk" data-s="${s}" ${(!vis||vis.includes(s))?"checked":""}> ${structLabels[s]}</label>`).join("")}</div>
+  <div class="toolbar"><button class="warn" id="btnDelShape">Ta bort formen</button></div>`;
+  $("shapeName").onchange=e=>{
+    const nv=e.target.value.trim(); if(!nv||DATA.paths[nv]){e.target.value=curPath;return;}
+    DATA.paths[nv]=DATA.paths[curPath]; delete DATA.paths[curPath];
+    const i=DATA.pathOrder.indexOf(curPath); DATA.pathOrder[i]=nv; curPath=nv;
+    save(); buildPathBtns(); if(!$("playChk").checked)draw();
+  };
+  $("shapeFill").onchange=e=>{ spec.style.fill=e.target.value||null; save(); if(!$("playChk").checked)draw(); };
+  $("shapeStroke").onchange=e=>{ spec.style.stroke=e.target.value||null; save(); if(!$("playChk").checked)draw(); };
+  document.querySelectorAll(".visChk").forEach(chk=>{
+    chk.onchange=()=>{
+      const checked=structs.filter(s=>document.querySelector(`.visChk[data-s="${s}"]`).checked);
+      spec.visibleStructs = checked.length===structs.length ? null : checked;
+      save(); if(!$("playChk").checked)draw();
+    };
+  });
+  $("btnDelShape").onclick=()=>{
+    if(!confirm('Ta bort formen "'+pathLabel(curPath)+'"?'))return;
+    delete DATA.paths[curPath];
+    DATA.pathOrder=DATA.pathOrder.filter(n=>n!==curPath);
+    curPath=DATA.pathOrder[0];
+    save(); buildPathBtns(); if(!$("playChk").checked)draw();
+  };
+}
+$("btnAddShape").onclick=()=>{
+  let n=1; while(DATA.paths["ny_form"+n])n++;
+  const name="ny_form"+n;
+  // liten avrundad triangel, placerad synligt inom sektorn, redigerbar direkt
+  DATA.paths[name]={
+    label:"Ny form "+n,
+    pts:[[-0.3,-0.2],[0.3,-0.2],[0,0.4]],
+    segs:[
+      {type:'bezier',c1:[-0.1,-0.35],c2:[0.1,-0.35]},
+      {type:'bezier',c1:[0.35,0.0],c2:[0.2,0.3]},
+      {type:'bezier',c1:[-0.2,0.3],c2:[-0.35,0.0]}
+    ],
+    style:{fill:"#2a7a5e",stroke:"rgba(232,243,236,0.6)",strokeWidth:1.5}
+  };
+  DATA.pathOrder.push(name); curPath=name;
+  save(); buildPathBtns(); if(!$("playChk").checked)draw();
+};
+
+/* ===== parametertabell ===== */
+function buildParamTable(){
+  const rows=[["lvScale","LV-skala"],["rvScale","RV-skala"],
+    ["lvSqBase","LV kontraktion-faktor"],["rvSqBase","RV kontraktion-faktor"],
+    ["raCollapse","RA-kollaps (tamponad)"],["rvCollapse","RV-kollaps (tamponad)"]];
+  const structs=["normal","tamponad","rv","empty"];
+  let html="<tr><th>Parameter</th>"+structs.map(s=>`<th>${s}</th>`).join("")+"</tr>";
+  rows.forEach(([key,label])=>{
+    html+=`<tr><td>${label}</td>`+structs.map(s=>`<td><input class="pnum" type="number" step="0.01" data-key="${key}" data-struct="${s}" value="${DATA.params[s][key]}" style="width:52px"></td>`).join("")+"</tr>";
+  });
+  $("paramTable").innerHTML=html;
+  document.querySelectorAll("#paramTable input").forEach(inp=>{
+    inp.onchange=()=>{ DATA.params[inp.dataset.struct][inp.dataset.key]=parseFloat(inp.value); save(); syncJSON(); if(!$("playChk").checked)draw(); };
+  });
+}
+
+function syncJSON(){ $("json").value=JSON.stringify(DATA,null,1); }
+
+/* ===== boot ===== */
+$("structSel").onchange=()=>{ if(!$("playChk").checked)draw(); };
+$("funcSel").onchange=()=>{ if(!$("playChk").checked)draw(); };
+$("playChk").onchange=()=>{ draw(); };
+$("showCore").onchange=()=>{ if(!$("playChk").checked)draw(); };
+$("rateRosc").value=DATA.rates.rosc; $("rateGood").value=DATA.rates.good; $("rateOther").value=DATA.rates.other;
+$("rateRosc").onchange=e=>{DATA.rates.rosc=+e.target.value; save();};
+$("rateGood").onchange=e=>{DATA.rates.good=+e.target.value; save();};
+$("rateOther").onchange=e=>{DATA.rates.other=+e.target.value; save();};
+
+$("rotSlider").value=DATA.rotationDeg.toFixed(1); $("rotNum").value=DATA.rotationDeg.toFixed(1);
+function setRotation(v){
+  DATA.rotationDeg=v; $("rotSlider").value=v; $("rotNum").value=v;
+  save(); if(!$("playChk").checked)draw();
+}
+$("rotSlider").oninput=e=>setRotation(+e.target.value);
+$("rotNum").onchange=e=>setRotation(+e.target.value);
+
+$("posXSlider").value=DATA.originX; $("posXNum").value=DATA.originX;
+$("posYSlider").value=DATA.originY; $("posYNum").value=DATA.originY;
+function setPos(x,y){
+  DATA.originX=x; DATA.originY=y;
+  $("posXSlider").value=x; $("posXNum").value=x;
+  $("posYSlider").value=y; $("posYNum").value=y;
+  save(); if(!$("playChk").checked)draw();
+}
+$("posXSlider").oninput=e=>setPos(+e.target.value, DATA.originY);
+$("posXNum").onchange=e=>setPos(+e.target.value, DATA.originY);
+$("posYSlider").oninput=e=>setPos(DATA.originX, +e.target.value);
+$("posYNum").onchange=e=>setPos(DATA.originX, +e.target.value);
+
+$("btnExport").onclick=()=>{
+  syncJSON();
+  navigator.clipboard&&navigator.clipboard.writeText($("json").value).catch(()=>{});
+  const b=$("btnExport"),t=b.textContent; b.textContent="✓ Kopierat!"; setTimeout(()=>b.textContent=t,1200);
+};
+$("btnImport").onclick=()=>{
+  try{ DATA=JSON.parse($("json").value); save(); buildParamTable(); if(!$("playChk").checked)draw(); }
+  catch(e){ alert("JSON-fel: "+e.message); }
+};
+$("btnReset").onclick=()=>{
+  if(!confirm("Kasta ändringar och återställa originalvektorerna?"))return;
+  DATA=JSON.parse(JSON.stringify(ORIGINAL)); save(); buildParamTable(); syncJSON(); if(!$("playChk").checked)draw();
+};
+
+buildPathBtns(); buildParamTable(); syncJSON();
+draw();
+</script>
+</body>
+</html>

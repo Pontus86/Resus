@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mina resultat — Resus</title>
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/stats.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>Mina resultat</h1>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card" id="loggedOutCard" style="display:none">
+    <h3>Logga in för att se din statistik</h3>
+    <p>Mina resultat samlar din historik från A-HLR Simulator, EKG-matchningsspelet och Checklistors loggbok på ett ställe, oavsett vilken enhet du loggar in från. Klicka på pillen uppe i hörnet — ingen lösenord, bara en kod via mail.</p>
+  </div>
+
+  <div id="statsContent" style="display:none">
+    <div class="card" id="summaryCard"></div>
+
+    <div class="card" id="hlrCard">
+      <h3>A-HLR Simulator</h3>
+      <div id="hlrSummary" class="stats-summary"></div>
+      <canvas id="hlrChart" class="stats-chart"></canvas>
+      <div class="stats-table-wrap"><div id="hlrTable" class="stats-table"></div></div>
+    </div>
+
+    <div class="card" id="ekgCard">
+      <h3>EKG — matchningsspelet</h3>
+      <div id="ekgSummary" class="stats-summary"></div>
+      <canvas id="ekgChart" class="stats-chart"></canvas>
+      <div class="stats-table-wrap"><div id="ekgTable" class="stats-table"></div></div>
+    </div>
+
+    <div class="card" id="checklistCard">
+      <h3>Checklistor</h3>
+      <div id="checklistSummary" class="stats-summary"></div>
+
+      <h4>Dina checklistor</h4>
+      <div id="myChecklists" class="stats-chip-list"></div>
+
+      <h4>Stjärnmärkta</h4>
+      <div id="starredChecklists" class="stats-chip-list"></div>
+
+      <h4>Antal genomförda per checklista</h4>
+      <div id="checklistCounts" class="stats-chip-list"></div>
+
+      <h4>Prestationsutveckling (CUSUM)</h4>
+      <p class="mini">Varje logg med angivet utfall (lyckad/misslyckad) ger ett steg upp vid misslyckande och ett steg ner vid lyckat försök, viktat mot en godtagbar felfrekvens på 20&nbsp;%. En sjunkande eller platt linje betyder att du presterar minst lika bra som det — en stigande linje betyder fler misslyckanden än väntat i rad. Kräver att du fyllt i lyckad/misslyckad i loggboken (det är valfritt).</p>
+      <select id="cusumFilter" class="cusum-filter"></select>
+      <canvas id="cusumChart" class="stats-chart"></canvas>
+
+      <h4>Loggbok</h4>
+      <div class="stats-table-wrap"><div id="logbookTable" class="stats-table"></div></div>
+    </div>
+  </div>
+</div>
+
+<script src="nav.js"></script>
+<script src="lib/supabase.js"></script>
+<script src="auth.js"></script>
+<script src="usernames.js"></script>
+<script src="auth-ui.js"></script>
+<script src="Checklistor/js/log-store.js"></script>
+<script src="Checklistor/js/tags.js"></script>
+<script src="EKG/js/game-history.js"></script>
+<script src="stats.js"></script>
+</body>
+</html>

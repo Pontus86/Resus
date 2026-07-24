@@ -1,0 +1,60 @@
+/* ---------- Kropps-atlas: sidspecifik styling ovanpå ../css/theme.css ---------- */
+
+.body3d-panel{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.body3d-main{flex:1 1 420px;min-width:0}
+/* Mörk bakgrund (inte ljusgrå som Neuro:s hjärnpanel) -- de tunna, ljusa benen (ben/skalle,
+   #EDE6D3) blir annars näst intill osynliga mot en likartat ljus bakgrund: ett smalt skaft som
+   lårbenet upptar mycket lite skärmyta jämfört med t.ex. bäckenet, så kontrasten mot fonden
+   avgör om det syns alls -- bekräftat genom att jämföra faktiska world-space bounding boxes
+   (helt korrekt hopkopplade höft->lår->knä->skenben/vadben->fot, inga luckor) mot en skärmdump
+   där just de smala benen ändå knappt syntes, se konversationen.*/
+.body3d-canvas-wrap{position:relative;width:100%;max-width:460px;aspect-ratio:3/4;
+  background:linear-gradient(180deg,#2B2A28,#1C1B1A);border-radius:12px;overflow:hidden;
+  border:1px solid var(--line)}
+#body3dCanvas{width:100%;height:100%;display:block;cursor:grab}
+#body3dCanvas:active{cursor:grabbing}
+.body3d-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--muted);background:rgba(247,245,244,.85)}
+.body3d-loading[hidden]{display:none}
+.body3d-hint{position:absolute;left:10px;bottom:10px;font-size:10.5px;color:var(--muted);
+  background:rgba(255,255,255,.8);padding:3px 8px;border-radius:6px;pointer-events:none}
+.body3d-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;max-width:460px}
+.body3d-presets button{flex:1 1 auto}
+
+.body3d-sidebar{flex:1 1 280px;min-width:260px;max-width:360px}
+.body3d-sidebar-heading{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  color:var(--muted);margin:14px 0 6px}
+.body3d-sidebar-heading:first-child{margin-top:0}
+
+.body3d-systems{display:flex;flex-direction:column;gap:6px}
+.body3d-check{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;cursor:pointer}
+.body3d-system-loading{font-size:10.5px;color:var(--red-dark);font-weight:700;margin-left:auto}
+
+.body3d-chip-row{display:flex;gap:6px;flex-wrap:wrap}
+.body3d-chip{font-family:inherit;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;
+  border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer}
+.body3d-chip:hover{border-color:#F3B9B2;background:var(--red-tint)}
+.body3d-chip.active{background:var(--red);border-color:var(--red);color:#fff}
+
+.body3d-search{width:100%;font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--line);
+  border-radius:9px;background:#fff;color:var(--ink)}
+.body3d-search:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--red-tint)}
+.body3d-results{max-height:220px;overflow-y:auto;margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.body3d-result{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;
+  font-family:inherit;font-size:12.5px;font-weight:600;padding:6px 9px;border-radius:7px;border:1px solid transparent;
+  background:transparent;color:var(--ink);cursor:pointer;text-transform:capitalize}
+.body3d-result:hover{background:var(--bg);border-color:var(--line)}
+.body3d-result-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+  background:var(--line);padding:2px 6px;border-radius:6px;white-space:nowrap}
+.body3d-no-results{font-size:12px;color:var(--muted);padding:6px 2px}
+
+.body3d-selected-info{font-size:12.5px;color:var(--ink);background:var(--bg);border-radius:9px;
+  padding:9px 11px;min-height:20px;text-transform:capitalize;line-height:1.5}
+.body3d-selected-info strong{text-transform:capitalize}
+
+.body3d-clip-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.body3d-clip-row .body3d-check{flex:0 0 auto;min-width:78px;font-size:12px}
+.body3d-clip-row .clip-slider{flex:1 1 auto;min-width:0}
+.body3d-flip{font-family:inherit;font-size:13px;font-weight:700;padding:4px 9px;border-radius:7px;
+  border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;flex:0 0 auto}
+.body3d-flip.active{background:var(--red);border-color:var(--red);color:#fff}

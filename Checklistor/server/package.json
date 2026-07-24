@@ -1,0 +1,18 @@
+{
+  "name": "checklistor-vision-server",
+  "version": "1.0.0",
+  "description": "Local Ollama vision-model server that turns a photo of a printed procedure checklist into structured JSON for the Checklistor custom-checklist editor.",
+  "type": "module",
+  "main": "checklist-vision-server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node checklist-vision-server.js",
+    "dev": "node --watch checklist-vision-server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.22.2"
+  }
+}

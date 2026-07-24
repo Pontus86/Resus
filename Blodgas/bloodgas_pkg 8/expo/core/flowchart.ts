@@ -1,0 +1,107 @@
+// Auto-generated from web/flowchart.svg.
+export const FLOWCHART_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 1020" width="100%" role="img" aria-labelledby="fc-title fc-desc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="fc-title">Blood gas analysis flowchart</title>
+  <desc id="fc-desc">A four-step approach to acid-base interpretation: correct for venous sampling, identify the dominant disturbance, check compensation, calculate the anion gap, then consider diagnoses.</desc>
+  <defs>
+    <marker id="fcArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#b0b0b0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .step  { font-size: 11px; font-weight: 700; letter-spacing: .03em; fill: #d32f2f; }
+      .h     { font-size: 15px; font-weight: 700; fill: #1a1a1a; }
+      .sub   { font-size: 12px; fill: #555; }
+      .fcpillh { font-size: 12.5px; font-weight: 700; fill: #b3261e; }
+      .fcpills { font-size: 11px; fill: #5f5f5f; }
+      .card  { fill: #fff; stroke: #e4e4e4; stroke-width: 1; }
+      .band  { fill: #fdecea; stroke: #f3c5bf; stroke-width: 1; }
+      rect, line, circle, path, polygon, text { display: inline; }
+      .fcpill { fill: #fdecea; stroke: #d9534f; stroke-width: 2; }
+      .ln    { stroke: #c8c8c8; stroke-width: 1.4; fill: none; }
+    </style>
+  </defs>
+
+  <!-- venous correction -->
+  <rect class="band" x="130" y="20" width="420" height="58" rx="12"/>
+  <text class="step" x="152" y="42">OM VENÖST PROV</text>
+  <text class="sub"  x="152" y="62">Venöst pH är lägre och pCO₂ högre, så lägg till 0,03 på pH och</text>
+  <text class="sub"  x="152" y="78">dra bort 0,6 kPa från pCO₂ för att approximera arteriellt.</text>
+  <line class="ln" x1="340" y1="84" x2="340" y2="108" marker-end="url(#fcArrow)"/>
+
+  <!-- step 1 -->
+  <rect class="card" x="110" y="110" width="460" height="86" rx="14"/>
+  <text class="step" x="132" y="134">STEG 1 · DOMINERANDE RUBBNING</text>
+  <text class="h"    x="132" y="158">Klassificera utifrån pH</text>
+  <text class="sub"  x="132" y="180">pH &lt; 7,38 = acidemi · pH &gt; 7,42 = alkalemi · 7,38–7,42 = kolla gapet.</text>
+  <line class="ln" x1="340" y1="196" x2="340" y2="220" marker-end="url(#fcArrow)"/>
+
+  <!-- column headers -->
+  <text class="step" x="120" y="236" fill="#777">RESPIRATORISKT (pCO₂)</text>
+  <text class="step" x="560" y="236" fill="#777" text-anchor="end">METABOLT (HCO₃⁻ / BE)</text>
+
+  <!-- respiratory acidosis (left) -->
+  <rect class="fcpill" x="40" y="246" width="270" height="70" rx="11"/>
+  <text class="fcpillh" x="58" y="269">Respiratorisk acidos</text>
+  <text class="fcpills" x="58" y="288">pH lågt, pCO₂ &gt; 5,6 kPa</text>
+  <text class="fcpills" x="58" y="305">Orsaker: DEPRESS</text>
+
+  <!-- metabolic acidosis (right) -->
+  <rect class="fcpill" x="370" y="246" width="270" height="70" rx="11"/>
+  <text class="fcpillh" x="388" y="269">Metabol acidos</text>
+  <text class="fcpills" x="388" y="288">pH lågt, HCO₃⁻ / BE lågt</text>
+  <text class="fcpills" x="388" y="305">→ gå till steg 3 (anjongap)</text>
+
+  <!-- respiratory alkalosis (left) -->
+  <rect class="fcpill" x="40" y="326" width="270" height="70" rx="11"/>
+  <text class="fcpillh" x="58" y="349">Respiratorisk alkalos</text>
+  <text class="fcpills" x="58" y="368">pH högt, pCO₂ &lt; 5,1 kPa</text>
+  <text class="fcpills" x="58" y="385">Orsaker: APA / STAPLES</text>
+
+  <!-- metabolic alkalosis (right) -->
+  <rect class="fcpill" x="370" y="326" width="270" height="70" rx="11"/>
+  <text class="fcpillh" x="388" y="349">Metabol alkalos</text>
+  <text class="fcpills" x="388" y="368">pH högt, HCO₃⁻ / BE högt</text>
+  <text class="fcpills" x="388" y="385">Orsaker: CLEVER PD</text>
+
+  <line class="ln" x1="340" y1="396" x2="340" y2="412" marker-end="url(#fcArrow)"/>
+
+  <!-- step 2 -->
+  <rect class="card" x="110" y="414" width="460" height="112" rx="14"/>
+  <text class="step" x="132" y="438">STEG 2 · KOMPENSATION</text>
+  <text class="h"    x="132" y="462">Är det sekundära svaret adekvat?</text>
+  <text class="sub"  x="132" y="484">Metabolt: förväntat ΔpCO₂ = SBE × 0,1 (± 1) kPa.</text>
+  <text class="sub"  x="132" y="502">Respiratoriskt: akut SBE ≈ 0; kroniskt SBE ≈ ΔpCO₂ × 3 (± 3).</text>
+  <text class="sub"  x="132" y="520">Utanför förväntat intervall → en andra, blandad rubbning.</text>
+  <line class="ln" x1="340" y1="526" x2="340" y2="554" marker-end="url(#fcArrow)"/>
+
+  <!-- step 3 -->
+  <rect class="card" x="110" y="556" width="460" height="100" rx="14"/>
+  <text class="step" x="132" y="580">STEG 3 · ANJONGAP</text>
+  <text class="h"    x="132" y="604">AG = Na⁺ − Cl⁻ − HCO₃⁻</text>
+  <text class="sub"  x="132" y="626">Om pCO₂ &lt; 3,3 eller &gt; 7,3 kPa, använd faktiskt HCO₃⁻ (ej standard).</text>
+  <text class="sub"  x="132" y="644">Sedan avslöjar ΔAG + HCO₃⁻ en dold andra metabol rubbning.</text>
+  <line class="ln" x1="340" y1="656" x2="340" y2="684" marker-end="url(#fcArrow)"/>
+
+  <!-- gap pills -->
+  <rect class="fcpill" x="40" y="686" width="190" height="58" rx="11"/>
+  <text class="fcpillh" x="58" y="710">Högt gap (&gt; 12)</text>
+  <text class="fcpills" x="58" y="729">MUDPILERS · kolla laktat</text>
+
+  <rect class="fcpill" x="245" y="686" width="190" height="58" rx="11"/>
+  <text class="fcpillh" x="263" y="710">Normalt gap</text>
+  <text class="fcpills" x="263" y="729">USEDCRAP (hyperkloremiskt)</text>
+
+  <rect class="fcpill" x="450" y="686" width="190" height="58" rx="11"/>
+  <text class="fcpillh" x="468" y="710">Lågt / negativt gap</text>
+  <text class="fcpills" x="468" y="729">LIMB</text>
+
+  <line class="ln" x1="340" y1="744" x2="340" y2="772" marker-end="url(#fcArrow)"/>
+
+  <!-- step 4 -->
+  <rect class="band" x="110" y="774" width="460" height="90" rx="14"/>
+  <text class="step" x="132" y="798">STEG 4 · DIAGNOSER</text>
+  <text class="h"    x="132" y="822">Väv in siffrorna i den kliniska bilden</text>
+  <text class="sub"  x="132" y="844">Integrera anamnes, status och övriga prover (laktat, glukos,</text>
+  <text class="sub"  x="132" y="862">kreatinin). Om laktat förklarar hela ΔAG talar det mot andra anjoner.</text>
+
+  <text class="sub" x="340" y="905" text-anchor="middle" font-size="11" fill="#999">Baserat på Olsson de Capretz, Lindeman &amp; Dryver, Läkartidningen 2021;118:21087.</text>
+</svg>`;

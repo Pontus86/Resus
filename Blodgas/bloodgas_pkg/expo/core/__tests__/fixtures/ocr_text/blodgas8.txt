@@ -1,0 +1,25 @@
+PATIENTRAPPORT Spruta - S 250 µl 190110
+Identifieringar
+Provtyp Venös
+O2 0,0 L/min
+Blodgasvärden
+pH 7,4
+pCO2 5,8 kPa
+pO2 7,6 kPa
+Elektrolytvärden
+cNa+ 141 mmol/L
+cK+ 3,7 mmol/L
+cCrea 50 µmol/l
+cCa2+ 1,22 mmol/L
+cCl- 102 mmol/L
+Metabolitvärden
+cGlu 9,1 mmol/L
+cLac 6,5 mmol/L
+Oximetervärden
+ctHb 130 g/L
+FCOHb 0,1 %
+FMetHb 0,3 %
+sO2 90 %
+Beräknade värden
+cBase(Ecf)c 2,2 mmol/L
+cHCO3-(P,st)c 26 mmol/L

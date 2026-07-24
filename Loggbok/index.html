@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Loggbok — Resus</title>
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/stats.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>Loggbok</h1>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="notebook-page">
+<div class="notebook-holes" aria-hidden="true"></div>
+<div class="notebook-content">
+
+  <div class="card">
+    <h3>Snabblogga</h3>
+    <p class="mini">Lägg till flera procedurer på en gång för att komma ikapp — bara procedur och datum krävs. Tid och lyckad/misslyckad är valfritt och går bra att fylla i senare direkt i loggboken nedan.</p>
+    <div id="quickRows" class="quick-rows"></div>
+    <div class="quick-actions">
+      <button type="button" class="rs-btn ghost" id="addRowBtn">+ Lägg till rad</button>
+      <button type="button" class="rs-btn primary" id="logAllBtn">Logga allt</button>
+    </div>
+    <div class="mini" id="quickStatus"></div>
+  </div>
+
+  <div class="card" id="pendingCard" style="display:none">
+    <h3>Väntar din bekräftelse</h3>
+    <p class="mini">En kollega har taggat dig som deltagare på dessa — de räknas inte i din historik förrän du accepterar dem.</p>
+    <div id="pendingList" class="pending-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="logbook-head">
+      <h3>Din loggbok</h3>
+      <div class="logbook-io">
+        <button type="button" class="rs-btn ghost" id="exportCsvBtn">Ladda ner CSV</button>
+        <label class="rs-btn ghost" id="importCsvLabel">Ladda upp CSV<input type="file" id="importCsvInput" accept=".csv,text/csv" hidden></label>
+      </div>
+    </div>
+    <p class="mini" id="importStatus"></p>
+    <div class="stats-table-wrap"><div id="logTable" class="stats-table"></div></div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<datalist id="procedureNames"></datalist>
+
+<script src="../nav.js"></script>
+<script src="../lib/supabase.js"></script>
+<script src="../auth.js"></script>
+<script src="../usernames.js"></script>
+<script src="../auth-ui.js"></script>
+<script src="../Checklistor/js/log-store.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

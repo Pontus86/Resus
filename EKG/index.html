@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EKG-simulator — Resus</title>
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>EKG-simulator</h1>
+    <nav class="rs-nav" id="ekgNav">
+      <button data-tab="sim" class="active">Simulator</button>
+      <button data-tab="game">Spela</button>
+      <button data-tab="runner">Överlev</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h3>12-avlednings-EKG</h3>
+    <span class="driven-by tillstand">Styrs av Tillstånd (högermenyn) →</span>
+    <p id="simIntro">Hovra över fliken till höger för att välja ett eller flera tillstånd — inom en grupp (t.ex. STEMI/NSTEMI) är de ömsesidigt uteslutande, annars går de fritt att kombinera. EKG:t glider mjukt mellan lägen över en sekund så du ser var förändringarna sker.</p>
+    <div class="game-hud" id="gameHud" hidden></div>
+    <div class="runner-hud" id="runnerHud" hidden></div>
+    <canvas id="ecgCanvas" width="1000" height="460"></canvas>
+    <div class="runner-panel" id="runnerPanel" hidden></div>
+    <div class="active-summary" id="activeSummary"></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+      <button class="rs-btn ghost" id="resetBtn">Återställ till normalt sinusrytm</button>
+    </div>
+  </div>
+
+  <div class="card" id="anatomyCard">
+    <div class="section-head">
+      <h3>Hjärtats anatomi</h3>
+      <button type="button" class="section-toggle" id="anatomyToggleBtn">▲ Dölj</button>
+    </div>
+    <span class="driven-by tillstand">Styrs av Tillstånd (högermenyn), samma som EKG:t överst →</span>
+    <div class="anatomy-panel" id="anatomyPanel">
+      <p class="cell-intro">Samma tillstånd du väljer ovan styr allt nedan — elektrisk axel, kärlterritorium och 3D-hjärtat är tre olika sätt att se EXAKT samma underliggande EKG-förändring, inte tre separata modeller.</p>
+      <div class="cell-view-switch" id="anatomyViewSwitch">
+        <button type="button" class="active" data-view="axis3d">Elektrisk axel + 3D-hjärta</button>
+        <button type="button" data-view="territory">Kärlterritorium</button>
+        <button type="button" data-view="bullseye">Bullseye (kortaxel)</button>
+      </div>
+      <div id="axis3dView">
+        <div class="axis-heart3d-row">
+          <div id="axisView">
+            <h4 class="col-title">Elektrisk axel</h4>
+            <div class="axis-layout">
+              <canvas id="axisCanvas" width="420" height="420"></canvas>
+              <div class="axis-readout" id="axisReadout"></div>
+            </div>
+          </div>
+          <div id="heart3dView">
+            <h4 class="col-title">3D-hjärta</h4>
+            <div class="heart3d-wrap">
+              <canvas id="heart3dCanvas"></canvas>
+              <div class="heart3d-hint">Dra för att rotera · scrolla för att zooma</div>
+            </div>
+            <div class="heart3d-isolate" id="heart3dIsolate">
+              <button type="button" class="active" data-part="">Alla</button>
+              <button type="button" data-part="rv">RV</button>
+              <button type="button" data-part="lv">LV</button>
+              <button type="button" data-part="ra">RA</button>
+              <button type="button" data-part="la">LA</button>
+              <button type="button" data-part="aorta">Aorta</button>
+              <button type="button" data-part="pulmonary">Pulmonalis</button>
+              <button type="button" data-part="lad">LAD</button>
+              <button type="button" data-part="rca">RCA</button>
+              <button type="button" data-part="lcx">Cx</button>
+            </div>
+            <div class="territory-legend" id="heart3dLegend"></div>
+          </div>
+        </div>
+      </div>
+      <div id="territoryView" hidden>
+        <div class="territory-layout">
+          <svg id="territorySvg" viewBox="0 0 1232 732" class="territory-svg" aria-label="Hjärtats framsida med kärlterritorier"></svg>
+          <div class="territory-legend" id="territoryLegend"></div>
+        </div>
+      </div>
+      <div id="bullseyeView" hidden>
+        <p class="cell-intro">17-segmentsmodellen (AHA), samma vy som en kortaxel-perfusions-/MR-bild — varje segment tillhör ETT kranskärl (LAD/RCA/LCx), färgat efter samma poäng som territoriekartan och 3D-hjärtat, inte en separat modell.</p>
+        <div class="territory-layout">
+          <svg id="bullseyeSvg" viewBox="0 0 300 300" class="bullseye-svg" aria-label="Bullseye-diagram: 17 myokardsegment färgade efter ischemipoäng per kärl"></svg>
+          <div class="territory-legend" id="bullseyeLegend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-cell" id="cellCard">
+    <div class="section-head">
+      <h3>Cellnivå</h3>
+      <button type="button" class="section-toggle" id="cellToggleBtn">▲ Dölj</button>
+    </div>
+    <span class="driven-by self">Styrs av reglagen nedan — oberoende av Tillstånd-menyn →</span>
+    <div class="cellular-panel" id="cellularPanel">
+      <p class="cell-intro">Styr jonhalterna/kanalfunktionen och se effekten på BÅDE den enskilda cellens aktionspotential och det resulterande EKG:t — samma tre parametrar driver allt, så det hänger ihop som EN fysiologisk modell i stället för separata presets.</p>
+      <div class="cell-sliders">
+        <div class="cell-slider-row">
+          <label for="cellK">Extracellulärt K⁺ <small>Normalt 3,5–5,0 mmol/L</small></label>
+          <input type="range" id="cellK" min="1.5" max="10" step="0.1" value="4.0" data-normal-lo="3.5" data-normal-hi="5.0">
+          <span class="cell-val" id="cellKVal">4,0 mmol/L</span>
+        </div>
+        <div class="cell-slider-row">
+          <label for="cellCa">Joniserat Ca²⁺ <small>Normalt 1,1–1,3 mmol/L</small></label>
+          <input type="range" id="cellCa" min="0.3" max="2.4" step="0.05" value="1.2" data-normal-lo="1.1" data-normal-hi="1.3">
+          <span class="cell-val" id="cellCaVal">1,20 mmol/L</span>
+        </div>
+        <div class="cell-slider-row">
+          <label for="cellNaBlock">Na⁺-kanalblockad <small>(t.ex. TCA, flekainid)</small></label>
+          <input type="range" id="cellNaBlock" min="0" max="90" step="1" value="0">
+          <span class="cell-val" id="cellNaBlockVal">0 %</span>
+        </div>
+        <button type="button" class="rs-btn ghost" id="cellResetBtn">Återställ till normalvärden</button>
+      </div>
+      <div class="cell-view-switch" id="cellViewSwitch">
+        <button type="button" class="active" data-view="ap">Aktionspotential</button>
+        <button type="button" data-view="ecg">Resulterande EKG</button>
+      </div>
+      <div id="cellApView">
+        <div class="cell-ap-row">
+          <div class="cell-ap-box">
+            <h4>Kammarmyocyt</h4>
+            <canvas id="apVentCanvas" width="440" height="250"></canvas>
+            <div class="cell-readout" id="apVentReadout"></div>
+            <ul class="cell-phase-legend" id="apVentLegend"></ul>
+          </div>
+          <div class="cell-ap-box">
+            <h4>SA-nod (pacemakercell)</h4>
+            <canvas id="apSaCanvas" width="440" height="250"></canvas>
+            <div class="cell-readout" id="apSaReadout"></div>
+            <ul class="cell-phase-legend" id="apSaLegend"></ul>
+          </div>
+        </div>
+        <div class="cell-explain" id="cellExplain"></div>
+      </div>
+      <div class="cell-ecg-box" id="cellEcgBox" hidden>
+        <h4>Resulterande EKG (samma jonvärden, 12 avledningar)</h4>
+        <canvas id="cellEcgCanvas" width="1000" height="460"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- utfällbar tillståndslåda (hovra på högerkanten) -->
+<div id="condDrawer" aria-label="Tillstånd">
+  <div class="cd-tab" id="condDrawerTab" title="Tillstånd, hovra för att öppna, klicka för att fästa">
+    <span class="cd-chevron">‹</span>
+    <span class="cd-label">TILLSTÅND</span>
+  </div>
+  <div class="cd-body">
+    <div class="cd-head">
+      <span>Tillstånd</span>
+      <button id="condPinBtn" class="pinbtn" title="Fäst lådan öppen">Fäst</button>
+    </div>
+    <div class="cd-groups" id="groupsCard"></div>
+  </div>
+</div>
+
+<script src="../nav.js"></script>
+<script src="../lib/supabase.js"></script>
+<script src="../auth.js"></script>
+<script src="../usernames.js"></script>
+<script src="../auth-ui.js"></script>
+<script src="../lib/three.min.js"></script>
+<script src="../lib/OBJLoader.js"></script>
+<!-- Riktig anatomisk hjärtgeometri (BodyParts3D/FMA), inbäddad som JS i stället för att
+     hämtas med fetch() -- file:// blockerar fetch mot lokala filer (samma anledning som
+     tvingade fram OTP-kod-inloggningen och mammoth/pdf.js-lösningarna i det här projektet),
+     så OBJLoader.parse() på en redan inbäddad sträng används i stället för .load(). -->
+<script src="models/heart/rv.js"></script>
+<script src="models/heart/lv.js"></script>
+<script src="models/heart/ra.js"></script>
+<script src="models/heart/la.js"></script>
+<script src="models/heart/aorta.js"></script>
+<script src="models/heart/pulmonary.js"></script>
+<script src="models/heart/lad.js"></script>
+<script src="models/heart/rca.js"></script>
+<script src="models/heart/lcx.js"></script>
+<script src="js/ecg-model.js"></script>
+<script src="js/conditions-data.js"></script>
+<script src="js/cellular.js"></script>
+<script src="js/anatomy.js"></script>
+<script src="js/simulator.js"></script>
+<script src="js/game.js"></script>
+<script src="js/game-history.js"></script>
+<script src="js/runner.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

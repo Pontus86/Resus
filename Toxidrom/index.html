@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Toxidrom-detektiv — Resus</title>
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>Toxidrom-detektiv</h1>
+    <span class="sub">Fyll i fynd → få rangordnade toxidrom med antidot/behandling</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h3>Kliniska fynd</h3>
+    <p>Alla kategorier startar på "normal" — ändra bara det som avviker. Verktyget rangordnar klassiska toxidrom utifrån mönstret, det ersätter inte klinisk bedömning eller toxikologisk rådgivning (Giftinformationscentralen).</p>
+  </div>
+
+  <div class="card" id="toxForm" style="margin-top:16px"></div>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:16px">
+    <button class="rs-btn primary" id="toxAnalyzeBtn">Analysera</button>
+  </div>
+
+  <div class="card" id="toxResult" style="margin-top:16px;display:none">
+    <h3>Resultat</h3>
+    <div id="toxList"></div>
+  </div>
+
+  <div class="card tox-note">
+    <h3>Kom ihåg</h3>
+    <p>Paracetamol ger sällan ett tydligt tidigt toxidrom — patienten kan vara nästan symtomfri initialt trots farlig förgiftning. Basera bedömningen på koncentration och Rumack-Matthew-nomogram, inte kliniska fynd.</p>
+  </div>
+
+</div>
+
+<script src="../nav.js"></script>
+<script src="../lib/supabase.js"></script>
+<script src="../auth.js"></script>
+<script src="../usernames.js"></script>
+<script src="../auth-ui.js"></script>
+<script src="js/toxidrome-data.js"></script>
+<script src="js/toxidrome.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

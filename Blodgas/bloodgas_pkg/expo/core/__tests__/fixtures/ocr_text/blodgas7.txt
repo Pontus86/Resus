@@ -1,0 +1,20 @@
+Lims: Lund/Landskrona/Kristianstad/Hässleholm
+Datum Tid Analys Resultat Ref
+20240309 08:52 Operatörsid: 118547 Notering: Provtyp: Venös Instru
+20240309 08:52 vB-pH (37°C) 6.67
+20240309 08:52 vB-pCO2 (37°C) 3.0
+20240309 08:52 vB-pO2 (37°C) 11.0
+20240309 08:52 Ecv-Basöverskott *-29.5
+20240309 08:52 vB-Oxygenmättnad 86
+20240309 08:52 B-Hemoglobin (Hb) *70
+20240309 08:52 B-Methemoglobin 0.7
+20240309 08:52 B-CO Hb 0.6
+20240309 08:52 P-Glukos *2.7
+20240309 08:52 vB-Laktat *18.0
+20240309 08:52 P-Natrium 140
+20240309 08:52 P-Kalium *9.2
+20240309 08:52 P-Klorid *113
+20240309 08:52 P-Anjongap (exkl K+) *24
+20240309 08:52 P-Kreatinin (enz) *435
+20240309 08:52 B-Calciumjon 1.33
+20240309 08:52 Pt-Oxygen (adm) 5.0

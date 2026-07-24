@@ -1,0 +1,268 @@
+/* ---------- EKG-simulator: sidspecifik styling ovanpå ../css/theme.css ---------- */
+/* Tillståndslådan är numera fäst öppen by default (se main.js) och tar därför permanent
+   upp 300px till höger — .rs-nav:s vanliga margin-left:auto (höger-justerat) hamnar då
+   rakt under lådan. Centrera fliken i stället för att hamna i skymundan. */
+#ekgNav{margin:0 auto}
+#ecgCanvas{width:100%;height:auto;border:1px solid var(--line);border-radius:10px;display:block;margin-top:10px}
+
+/* Simulator-flikens tre avsnitt (huvud-EKG, anatomi, cellnivå) ligger numera i VARSITT
+   .card i stället för staplade i ett enda -- gjorde det svårt att se var ett avsnitt slutade
+   och nästa började (användarens ord). Rubrikerna görs samtidigt tydligare/större än
+   temats vanliga små versala .card h3-etikett, eftersom de här faktiskt ska fungera som
+   avsnittstitlar en användare orienterar sig efter, inte diskreta kort-etiketter. */
+.wrap .card h3{font-size:16px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:800}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}
+.section-head h3{margin:0}
+.section-toggle{font-family:inherit;font-size:12px;font-weight:700;padding:6px 13px;flex:none;
+  border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--muted);cursor:pointer}
+.section-toggle:hover{background:var(--red-tint);border-color:#F3D2CE;color:var(--red-dark)}
+/* "Styrs av"-badge högst upp i varje avsnitt -- gör det tydligt vid en blick vilka TVÅ
+   oberoende styrsystem som finns på sidan: Tillstånd-menyn (rött, delas av huvud-EKG:t och
+   anatomipanelen) kontra Cellnivåns egna reglage (lila, helt fristående). Utan detta var det
+   svårt att se vilken meny som påverkade vad (användarens ord). */
+.driven-by{display:inline-block;margin:0 0 10px;padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:.02em}
+.driven-by.tillstand{background:var(--red-tint);color:var(--red-dark)}
+.driven-by.self{background:#EAE3F7;color:#5B3FA0}
+/* Cellnivå-kortet är sist på sidan (eget kärlterritorium: reglage, inte Tillstånd-menyn) --
+   en svagt lila kort-ton (matchar .driven-by.self ovan) gör hela avsnittet visuellt
+   avskilt från de två Tillstånd-styrda korten ovanför, inte bara badgen. */
+.card-cell{background:#FBFAFD;border-color:#E4DCF5}
+
+/* ---- Cellnivå: jonkanaler, aktionspotential, koppling till EKG:t ---- */
+.cell-intro{margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.5}
+.cell-sliders{padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);
+  display:flex;flex-direction:column;gap:12px}
+.cell-slider-row{display:grid;grid-template-columns:200px 1fr 110px;align-items:center;gap:12px}
+.cell-slider-row label{font-size:13px;font-weight:700;color:var(--ink)}
+.cell-slider-row label small{display:block;font-weight:500;color:var(--muted);font-size:11px}
+/* Anpassad track/thumb (i stället för bara accent-color) så vi kan lägga en subtil grön
+   normalvärdes-zon direkt i spårets bakgrund (satt via JS i main.js, som räknar ut var
+   den zonen hamnar utifrån min/max/data-normal-lo/data-normal-hi på varje reglage). */
+/* Default-bakgrund (var(--line), samma grå som resten av sajtens fält) så reglaget som
+   INTE har en normalvärdes-zon (Na+-kanalblockad, ingen "normal" halt att markera) ändå
+   syns tydligt — annars blir spåret osynligt med appearance:none tills JS sätter en. */
+.cell-slider-row input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:8px;border-radius:4px;
+  cursor:pointer;background:var(--line)}
+.cell-slider-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--red);border:2px solid #fff;box-shadow:0 1px 3px rgba(28,27,27,.3);cursor:pointer}
+.cell-slider-row input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--red);
+  border:2px solid #fff;box-shadow:0 1px 3px rgba(28,27,27,.3);cursor:pointer}
+.cell-val{font-family:var(--font-mono);font-size:12.5px;font-weight:700;color:var(--red-dark);text-align:right}
+#cellResetBtn{align-self:flex-end;margin-top:2px}
+.cell-ap-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.cell-ap-box{padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}
+.cell-ap-box h4{margin:0 0 8px;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.cell-ap-box canvas{width:100%;height:auto;border-radius:8px;display:block}
+.cell-readout{margin-top:8px;font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 14px}
+.cell-readout b{color:var(--ink)}
+.cell-readout .warn{color:var(--red-dark);font-weight:700}
+.cell-phase-legend{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.cell-phase-legend li{font-size:11.5px;color:var(--muted);line-height:1.4;padding-left:16px;position:relative}
+.cell-phase-legend li::before{content:"";position:absolute;left:0;top:3px;width:10px;height:10px;border-radius:2px;background:var(--swatch)}
+.cell-phase-legend b{color:var(--ink)}
+.cell-explain{margin-top:14px;padding:12px 14px;border-radius:9px;background:var(--bg);border-left:3px solid var(--line);
+  font-size:13px;color:var(--ink);line-height:1.55}
+.cell-explain.ead{background:var(--red-tint);border-left-color:var(--red)}
+.cell-explain ul{margin:6px 0 0;padding-left:18px}
+.cell-explain li{margin:0 0 3px}
+/* AP-diagram/EKG visas en åt gången (se main.js:applyCellView) i stället för staplade,
+   annars ryms inte EKG:t inom synligt område medan man drar i reglagen. */
+.cell-view-switch{display:flex;gap:4px;margin-top:14px;padding:4px;border:1.5px solid var(--line);
+  border-radius:10px;background:var(--surface);width:fit-content}
+.cell-view-switch button{font-family:inherit;font-size:12.5px;font-weight:700;padding:7px 16px;
+  border:none;border-radius:7px;background:transparent;color:var(--muted);cursor:pointer;transition:all .12s}
+.cell-view-switch button:hover{background:var(--bg);color:var(--ink)}
+.cell-view-switch button.active{background:var(--red);color:#fff}
+#cellApView{margin-top:14px}
+.cell-ecg-box{margin-top:14px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}
+.cell-ecg-box h4{margin:0 0 8px;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.cell-ecg-box canvas{width:100%;height:auto;border-radius:8px;display:block}
+@media(max-width:820px){
+  .cell-slider-row{grid-template-columns:1fr}
+  .cell-ap-row{grid-template-columns:1fr}
+}
+
+/* ---- Hjärtats anatomi: elektrisk axel + 3D-hjärta (sida vid sida) / kärlterritorium ---- */
+.anatomy-panel{margin-top:10px}
+.axis-heart3d-row{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+.axis-heart3d-row #axisView{flex:0 0 380px;max-width:100%}
+.axis-heart3d-row #heart3dView{flex:1;min-width:380px}
+/* Samma rubrikstil i BÅDA kolumnerna, och samma sak direkt under (canvas) i båda -- det är
+   det som får axel-cirkeln och 3D-hjärtat att hamna i linje med varandra (användarens ord).
+   Isolerings-knapparna flyttades därför FRÅN ovanför till UNDER 3D-canvasen, annars skulle
+   den kolumnen alltid starta en rad lägre än axel-kolumnen. */
+.col-title{margin:0 0 10px;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.axis-layout{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+#axisCanvas{background:var(--surface);border:1px solid var(--line);border-radius:10px;flex:none}
+.axis-readout{flex:1;min-width:220px;padding-top:6px}
+.axis-deg{font-family:var(--font-mono);font-size:34px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.axis-readout .rs-tag{margin-bottom:8px}
+.territory-layout{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;margin-top:14px}
+.territory-svg{width:100%;max-width:480px;aspect-ratio:1232/732;flex:none;background:#E6E1D9;border:1px solid var(--line);border-radius:10px}
+.bullseye-svg{width:100%;max-width:320px;aspect-ratio:1/1;flex:none;background:#E6E1D9;border:1px solid var(--line);border-radius:10px}
+.territory-legend{flex:1;min-width:220px;display:flex;flex-direction:column;gap:8px;padding-top:6px}
+.territory-legend-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--ink);padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.territory-legend-item:last-child{border-bottom:none;padding-bottom:0}
+.territory-legend-swatch{width:13px;height:13px;border-radius:4px;flex:none;margin-top:2px}
+.territory-legend-item b{margin-right:2px}
+.territory-legend-sub{color:var(--muted);font-size:11.5px;line-height:1.4}
+.territory-legend-item .pct{margin-left:auto;flex:none;font-family:var(--font-mono);color:var(--muted);font-size:11.5px;padding-top:1px}
+.heart3d-isolate{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0 10px}
+.heart3d-isolate button{font-family:inherit;font-size:11.5px;font-weight:700;padding:6px 11px;
+  border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);cursor:pointer;transition:all .12s}
+.heart3d-isolate button:hover{background:var(--bg);color:var(--ink)}
+.heart3d-isolate button.active{background:var(--red);border-color:var(--red);color:#fff}
+.heart3d-wrap{position:relative;background:#E6E1D9;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+#heart3dCanvas{width:100%;height:420px;display:block;cursor:grab}
+#heart3dCanvas:active{cursor:grabbing}
+.heart3d-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);
+  background:rgba(255,255,255,.85);padding:3px 10px;border-radius:999px;pointer-events:none}
+#heart3dView .territory-legend{margin-top:14px;flex-direction:row;flex-wrap:wrap;gap:14px}
+@media(max-width:760px){
+  .axis-layout, .territory-layout{flex-direction:column}
+  #axisCanvas, .territory-svg{max-width:100%}
+}
+
+.active-summary{margin-top:14px}
+.active-summary h4{margin:0 0 8px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.active-summary .muted{margin:0;color:var(--muted);font-size:13px}
+.active-item{display:flex;justify-content:space-between;gap:14px;font-size:13px}
+.active-item b{color:var(--red-dark);white-space:nowrap;font-size:14px}
+.active-item span{color:var(--muted);text-align:right}
+
+.active-item-block{padding:11px 0;border-bottom:1px dotted var(--line)}
+.active-item-block:last-child{border-bottom:none}
+.active-desc{margin:4px 0 0;font-size:12.5px;color:var(--muted);line-height:1.45}
+.active-physiology{margin:6px 0 0;padding:8px 10px;background:var(--bg);border-left:2px solid var(--line);
+  border-radius:4px;font-size:12px;color:var(--muted);line-height:1.5}
+.active-physiology b{color:var(--ink);font-size:11px;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:2px}
+.finding-list{margin:8px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink);line-height:1.6}
+.finding-list li{margin:0 0 2px}
+
+.severity-row{display:flex;align-items:center;gap:10px;margin-top:9px}
+.severity-row label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.severity-row input[type=range]{flex:1;accent-color:var(--red);min-width:0}
+.severity-row .lvl-val{font-size:12px;font-weight:700;color:var(--red-dark);white-space:nowrap;min-width:5.5em;text-align:right}
+
+/* ---- EKG-matchningsspelet ---- */
+.game-hud{margin-top:10px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}
+.game-stats{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;font-weight:700;color:var(--muted);
+  letter-spacing:.04em;text-transform:uppercase}
+.game-timer{font-family:var(--font-mono);font-size:15px;color:var(--ink)}
+.game-timer.urgent{color:var(--red);animation:gameTimerPulse .6s ease-in-out infinite}
+@keyframes gameTimerPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.match-bar{margin-top:9px;height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.match-bar-fill{height:100%;border-radius:6px;transition:width .15s ease-out}
+.match-label{margin-top:6px;font-size:12.5px;color:var(--ink);font-weight:700}
+.match-pixel-note{font-weight:500;color:var(--muted);font-size:11.5px}
+.game-result{margin-top:10px;font-size:14px;font-weight:800;padding:8px 10px;border-radius:8px}
+.game-result.perfect{background:var(--ok-tint);color:var(--ok)}
+.game-result.timeout{background:var(--red-tint);color:var(--red-dark)}
+.game-answer{margin-top:6px;font-size:12.5px;color:var(--muted)}
+.game-answer b{color:var(--ink)}
+.hint-penalty-note{font-weight:600;opacity:.8;font-size:.85em}
+.hint-list{margin:9px 0 0;padding-left:18px;font-size:12px;color:var(--muted);line-height:1.6}
+.hint-list li{margin:0 0 3px}
+.wrong-click-live{color:var(--red-dark);font-weight:700}
+.click-summary{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.click-summary-head{font-size:12.5px;color:var(--ink);font-weight:700}
+.wrong-click-penalty{color:var(--red-dark);font-weight:700;margin-left:2px}
+.click-list{list-style:none;margin:8px 0 0;padding:0;font-size:12px;color:var(--muted);
+  max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.click-list li{display:flex;align-items:center;gap:7px}
+.click-mark{font-weight:800;width:14px;text-align:center;flex:none}
+.click-list .click-ok .click-mark{color:var(--ok)}
+.click-list .click-bad .click-mark{color:var(--red-dark)}
+.click-list .click-bad{color:var(--red-dark)}
+.level-picker-label{font-size:13px;color:var(--ink);font-weight:700;margin-bottom:8px}
+.level-picker-row{display:flex;flex-wrap:wrap;gap:8px}
+.level-picker-row button{min-width:42px}
+
+/* ---- EKG-löparen: "överlev skiftet" — en avledning (II), vitalparametrar,
+   kontraindicerade felval och en hjärtstopps-eskalering ovanpå grundslingan spawn→behandla ---- */
+.runner-hud{margin-top:10px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}
+.runner-stats{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;font-weight:700;color:var(--muted);
+  letter-spacing:.04em;text-transform:uppercase}
+.runner-health{margin-top:9px;height:12px;border-radius:7px;background:var(--line);overflow:hidden}
+.runner-health-fill{height:100%;border-radius:7px;transition:width .2s ease-out,background-color .2s}
+.runner-health-fill.ok{background:var(--ok)}
+.runner-health-fill.mid{background:#E0A62E}
+.runner-health-fill.low{background:var(--red)}
+.runner-vitals{display:flex;gap:10px;margin-top:9px;flex-wrap:wrap}
+.vital{font-family:var(--font-mono);font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:6px;background:var(--bg);color:var(--ink)}
+.vital.warn{background:var(--warn-tint);color:var(--warn)}
+.vital.crit{background:var(--red-tint);color:var(--red-dark)}
+.runner-panel{position:relative;margin-top:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}
+.runner-treatments{display:flex;flex-wrap:wrap;gap:8px}
+.runner-flash{position:absolute;top:8px;right:14px;font-size:13px;font-weight:800;padding:6px 12px;border-radius:8px;
+  animation:runnerFlashPop .7s ease-out forwards}
+.runner-flash.correct{background:var(--ok-tint);color:var(--ok)}
+.runner-flash.wrong{background:var(--red-tint);color:var(--red-dark)}
+.runner-flash.contra{background:var(--red-dark);color:#fff}
+@keyframes runnerFlashPop{0%{opacity:0;transform:translateY(4px)}15%{opacity:1;transform:translateY(0)}75%{opacity:1}100%{opacity:0}}
+
+.arrest-banner{padding:14px 16px;border-radius:10px;background:var(--red-dark);color:#fff;text-align:center;
+  animation:arrestPulse 1s ease-in-out infinite}
+.arrest-title{font-size:16px;font-weight:800;letter-spacing:.03em}
+.arrest-sub{margin-top:6px;font-size:13px;opacity:.92}
+.arrest-countdown{font-family:var(--font-mono);font-weight:800}
+.arrest-actions{display:flex;justify-content:center;gap:10px;margin-top:12px}
+.arrest-actions .rs-btn.primary{background:#fff;color:var(--red-dark);border-color:#fff}
+.arrest-actions .rs-btn.primary:hover{background:#F3D6D3}
+.arrest-actions .rs-btn.ghost{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.5)}
+.arrest-actions .rs-btn.ghost:hover{background:rgba(255,255,255,.24)}
+@keyframes arrestPulse{0%,100%{box-shadow:0 0 0 0 rgba(197,54,43,.6)}50%{box-shadow:0 0 0 10px rgba(197,54,43,0)}}
+
+/* Menyval per grupp, en flik åt gången i stället för alla ~38 knappar på en gång (samma
+   idé som Simulator/Spela-flikarna). En röd punkt markerar grupper med ett aktivt val,
+   så man inte tappar bort vad som är på trots att man bläddrar till en annan flik. */
+.cd-groupnav{display:flex;flex-wrap:wrap;gap:4px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line)}
+.cd-groupnav button{font-family:inherit;position:relative;font-size:12px;font-weight:700;padding:6px 10px 6px 8px;border-radius:7px;
+  border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .12s}
+.cd-groupnav button:hover{background:var(--red-tint);color:var(--red-dark)}
+.cd-groupnav button.active{background:var(--red);color:#fff}
+.cd-groupnav button.has-active::before{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--red)}
+.cd-groupnav button.active.has-active::before{background:#fff}
+.cond-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.cond-btn{font-family:inherit;font-size:13px;font-weight:700;padding:9px 14px;border-radius:9px;
+  border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:all .12s}
+.cond-btn:hover{border-color:#F3B9B2;background:var(--red-tint)}
+.cond-btn.active{background:var(--red);border-color:var(--red);color:#fff}
+/* Underrubrik när flera kliniska grupper (egen ömsesidig uteslutning, se ECG_TABS i
+   conditions-data.js) delar samma flik, så det syns vilka knappar som är alternativ till
+   varandra och vilka som bara råkar visas i samma flik. */
+.cond-group-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 6px}
+
+/* ---- Utfällbar tillståndslåda, höger kant (samma mönster som HLR:s #drawer, men smalare
+   eftersom knapparna är kompakta chips, inte breda åtgärdskort) ---- */
+#condDrawer{position:fixed;top:0;right:0;height:100vh;width:300px;max-width:90vw;z-index:45;display:flex;
+  transform:translateX(calc(100% - 42px));transition:transform .28s cubic-bezier(.4,0,.2,1)}
+#condDrawer.open{transform:translateX(0)}
+.cd-tab{flex:none;width:42px;background:var(--red);color:#fff;cursor:pointer;user-select:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  border-radius:14px 0 0 14px;box-shadow:-4px 0 16px rgba(28,27,27,.14);transition:background .15s}
+.cd-tab:hover{background:var(--red-dark)}
+.cd-label{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);
+  font-weight:800;letter-spacing:.16em;font-size:12px;font-stretch:85%}
+.cd-chevron{font-size:20px;font-weight:700;line-height:1;transition:transform .28s}
+#condDrawer.open .cd-chevron{transform:rotate(180deg)}
+.cd-body{flex:1;min-width:0;background:var(--surface);border-left:1px solid var(--line);
+  box-shadow:-10px 0 34px rgba(28,27,27,.14);display:flex;flex-direction:column;overflow:hidden}
+.cd-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--line);
+  background:var(--bg);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.pinbtn{background:var(--surface);border:1px solid var(--line);color:var(--muted);border-radius:6px;
+  padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.pinbtn:hover{background:var(--red-tint);border-color:#F3B9B2;color:var(--red-dark)}
+#condDrawer.pinned .pinbtn{background:var(--red);color:#fff;border-color:var(--red-dark)}
+.cd-groups{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:16px}
+
+/* Skjut innehållet åt vänster när lådan är öppen, så den aldrig täcker EKG:t.
+   :has() stöds i alla moderna evergreen-browsers (Chrome/Edge 105+, Safari 17+, Firefox 121+). */
+.wrap{transition:margin-right .28s cubic-bezier(.4,0,.2,1)}
+body:has(#condDrawer.open) .wrap{margin-right:300px}
+@media(max-width:900px){
+  #condDrawer{width:260px}
+  body:has(#condDrawer.open) .wrap{margin-right:0}
+}

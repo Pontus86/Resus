@@ -1,0 +1,30 @@
+RADIOMETER ABL 800 FLEX
+ABL827 XLUAKUBLG1 2022-01-24
+PATIENTRAPPORT Spruta - S 250 µl Prov # 8780
+Provtyp Arteriell
+O2 adm 6,0 L/min
+Användare 194851
+Syra-Bas Status
+pH 7,033
+pCO2 3,85 kPa
+pO2 9,32 kPa
+cBase(Ecf)c -21,3 mmol/L
+cHCO3-(P,st)c 8,3 mmol/L
+Oximetervärden
+sO2 79,1 %
+ctHb 94 g/L
+FMetHb 0,5 %
+FCOHb 1,0 %
+Elektrolytvärden
+cNa+ 131 mmol/L
+cK+ 5,2 mmol/L
+cCa2+ 1,02 mmol/L
+cCl- 96 mmol/L
+Metabolitvärden
+cGlu 3,4 mmol/L
+cLac 23 mmol/L
+cCrea 168 µmol/l
+Beräknade Värden
+Anion Gapc 27,2 mmol/L
+0493: Varning:Bilirubin upptäckt och kompenserad för
+Utskriven 22:04:39 2022-01-24

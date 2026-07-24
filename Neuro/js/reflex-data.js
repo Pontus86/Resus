@@ -1,0 +1,35 @@
+/* ---------- Reflexer ----------
+   Tre kategorier, se REFLEX_TYPE_LABEL/dermatome-diagram.js för hur de renderas olika:
+     - "spinal": klassiska senreflexer/hudreflexer med en spinal nivå (levels) -- klick
+       markerar nivån på kroppsdiagrammet, precis som tidigare.
+     - "cranial": hjärnstams-/kranialnervsreflexer (t.ex. korneal-, käk-, farynxreflex) --
+       har inte en spinal nivå, utan ett afferent/efferent nervpar (nerves). Ingen markering
+       på kroppsdiagrammet (finns inget att markera där), bara nervparet visas som "badge".
+     - "primitive": primitiva/frontallobs-releasetecken (sug-, grip-, snut-, palmomental-,
+       glabellareflex) -- normala hos spädbarn, patologiska hos vuxna vid diffus
+       frontallobs-/kortikal skada. Ingen nivå eller nervpar, bara en kort etikett (tag). */
+const REFLEXES = [
+  {id:"biceps", name:"Bicepsreflex", type:"spinal", levels:["C5","C6"], desc:"Slag mot bicepssenan i armvecket — flexion i armbågen. Testar C5-C6 (n. musculocutaneus)."},
+  {id:"brachioradialis", name:"Brachioradialisreflex", type:"spinal", levels:["C5","C6"], desc:"Slag mot radius strax ovan handleden — flexion/supination i armbågen. Testar C5-C6 (n. radialis)."},
+  {id:"triceps", name:"Tricepsreflex", type:"spinal", levels:["C6","C7"], desc:"Slag mot tricepssenan ovan armbågen — extension i armbågen. Testar huvudsakligen C7 (n. radialis)."},
+  {id:"abdominal", name:"Bukhudsreflexer", type:"spinal", levels:["T7","T8","T9","T10","T11","T12"], desc:"Stryk mot buken mot naveln — buken drar sig mot stimulit. Övre T7-T9, nedre T10-T12. Bortfall kan tala för övre motorneuronskada."},
+  {id:"cremaster", name:"Cremasterreflex", type:"spinal", levels:["L1","L2"], desc:"Stryk mot insidan av låret — testis dras upp. Testar L1-L2 (n. genitofemoralis/n. ilioinguinalis)."},
+  {id:"patellar", name:"Patellarreflex (knäreflex)", type:"spinal", levels:["L3","L4"], desc:"Slag mot patellarsenan — extension i knät. Testar huvudsakligen L3-L4 (n. femoralis)."},
+  {id:"achilles", name:"Akillesreflex (fotledsreflex)", type:"spinal", levels:["S1","S2"], desc:"Slag mot hälsenan — plantarflexion i foten. Testar huvudsakligen S1 (n. tibialis)."},
+  {id:"plantar", name:"Plantarreflex (Babinski)", type:"spinal", levels:["L4","L5","S1","S2"], desc:"Stryk mot fotsulans laterala kant — normalt flexion av tårna. Uppåtgående stortå (positiv Babinski) talar för övre motorneuronskada. Segmentellt L4-S2, men reflexen prövar den kortikospinala banans integritet."},
+  {id:"bulbocavernosus", name:"Bulbokavernosusreflex", type:"spinal", levels:["S2","S3","S4_5"], desc:"Klämning av glans/klitoris eller drag i kateter — kontraktion av bulbospongiosus/analsfinktern. Sakral reflexbåge, viktig vid bedömning av spinal chock (återkomst av reflexen markerar att spinal chock klingat av)."},
+  {id:"anal", name:"Analreflex (\"anal wink\")", type:"spinal", levels:["S3","S4_5"], desc:"Stryk perianalt — synlig kontraktion av yttre analsfinktern. Sakral reflexbåge, del av bedömningen av sakral sparing."},
+
+  {id:"corneal", name:"Korneal reflex (blinkreflex)", type:"cranial", nerves:{aff:"N. V₁ (oftalmicus)", eff:"N. VII (facialis)"}, desc:"Lätt beröring av hornhinnan ger bilateral blinkning. Testar pons. Utebliven blinkning på båda sidor vid stimulering av ett öga talar för afferent skada (V); om blinkningen bara uteblir på den stimulerade sidan men konsensuellt (andra ögat) blinkar talar det för ipsilateral facialispares (efferent skada)."},
+  {id:"jawjerk", name:"Käkreflex (jaw jerk)", type:"cranial", nerves:{aff:"N. V₃ (mandibularis)", eff:"N. V₃ (mandibularis)"}, desc:"Slag mot hakan med lätt öppen mun ger sammanbitning. Normalt svag eller frånvarande. Livlig/exalterad käkreflex talar för bilateral kortikobulbär (övre motorneuron-) skada ovanför pons, t.ex. pseudobulbär pares."},
+  {id:"gag", name:"Farynxreflex (gag reflex)", type:"cranial", nerves:{aff:"N. IX (glossopharyngeus)", eff:"N. X (vagus)"}, desc:"Beröring av bakre svalgväggen ger kväljning och elevation av mjuka gommen. Testar medulla oblongata. Asymmetrisk elevation av gommen (Vernets tecken) talar för unilateral X-pares."},
+  {id:"pupillary", name:"Pupillreflex (ljusreflex)", type:"cranial", nerves:{aff:"N. II (opticus)", eff:"N. III (oculomotorius, parasympatiskt)"}, desc:"Ljus i ett öga ger sammandragning av samma pupill (direkt) och den andra (konsensuellt). Testar mesencephalon. En vid, ljusstel pupill (efferent skada, N. III) talar för inklämning; bortfall av både direkt och konsensuellt svar vid belysning av ett öga men bevarat svar när det andra ögat belyses talar för afferent skada (N. II) på den blinda sidan."},
+  {id:"oculocephalic", name:"Okulocefal reflex (\"dockögereflex\")", type:"cranial", nerves:{aff:"N. VIII (vestibularis)", eff:"N. III/IV/VI"}, desc:"Hos en medvetslös patient med intakt hjärnstam ger huvudvridning konjugerad ögonrörelse åt motsatt håll, som om blicken \"stannar kvar\" riktad framåt. Testar hela hjärnstammen från pons till mesencephalon. Får ENDAST utföras när halsryggskada är utesluten. Frånvarande reflex (ögonen följer med huvudet) talar för svår hjärnstamsskada."},
+  {id:"vor_caloric", name:"Vestibulookulär reflex (kalorisk test)", type:"cranial", nerves:{aff:"N. VIII (vestibularis)", eff:"N. III/IV/VI"}, desc:"Kallt vatten i hörselgången ger tonisk deviation av ögonen mot det stimulerade örat hos en patient med intakt hjärnstam (hos vaken patient följt av korrigerande nystagmus åt motsatt håll — \"COWS\"). Används för att verifiera hjärnstamsfunktion vid utredning av misstänkt total hjärninfarkt/hjärndöd."},
+
+  {id:"suck", name:"Sugreflex", type:"primitive", tag:"Primitiv reflex", desc:"Beröring av läpparna ger sugrörelser. Normal hos spädbarn (habituerar bort under första levnadsåret). Hos vuxna ett tecken på diffus frontallobsskada eller uttalad demens."},
+  {id:"grasp", name:"Gripreflex", type:"primitive", tag:"Primitiv reflex", desc:"Stimulering av handflatan (t.ex. med undersökarens fingrar) ger ett ofrivilligt grepp som inte släpper på kommando. Normal hos spädbarn. Hos vuxna talar den för kontralateral frontallobsskada."},
+  {id:"snout", name:"Snutreflex (snout reflex)", type:"primitive", tag:"Frontallobs-tecken", desc:"Lätt knackning på överläppen/runt munnen ger en puckrande sammandragning av läpparna, som en \"nos\". Ett av flera frontallobs-releasetecken, ses vid diffus kortikal skada och avancerad demens."},
+  {id:"palmomental", name:"Palmomental reflex", type:"primitive", tag:"Frontallobs-tecken", desc:"Stryk mot tenar-området i handflatan ger en ipsilateral sammandragning av hakmuskulaturen (m. mentalis). Ospecifikt frontallobs-releasetecken — förekommer även hos en del friska äldre, så tolka tillsammans med andra fynd."},
+  {id:"glabellar", name:"Glabellareflex (Myersons tecken)", type:"primitive", tag:"Frontallobs-tecken", desc:"Upprepad lätt knackning mellan ögonbrynen ger normalt blinkning som snabbt habituerar (klingar av) efter några slag. Utebliven habituering — fortsatt blinkning vid varje knackning — ses vid Parkinsons sjukdom och annan diffus hjärnsjukdom."}
+];
