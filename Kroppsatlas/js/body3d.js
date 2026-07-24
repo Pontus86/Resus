@@ -26,6 +26,12 @@ function ensureBody3D(canvas, onReady){
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 300);
   const group = new THREE.Group();
   scene.add(group);
+  // Egen grupp för procedurträningens landmärken/nålvägar (se _body3dWorldBox m.fl. nedan) --
+  // aldrig anatomiska meshar, bara schematiska rör/sfärer. Läggs direkt i scenen (inte i
+  // "group", som bara är en tom container utan egen transform -- samma nivå som brain3d.js:s
+  // tractGroup, se Neuro/js/brain3d.js). Kropps-atlas egen sida använder aldrig denna.
+  const overlayGroup = new THREE.Group();
+  scene.add(overlayGroup);
 
   const ambient = new THREE.AmbientLight(0xffffff, 0.75);
   const key = new THREE.DirectionalLight(0xffffff, 0.65); key.position.set(2,3,4);
@@ -45,7 +51,7 @@ function ensureBody3D(canvas, onReady){
   const clipPlanes = [clip.sagittal.plane, clip.coronal.plane, clip.axial.plane];
 
   body3d = {
-    renderer, scene, camera, group, clip, clipPlanes,
+    renderer, scene, camera, group, overlayGroup, clip, clipPlanes,
     registry:{}, groups:{}, loadedSystems:{},
     active:false, rotY:0.4, rotX:-0.08, dist:90, pan:new THREE.Vector3(0,-20,0),   // grov gissning, ersätts av _body3dDefaultFraming() nedan så snart skelettet laddats klart
     loaded:false, selectedName:null, isolate:false,
@@ -91,10 +97,15 @@ function ensureBody3D(canvas, onReady){
     ndc.y = -((e.clientY-rect.top)/rect.height)*2+1;
     raycaster.setFromCamera(ndc, camera);
     const meshes = Object.values(body3d.registry).map(r=>r.mesh).filter(m=>m.visible);
-    const hits = raycaster.intersectObjects(meshes, false);
+    // Schematiska landmärken (procedurträning) har inget registry-namn -- de bär sitt eget
+    // namn i userData.pickName i stället, se body3dAddOverlayMarker nedan. Samma
+    // window.onBody3DPick-krok för båda, så konsumenten (info-panelen) bara behöver EN
+    // kodväg oavsett om träffen var en riktig struktur eller ett schematiskt märke.
+    const overlayMeshes = body3d.overlayGroup.children.filter(m=>m.visible && m.userData.pickName);
+    const hits = raycaster.intersectObjects(meshes.concat(overlayMeshes), false);
     if(hits.length){
       const hit = hits[0].object;
-      const name = Object.keys(body3d.registry).find(k=>body3d.registry[k].mesh===hit);
+      const name = hit.userData.pickName || Object.keys(body3d.registry).find(k=>body3d.registry[k].mesh===hit);
       if(name && typeof window.onBody3DPick === "function") window.onBody3DPick(name);
     }
   });
@@ -168,6 +179,18 @@ function setBody3DPreset(key){
 // ändras. Största av de två halvorna används (inte bara mitten) eftersom kamerans rotX-lutning
 // gör projektionen något osymmetrisk kring pan.y, se motsvarande kommentar i brain3d.js.
 const BODY3D_MARGIN = 0.85;
+// Utbruten ur den ursprungliga _body3dDefaultFraming (var inline där) -- Procedurträning
+// återanvänder samma trigonometri för att zooma till EN procedurs region/landmärke i stället
+// för hela den synliga kroppen, se _body3dRegionBox nedan.
+function _body3dFrameBox(box, margin){
+  if(!box || box.isEmpty()) return null;
+  const topY = box.max.y, bottomY = box.min.y;
+  const lookAtY = (topY+bottomY)/2;
+  const halfSpan = Math.max(topY-lookAtY, lookAtY-bottomY);
+  const halfFovRad = (body3d.camera.fov/2) * Math.PI/180;
+  const dist = halfSpan>0 ? (halfSpan/margin) / Math.tan(halfFovRad) : 90;
+  return {lookAtY, dist};
+}
 function _body3dDefaultFraming(){
   if(!body3d) return {lookAtY:-20, dist:90};
   const box = new THREE.Box3();
@@ -178,12 +201,7 @@ function _body3dDefaultFraming(){
     found = true;
   });
   if(!found) return {lookAtY:-20, dist:90};
-  const topY = box.max.y, bottomY = box.min.y;
-  const lookAtY = (topY+bottomY)/2;
-  const halfSpan = Math.max(topY-lookAtY, lookAtY-bottomY);
-  const halfFovRad = (body3d.camera.fov/2) * Math.PI/180;
-  const dist = halfSpan>0 ? (halfSpan/BODY3D_MARGIN) / Math.tan(halfFovRad) : 90;
-  return {lookAtY, dist};
+  return _body3dFrameBox(box, BODY3D_MARGIN) || {lookAtY:-20, dist:90};
 }
 
 // ---------- laddning ----------
@@ -218,7 +236,7 @@ function _body3dRegister(mesh, name, system, region, side, color){
 function _body3dLoadSystemScript(system, cb){
   if(window.BODY3D_OBJ && window.BODY3D_OBJ[system]){ cb(); return; }
   const s = document.createElement("script");
-  s.src = "models/body/" + system + ".js";
+  s.src = BODY3D_MODELS_BASE + system + ".js";
   s.onload = cb;
   s.onerror = ()=>{ console.error("body3d: kunde inte ladda", s.src); cb(); };
   document.head.appendChild(s);
@@ -377,4 +395,97 @@ function _body3dRegionBox(region){
     found = true;
   });
   return found ? box : null;
+}
+
+/* ---------- Landmärken i world-space (för Procedurträning) ----------
+   Generisk motsvarighet till Neuro/js/brain3d.js:s _brain3dWorldBox/_brain3dWorldCenter, men
+   över body3d.registry i stället för brain3d.parts -- samma idé (riktiga punkter från RIKTIG,
+   redan transformerad geometri, aldrig hårdkodade koordinater), ingen egen kontur-mesh att
+   undanta här (registryns meshar är redan de enda, rena meshobjekten -- ingen cap-proxy-syskon
+   som i brain3d.js, se filkommentaren där). Kropps-atlas egen sida anropar aldrig dessa. */
+function _body3dWorldBox(name){
+  const entry = body3d && body3d.registry[name];
+  if(!entry) return null;
+  entry.mesh.updateMatrixWorld(true);
+  return new THREE.Box3().setFromObject(entry.mesh);
+}
+function _body3dWorldCenter(name){
+  const box = _body3dWorldBox(name);
+  if(!box || box.isEmpty()) return null;
+  return box.getCenter(new THREE.Vector3());
+}
+
+/* ---------- Lokal snitt-volym (för Procedurträningens "gör snitt") ----------
+   Skiljer sig från "Snitt"-panelens klippplan ovan (setBody3DClip) på ett avgörande sätt:
+   de är hel-kropps-plan i UNION-läge (material.clipIntersection default false) -- ett aktivt
+   plan tar bort HELA ena halvan av kroppen. Här vill vi motsatsen: ta bort bara insidan av en
+   liten låda runt insticksstället, resten av strukturen kvar orörd. THREE.js har inget
+   "klipp bara den här lilla volymen"-läge direkt, men INTERSECTION-läge (clipIntersection=
+   true) ger det indirekt: en fragment tas bort bara om den ligger på "minus"-sidan av ALLA
+   sex planen SAMTIDIGT. Om de sex planen är lådans sex sidor (två per axel, inåtriktade)
+   blir just den samtidiga minus-regionen exakt lådans insida.
+   THREE.Plane-konventionen: distance(p) = normal·p + constant, negativt avstånd = "tas bort".
+   För ett plan med normal n ska "negativt avstånd" motsvara "n·p < n·center + halfSize" (dvs
+   n=+x ger den ÖVRE gränsen center.x+halfSize, n=-x ger den UNDRE center.x-halfSize) --
+   löser ut till constant = -n·center - halfSize. Verifierad genom insticksfallet
+   (center.x=10, halfSize=2 -> n=+x ger p.x<12, n=-x ger p.x>8, snittet 8<p.x<12 är lådan,
+   inte tomma mängden) INNAN den kopplades till faktisk geometri, sedan bekräftad visuellt
+   i Playwright (se verifieringsavsnittet i planfilen) -- inte gissad i produktion. */
+function _body3dIncisionPlanes(center, halfSize){
+  const dirs = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+  return dirs.map(([x,y,z])=>{
+    const n = new THREE.Vector3(x,y,z);
+    return new THREE.Plane(n, -n.dot(center) - halfSize);
+  });
+}
+// Sätter/återställer klippläge för namngivna registry-strukturer. Varje mesh har sin EGEN
+// materialinstans (se _body3dRegister ovan) -- att ändra en strukturs clippingPlanes påverkar
+// aldrig någon annan, även om flera strukturer råkar vara "aktiva" i olika snitt samtidigt.
+function body3dStageLayer(meshNames, incisionPlanes, active){
+  if(!body3d) return;
+  meshNames.forEach(name=>{
+    const entry = body3d.registry[name];
+    if(!entry || !entry.mesh.material) return;
+    entry.mesh.material.clippingPlanes = active ? incisionPlanes : body3d.clipPlanes;
+    entry.mesh.material.clipIntersection = !!active;
+    entry.mesh.material.needsUpdate = true;
+  });
+}
+// Animerar snitt-lådan från 0 till targetRadius -- en stegvis "avslöjande" i stället för att
+// bara poppa upp klippt, se Procedurtraning/js/procedures3d.js för hur stegen kedjas.
+function _body3dAnimateIncision(center, targetRadius, meshNames, duration, onDone){
+  const t0 = performance.now();
+  function step(now){
+    const t = Math.min(1, (now - t0) / duration);
+    body3dStageLayer(meshNames, _body3dIncisionPlanes(center, targetRadius * t), true);
+    if(t < 1) requestAnimationFrame(step); else if(onDone) onDone();
+  }
+  requestAnimationFrame(step);
+}
+// Lägger ett schematiskt märke (rör mellan punkter, eller en ensam sfär) i overlayGroup, med
+// ett pickName så klicket i canvasen (se ensureBody3D ovan) hittar det via samma
+// window.onBody3DPick-krok som riktiga strukturer.
+function body3dAddOverlayMarker(pickName, points, color, radius){
+  if(!body3d) return null;
+  let mesh;
+  if(points.length >= 2){
+    const curve = new THREE.CatmullRomCurve3(points);
+    mesh = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 32, radius||0.05, 8, false),
+      new THREE.MeshLambertMaterial({color:new THREE.Color(color), clippingPlanes:body3d.clipPlanes})
+    );
+  } else {
+    mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(radius||0.08, 12, 12),
+      new THREE.MeshLambertMaterial({color:new THREE.Color(color), clippingPlanes:body3d.clipPlanes})
+    );
+    mesh.position.copy(points[0]);
+  }
+  mesh.userData.pickName = pickName;
+  body3d.overlayGroup.add(mesh);
+  return mesh;
+}
+function body3dClearOverlay(){
+  if(!body3d) return;
+  while(body3d.overlayGroup.children.length) body3d.overlayGroup.remove(body3d.overlayGroup.children[0]);
 }

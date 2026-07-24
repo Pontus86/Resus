@@ -10,6 +10,13 @@ const BODY3D_SCALE = 0.034;
 const BODY3D_ROTATION = new THREE.Euler(-Math.PI/2, 0, Math.PI);
 const BODY3D_YAW_FIX = Math.PI;
 
+// Var models/body/-filerna hämtas ifrån -- kan sättas på window INNAN denna fil laddas (se
+// Procedurtraning/index.html, som pekar den mot "../Kroppsatlas/models/body/" eftersom den
+// modulen återanvänder Kropps-atlas modelldata i stället för att kopiera ~185MB). Kropps-atlas
+// själv sätter aldrig window.BODY3D_MODELS_BASE, så den fortsätter använda sin egen relativa
+// "models/body/" precis som innan.
+const BODY3D_MODELS_BASE = window.BODY3D_MODELS_BASE || "models/body/";
+
 // De ~20 hjärn-/ryggmärgskategorierna, återanvända as-is (window.BRAIN3D_OBJ, inte
 // window.BODY3D_OBJ -- filerna är okopierade kopior av Neuro-modulens egna, se
 // Kroppsatlas/models/body/brain/). region:"axial" för spinalcord (löper genom hela

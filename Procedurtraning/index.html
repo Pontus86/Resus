@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Procedurträning — Resus</title>
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../Kroppsatlas/css/styles.css">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="../css/mobile-drawers.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>Procedurträning</h1>
+    <span class="sub">Landmärken, insticksställen och farostrukturer i 3D</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h3>Om verktyget</h3>
+    <p>Välj en procedur nedan och gå igenom stegen — varje steg visar ett lager (hud, sedan
+    djupare) och avslöjar målstrukturen samt vad som ligger i farozonen. Bygger på samma 3D-
+    kropp som Kropps-atlas (BodyParts3D/Open3DModel, ej kliniskt verifierad, för
+    utbildningsbruk). Strukturer utan egen geometri i biblioteket (t.ex. tuberositas tibiae som
+    egen punkt, i stället för del av hela skenbenet) är märkta <b>schematisk</b> och placerade
+    i förhållande till riktig anatomi i närheten — inte anatomiskt exakta mätpunkter.</p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="proc3d-list" id="proc3dList"></div>
+
+    <div class="body3d-panel">
+      <div class="body3d-main">
+        <div class="body3d-canvas-wrap">
+          <canvas id="proc3dCanvas"></canvas>
+          <div class="body3d-loading" id="proc3dLoading">Laddar 3D-kropp…</div>
+          <div class="body3d-hint">Dra för att rotera · scrolla för att zooma · skift+dra för att panorera</div>
+        </div>
+        <div class="proc3d-stepper">
+          <button class="rs-btn" id="proc3dResetBtn">Börja om</button>
+          <button class="rs-btn" id="proc3dNextBtn">Börja</button>
+        </div>
+      </div>
+
+      <div class="body3d-sidebar" id="proc3dSidebar">
+        <div class="mobile-sheet-handle" id="proc3dSidebarHandle">
+          <span>STEG</span><span class="mobile-sheet-chevron">‹</span>
+        </div>
+        <div class="proc3d-stages" id="proc3dStages"></div>
+        <div id="proc3dInfo"></div>
+        <a class="proc3d-checklist-link" id="proc3dChecklistLink" href="../Checklistor/index.html" hidden>Öva checklistan →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../lib/three.min.js"></script>
+<script src="../lib/OBJLoader.js"></script>
+<script>window.BODY3D_MODELS_BASE = "../Kroppsatlas/models/body/";</script>
+<script src="../Kroppsatlas/js/body3d-data.js"></script>
+<script src="../Kroppsatlas/models/body/manifest.js"></script>
+<!-- Ingen models/body/brain/*.js här ännu -- io-tibia (första skivan) behöver ingen hjärn-/
+     ryggmärgsdata. Läggs till när lumbar-puncture-skivan byggs (behöver spinalcord.js), se
+     planfilen. body3d.js hoppar tyst över saknade hjärnkategorier (system!=="brain"-grenen i
+     _body3dLoadSystem gäller inte "brain", men _body3dLoadSystemParsed:s nextBrainFile
+     hoppar redan över varje kategori vars window.BRAIN3D_OBJ[cat] saknas). Skelett (default-
+     på, se BODY3D_DEFAULT_ON) laddas ändå automatiskt via den vanliga lazy-mekanismen tack
+     vare BODY3D_MODELS_BASE ovan -- ingen egen <script>-tagg för skeletal.js behövs här. -->
+<script src="../Kroppsatlas/js/body3d.js"></script>
+<script src="js/procedures-data.js"></script>
+<script src="js/procedures3d.js"></script>
+<script src="js/main.js"></script>
+<script src="../nav.js"></script>
+</body>
+</html>

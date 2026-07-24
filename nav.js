@@ -17,6 +17,7 @@
     {id:"ekg", label:"EKG-tränare", href:"EKG/index.html"},
     {id:"neuro", label:"Neuro", href:"Neuro/index.html"},
     {id:"kroppsatlas", label:"Kropps-atlas", href:"Kroppsatlas/index.html"},
+    {id:"procedurtraning", label:"Procedurträning", href:"Procedurtraning/index.html"},
     {id:"checklistor", label:"Checklistor", href:"Checklistor/index.html"},
     {id:"loggbok", label:"Loggbok", href:"Loggbok/index.html"},
     {id:"toxidrom", label:"Toxidrom-detektiv", href:"Toxidrom/index.html"},

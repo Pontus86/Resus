@@ -1,0 +1,42 @@
+/* Procedurträning: bara det som INTE redan finns i ../Kroppsatlas/css/styles.css (body3d-*-
+   klasserna återanvänds därifrån rakt av, se index.html:s <link>-ordning) eller root-
+   theme.css (.card/.rs-btn). */
+
+/* Kroppsatlas/css/styles.css:s canvas-storleksregel är skriven mot #body3dCanvas specifikt
+   (inte en generisk klass) -- matchar aldrig vårt eget canvas-id, så utan denna rad har
+   canvasen ingen CSS-storlek alls: WebGL-buffertens faktiska pixelstorlek och dess CSS-box
+   glider isär (bekräftat via gl.readPixels() -- noll synliga pixlar utan denna regel, se
+   konversationen), och varje resize-event läser då tillbaka en redan växande clientWidth in i
+   sig själv (1200->2400->4800...). Samma regel som #body3dCanvas, bara döpt om. */
+#proc3dCanvas{width:100%;height:100%;display:block}
+
+.proc3d-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.proc3d-list button{font:inherit;font-size:13px;font-weight:700;padding:8px 14px;
+  border-radius:9px;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+.proc3d-list button.active{background:var(--red);border-color:var(--red);color:#fff}
+
+.proc3d-stages{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:12px;
+  font-size:12.5px;font-weight:700;color:var(--muted)}
+.proc3d-stage{padding:5px 10px;border-radius:20px;background:var(--bg)}
+.proc3d-stage.done{background:var(--ok-tint);color:var(--ok)}
+.proc3d-stage.current{background:var(--red);color:#fff}
+.proc3d-stage-arrow{color:var(--line);font-weight:400}
+
+.proc3d-stepper{display:flex;gap:8px;margin:12px 0}
+.proc3d-stepper button{flex:1 1 auto}
+
+.proc3d-landmarks{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.proc3d-landmark{border:1px solid var(--line);border-radius:10px;padding:9px 11px;cursor:pointer;
+  border-left-width:4px}
+.proc3d-landmark:hover{background:var(--bg)}
+.proc3d-landmark.picked{background:var(--red-tint);border-color:var(--red)}
+.proc3d-landmark b{text-transform:capitalize;font-size:13px}
+.proc3d-landmark p{margin:3px 0 0;font-size:12.5px;color:var(--muted)}
+.proc3d-role-target{border-left-color:#D8473D}
+.proc3d-role-danger{border-left-color:var(--warn)}
+.proc3d-role-landmark{border-left-color:#4A90A4}
+.proc3d-role-context{border-left-color:#8FA0A8}
+.proc3d-schematic-tag{margin-left:8px;font-size:10.5px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.03em;color:var(--warn);background:var(--warn-tint);border-radius:6px;padding:2px 6px}
+
+.proc3d-checklist-link{display:inline-block;margin-top:12px;font-size:13px;font-weight:700}
