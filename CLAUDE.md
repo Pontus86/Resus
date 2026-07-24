@@ -93,14 +93,24 @@ Kända fallgropar:
   `page.evaluate(() => document.querySelector(sel).click())` i stället för Playwrights egen
   `.click()` när det strular.
 
-## Git
+## Git & hosting
 
 Repot fick sin första commit 2026-07-24 (fanns ingen versionshantering innan dess). `Models/`
-(råa källbibliotek, ~1.9GB, regenererbara) och `Blodgas/Blodgas_old_android_app/` (egen separat
-git-repo med 299 commits och en egen GitHub-remote, `github.com/Pontus86/Blodgas.git`) är
-gitignorade medvetet — se `.gitignore`. Skapa en NY commit efter större ändringar (inte bara
-`--amend`), särskilt före riskabla ombyggnader (t.ex. en hel merge-pipeline-omkörning) så det
-finns en känd bra punkt att gå tillbaka till.
+(råa källbibliotek, ~1.9GB, regenererbara), `Blodgas/Blodgas_old_android_app/` (egen separat
+git-repo med 299 commits och en egen GitHub-remote, `github.com/Pontus86/Blodgas.git`), och
+`*.pdf` (läroböcker/riktlinjer, osäker upphovsrätt för publik distribution — historiken
+byggdes om från grunden en gång för att de aldrig ska ha legat i en tidigare commit heller)
+är gitignorade medvetet — se `.gitignore`. Skapa en NY commit efter större ändringar (inte
+bara `--amend`), särskilt före riskabla ombyggnader (t.ex. en hel merge-pipeline-omkörning)
+så det finns en känd bra punkt att gå tillbaka till.
+
+**Publikt repo + GitHub Pages** (medvetet val, inte privat — se konversationen 2026-07-24):
+- Repo: `github.com/Pontus86/Resus` (`origin`-remote)
+- Live: `https://pontus86.github.io/Resus/` — bygger om automatiskt vid varje `git push` till
+  `main` (branch `main`, path `/`, se Settings → Pages i repot). Ingen separat deploy-kommando.
+- All intern länkning använder RELATIVA sökvägar (aldrig root-absoluta `/css/...`), vilket är
+  varför sajten funkar både på `file://` lokalt OCH under GitHub Pages' `/Resus/`-undersökväg
+  utan ändringar.
 
 ## Diskutrymme
 
