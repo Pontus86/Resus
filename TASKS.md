@@ -23,6 +23,7 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-009 | in progress | Codex | Enrich the BodyParts3D catalogue inventory: `reference/bodyparts3d/`, `tools/audit_bp3d_inventory.js`, `tools/build_bp3d_catalog.js`, and task closeout only. Existing model files are read-only evidence. | `codex/work` | User requested columns showing what Resus already contains and what remains available to download. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -64,6 +65,20 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   a no-op since none currently do).
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
+
+### R-009 — Audit BodyParts3D coverage
+
+- Match the official 8,129-record `20181210i412` catalogue against reliable provenance in
+  Resus's currently embedded models without modifying those model files.
+- Mark each catalogue row with whether the BodyParts3D object is already represented, where it
+  is used, the match basis/source version, and whether a download is still needed.
+- Treat exact FMA/BP/file-ID evidence as authoritative. Permit exact normalized name matching
+  only in assets explicitly identified as BodyParts3D; do not equate similarly named
+  Open3DModel geometry with the corresponding BodyParts3D object.
+- Update the searchable HTML view with an availability filter and coverage column. Document
+  the audit's conservative false-negative limitation.
+- Verify inventory counts, CSV/data parity, search/filter logic, JavaScript syntax, and
+  reproducible regeneration.
 
 ## Assignment rules
 

@@ -22,6 +22,7 @@
       <div>
         <h3>8 129 anatomiska katalogobjekt</h3>
         <p>Sök på engelskt, latinskt eller japanskt namn, synonym, FMA-ID, BP-ID eller TA-ID.</p>
+        <p id="catalog-coverage"></p>
       </div>
       <div class="catalog-actions">
         <a class="rs-btn" href="20181210i412-objects.csv" download>Ladda ned CSV</a>
@@ -44,6 +45,14 @@
           <option value="compound">Endast sammansatta</option>
         </select>
       </label>
+      <label>
+        Tillgänglighet
+        <select id="catalog-availability">
+          <option value="all">Alla objekt</option>
+          <option value="present">Finns i Resus</option>
+          <option value="missing">Behöver laddas ned</option>
+        </select>
+      </label>
     </div>
 
     <p id="catalog-summary" class="catalog-summary" aria-live="polite"></p>
@@ -56,6 +65,7 @@
             <th>Latinskt namn</th>
             <th>FMA-ID</th>
             <th>BP-ID</th>
+            <th>Resus</th>
             <th>Typ</th>
             <th>Volym</th>
           </tr>
