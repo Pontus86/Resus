@@ -2,8 +2,8 @@
   "catalog_version": "20181210i412",
   "audited_at": "2026-07-25",
   "methodology": "Konservativ ID-matchning samt entydig exakt namnmatch i uttryckliga BodyParts3D-filer.",
-  "present": 284,
-  "needs_download": 7845,
+  "present": 332,
+  "needs_download": 7797,
   "entries": [
     {
       "fma_id": "FMA6115",
@@ -857,50 +857,59 @@
       "fma_id": "FMA50886",
       "bp_id": "BP103764",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA50887",
       "bp_id": "BP103765",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA50894",
       "bp_id": "BP103767",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
@@ -992,32 +1001,38 @@
       "fma_id": "FMA52592",
       "bp_id": "BP105361",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA52593",
       "bp_id": "BP105362",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
@@ -1143,68 +1158,84 @@
       "fma_id": "FMA52613",
       "bp_id": "BP101674",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     },
     {
       "fma_id": "FMA52614",
       "bp_id": "BP101675",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     },
     {
       "fma_id": "FMA52615",
       "bp_id": "BP101676",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     },
     {
       "fma_id": "FMA52616",
       "bp_id": "BP101677",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     },
     {
@@ -2605,68 +2636,84 @@
       "fma_id": "FMA53411",
       "bp_id": "BP101722",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     },
     {
       "fma_id": "FMA53412",
       "bp_id": "BP101723",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     },
     {
       "fma_id": "FMA53420",
       "bp_id": "BP101724",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     },
     {
       "fma_id": "FMA53421",
       "bp_id": "BP101725",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     },
     {
@@ -2962,102 +3009,120 @@
       "fma_id": "FMA65421",
       "bp_id": "BP102994",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA65422",
       "bp_id": "BP102995",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA65423",
       "bp_id": "BP102996",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA65424",
       "bp_id": "BP102997",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA65425",
       "bp_id": "BP102998",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA65426",
       "bp_id": "BP102999",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
@@ -3640,34 +3705,40 @@
       "fma_id": "FMA80482",
       "bp_id": "BP103109",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA80483",
       "bp_id": "BP103110",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
@@ -4014,34 +4085,40 @@
       "fma_id": "FMA81014",
       "bp_id": "BP103990",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA81015",
       "bp_id": "BP103991",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
@@ -4703,34 +4780,40 @@
       "fma_id": "FMA288200",
       "bp_id": "BP103183",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
       "fma_id": "FMA288202",
       "bp_id": "BP103184",
       "modules": [
-        "Neuro"
+        "Neuro",
+        "Kropps-atlas"
       ],
       "versions": [
-        "blandad/deriverad BodyParts3D"
+        "blandad/deriverad BodyParts3D",
+        "20181210i412"
       ],
       "match_basis": [
         "FMA-ID i modellkälla",
         "fil-ID i 20181210i412-export"
       ],
       "evidence_files": [
-        "Neuro/models/brain/peripheral_nerves.js"
+        "Neuro/models/brain/peripheral_nerves.js",
+        "Kroppsatlas/models/body/cranial_nerves.js"
       ]
     },
     {
@@ -4861,6 +4944,794 @@
       ],
       "evidence_files": [
         "Neuro/models/brain/peripheral_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA3802",
+      "bp_id": "BP100037",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA4685",
+      "bp_id": "BP103718",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA4707",
+      "bp_id": "BP99831",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA4713",
+      "bp_id": "BP99834",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA4714",
+      "bp_id": "BP99835",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7238",
+      "bp_id": "BP105138",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7239",
+      "bp_id": "BP105139",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7240",
+      "bp_id": "BP105140",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7242",
+      "bp_id": "BP105142",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7243",
+      "bp_id": "BP105143",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7247",
+      "bp_id": "BP105144",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7249",
+      "bp_id": "BP105145",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7250",
+      "bp_id": "BP105146",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7252",
+      "bp_id": "BP105147",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7253",
+      "bp_id": "BP105148",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7254",
+      "bp_id": "BP105149",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7260",
+      "bp_id": "BP105774",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7261",
+      "bp_id": "BP105775",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7262",
+      "bp_id": "BP105776",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7264",
+      "bp_id": "BP105777",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA7266",
+      "bp_id": "BP105778",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA18177",
+      "bp_id": "BP103524",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA18178",
+      "bp_id": "BP103525",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA50892",
+      "bp_id": "BP103766",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53402",
+      "bp_id": "BP102813",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53409",
+      "bp_id": "BP102814",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53432",
+      "bp_id": "BP102816",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53433",
+      "bp_id": "BP102817",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53476",
+      "bp_id": "BP102818",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53477",
+      "bp_id": "BP102819",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53478",
+      "bp_id": "BP102820",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53479",
+      "bp_id": "BP102821",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53553",
+      "bp_id": "BP102822",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53554",
+      "bp_id": "BP102823",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53555",
+      "bp_id": "BP102824",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA53556",
+      "bp_id": "BP102825",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA58722",
+      "bp_id": "BP103854",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA58723",
+      "bp_id": "BP103855",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA58724",
+      "bp_id": "BP103856",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA58725",
+      "bp_id": "BP103857",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA58726",
+      "bp_id": "BP103858",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA58727",
+      "bp_id": "BP103859",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA58729",
+      "bp_id": "BP103860",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA58730",
+      "bp_id": "BP103861",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA74912",
+      "bp_id": "BP100260",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA74923",
+      "bp_id": "BP100261",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cardiac_detail.js"
+      ]
+    },
+    {
+      "fma_id": "FMA77531",
+      "bp_id": "BP105795",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
+      ]
+    },
+    {
+      "fma_id": "FMA77532",
+      "bp_id": "BP105796",
+      "modules": [
+        "Kropps-atlas",
+        "Neuro"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/cranial_nerves.js",
+        "Neuro/models/brain/cranial_roots.js"
       ]
     }
   ]

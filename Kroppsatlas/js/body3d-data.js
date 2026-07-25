@@ -45,11 +45,12 @@ const BODY3D_BRAIN_CATEGORIES = [
 // som VANLIGA BODY3D_OBJ-filer med "o "-rader kvar (individuellt adresserbara, till skillnad
 // från hjärnfilernas ett-mesh-per-fil-konvention) -- går genom samma kodväg som skelett/
 // muskler/nerver/kärl/ledband i body3d.js, inga motorändringar behövda.
-const BODY3D_SYSTEMS = ["brain","skeletal","muscular","nervous","vascular","connective","organ","female_pelvis","skin"];
+const BODY3D_SYSTEMS = ["brain","skeletal","muscular","nervous","cranial_nerves","vascular","cardiac_detail","connective","organ","female_pelvis","skin"];
 
 const BODY3D_SYSTEM_LABEL = {
   brain: "Hjärna & ryggmärg", skeletal: "Skelett", muscular: "Muskler",
-  nervous: "Nerver", vascular: "Kärl", connective: "Ledband/bindväv",
+  nervous: "Nerver", cranial_nerves: "Kranialnerver", vascular: "Kärl",
+  cardiac_detail: "Hjärtdetaljer", connective: "Ledband/bindväv",
   organ: "Inre organ", female_pelvis: "Kvinnligt bäcken", skin: "Hud"
 };
 // Standardpalett per system -- kärl särskiljs artär(röd)/ven(blå) via namnkontroll i body3d.js
@@ -59,8 +60,10 @@ const BODY3D_SYSTEM_COLOR = {
   skeletal: "#EDE6D3",
   muscular: "#B23A2E",
   nervous: "#E8C744",
+  cranial_nerves: "#D6A900",
   vascular_artery: "#C0392B",
   vascular_vein: "#3B6FA0",
+  cardiac_detail: "#C9776B",
   connective: "#8FB8C9",
   organ: "#C9776B",
   female_pelvis: "#D98CA3",
@@ -81,7 +84,7 @@ function _body3dBrainColorFor(cat){
 // Vilka system laddas/visas som DEFAULT (resten laddas lazy första gången de slås på, se
 // setBody3DSystemVisible i body3d.js) -- skelett+hjärna/ryggmärg ger en meningsfull "helkropp"
 // direkt utan att tvinga fram en flera-tiotals-MB-laddning av alla mjukdelar på en gång.
-const BODY3D_DEFAULT_ON = {brain:true, skeletal:true, muscular:false, nervous:false, vascular:false, connective:false, organ:false, female_pelvis:false, skin:false};
+const BODY3D_DEFAULT_ON = {brain:true, skeletal:true, muscular:false, nervous:false, cranial_nerves:false, vascular:false, cardiac_detail:false, connective:false, organ:false, female_pelvis:false, skin:false};
 
 // HRA v1.2-data laddas lazy som ett eget system. Bäcken-GLB:n används bara som
 // kalibreringsreferens i tools/build_hra_female_pelvis.js; atlasens befintliga höftben,

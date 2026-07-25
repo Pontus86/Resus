@@ -129,7 +129,7 @@ BP98449,FMA50169,Anterior communicating artery,Arteria communicans anterior,前�
 BP102991,FMA65385,Anterior cord of brachial nerve plexus,,,Anterior cord of brachial plexus,,false,0.7101,53.2156,90.3946,-91.0736,-78.3825,1330.28,1362.62,no,,,,available_to_download,yes
 BP102107,FMA268245,Anterior corticospinal tract of medulla oblongata,,,,,false,0.0441,-4.5482,4.5483,-64.6302,-57.4202,1478.3,1486.92,no,,,,available_to_download,yes
 BP100450,FMA44614,Anterior cruciate ligament,Ligamentum cruciatum anterius,前十字靱帯,,A03.6.08.007,false,4.3211,-84.1256,84.168,-105.365,-67.3078,364.724,395.33,no,,,,available_to_download,yes
-BP105148,FMA7253,Anterior cusp of aortic valve,Valvula semilunaris dextra (Valva aortae),右半月弁;大動脈弁の右冠尖,Right coronary cusp of aortic valve;Right cusp of aortic valve;Right semilunar cusp of aortic valve;Right semilunar valvule of aortic valve,A12.1.04.013,true,0.2391,6.1604,28.6234,-134.693,-123.106,1230.25,1250.5,no,,,,available_to_download,yes
+BP105148,FMA7253,Anterior cusp of aortic valve,Valvula semilunaris dextra (Valva aortae),右半月弁;大動脈弁の右冠尖,Right coronary cusp of aortic valve;Right cusp of aortic valve;Right semilunar cusp of aortic valve;Right semilunar valvule of aortic valve,A12.1.04.013,true,0.2391,6.1604,28.6234,-134.693,-123.106,1230.25,1250.5,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP101063,FMA8921,Anterior cutaneous branch of first intercostal nerve,,,Anterior cutaneous branch of anterior ramus of first thoracic nerve;Anterior cutaneous branch of first thoracic anterior ramus;Anterior cutaneous branch of ventral ramus of first thoracic spinal nerve,,false,0.5932,0.4395,43.7752,-182.219,-161.191,1281.49,1303.21,no,,,,available_to_download,yes
 BP101801,FMA6067,Anterior cutaneous branch of intercostal nerve,,,Anterior cutaneous branch of thoracic anterior ramus,,false,0.6192,0.4395,43.7752,-198.491,-161.191,1254.03,1303.21,no,,,,available_to_download,yes
 BP100340,FMA8922,Anterior cutaneous branch of left first intercostal nerve,,,Anterior cutaneous branch of anterior ramus of left first thoracic nerve;Anterior cutaneous branch of left first thoracic anterior ramus,,true,0.5932,0.4395,43.7752,-182.219,-161.191,1281.49,1303.21,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla,in_resus,no
@@ -163,8 +163,8 @@ BP98720,FMA22810,Anterior interosseous artery,Arteria interossea anterior,前骨
 BP103353,FMA44822,Anterior interosseous nerve,Nervus interosseus antebrachii anterior,前骨間神経;前前腕骨間神経,Anterior interosseous antebrachial nerve;Nervus interosseous antebrachii anterior,A14.2.03.034,false,0.0485,219.421,244.947,-101.304,-91.7831,927.461,994.002,no,,,,available_to_download,yes
 BP99862,FMA66403,Anterior interventricular vein,Vena interventricularis anterior,前室間静脈,,A12.3.01.004,true,0.44,38.2955,74.5731,-172.788,-124.151,1179.86,1252.97,no,,,,available_to_download,yes
 BP98427,FMA13318,Anterior jugular vein,Vena jugularis anterior,前頚静脈,Anterior external jugular vein,A12.3.05.047,false,0.1469,-46.4596,-6.4906,-125.927,-93.4825,1355.4301,1421.78,no,,,,available_to_download,yes
-BP105142,FMA7242,Anterior leaflet of mitral valve,Cuspis anterior valvae atrioventricularis sinistri,僧帽弁の前尖,Anterior cusp of mitral valve;Anterior mitral leaflet;Anteromedial leaflet of mitral valve;Aortic leaflet of mitral valve;Greater leaflet of mitral valve;Septal leaflet of mitral valve,A12.1.04.004,true,139.7817,8.3758,45.7802,-120.719,-102.19,1206.61,1238.6,no,,,,available_to_download,yes
-BP105138,FMA7238,Anterior leaflet of tricuspid valve,Cuspis anterior (Valva tricuspidalis),三尖弁の前尖,Anterior cusp of right atrioventricular valve;Anterior cusp of tricuspid valve;Anterior tricuspid leaflet;Right superolateral leaflet of tricuspid valve,A12.1.02.004,true,113.6404,-10.2136,21.8216,-150.812,-132.22,1208.21,1232.92,no,,,,available_to_download,yes
+BP105142,FMA7242,Anterior leaflet of mitral valve,Cuspis anterior valvae atrioventricularis sinistri,僧帽弁の前尖,Anterior cusp of mitral valve;Anterior mitral leaflet;Anteromedial leaflet of mitral valve;Aortic leaflet of mitral valve;Greater leaflet of mitral valve;Septal leaflet of mitral valve,A12.1.04.004,true,139.7817,8.3758,45.7802,-120.719,-102.19,1206.61,1238.6,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
+BP105138,FMA7238,Anterior leaflet of tricuspid valve,Cuspis anterior (Valva tricuspidalis),三尖弁の前尖,Anterior cusp of right atrioventricular valve;Anterior cusp of tricuspid valve;Anterior tricuspid leaflet;Right superolateral leaflet of tricuspid valve,A12.1.02.004,true,113.6404,-10.2136,21.8216,-150.812,-132.22,1208.21,1232.92,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP102955,FMA60896,Anterior ligament of left malleus,,,,,true,0.0004,40.8228,41.9833,-87.9966,-85.6087,1509.15,1509.73,no,,,,available_to_download,yes
 BP103429,FMA60879,Anterior ligament of malleus,Ligamentum mallei anterius,前ツチ骨靱帯,Casserio's ligament;LIg. mallei anterius,A15.3.02.054,false,0.0008,-41.9833,41.9833,-87.9966,-85.6087,1509.15,1509.73,no,,,,available_to_download,yes
 BP101360,FMA76857,Anterior ligament of proximal epiphysis of fibula,Ligamentum capitis fibulae anterius,前腓骨頭靱帯,Anterior ligament of fibular head;Anterior ligament of head of fibula,A03.6.09.002,false,1.4388,-117.098,117.109,-82.7456,-66.4297,340.007,360.723,no,,,,available_to_download,yes
@@ -182,8 +182,8 @@ BP101296,FMA62319,Anterior nucleus of hypothalamus,Nucleus hypothalamicus anteri
 BP105785,FMA75758,Anterior occipital sulcus,Sulcus occipitalis anterior,,,,false,2.0283,-58.589,58.589,-28.4853,-9.9392,1540.9399,1554.01,no,,,,available_to_download,yes
 BP102490,FMA77628,Anterior olfactory nucleus,Nucleus retrobulbaris [A8],前嗅核|網様体アミン作動性細胞群［A8］;延髄後方核［A8］,Retrobulbar nucleus [A8],A14.1.09.416|A14.1.09.607,false,0.0874,-12.4946,12.4991,-115.229,-109.002,1533.77,1536.77,no,,,,available_to_download,yes
 BP99715,FMA256196,Anterior orbital gyrus,,,,,false,2.7646,-34.1768,34.1811,-156.373,-131.372,1542.99,1555.5,no,,,,available_to_download,yes
-BP105777,FMA7264,Anterior papillary muscle of left ventricle,Musculus papillaris anterior ventriculi sinistri,左心室の前乳頭筋,Anterolateral papillary muscle of left ventricle,A12.1.04.007,true,1.0986,42.6302,72.0373,-128.41,-107.846,1209.77,1225.36,no,,,,available_to_download,yes
-BP105774,FMA7260,Anterior papillary muscle of right ventricle,Musculus papillaris anterior ventriculi dextri,右心室の前乳頭筋,,A12.1.02.017,true,0.5237,7.2039,24.2572,-168.373,-149.006,1192.6801,1209.58,no,,,,available_to_download,yes
+BP105777,FMA7264,Anterior papillary muscle of left ventricle,Musculus papillaris anterior ventriculi sinistri,左心室の前乳頭筋,Anterolateral papillary muscle of left ventricle,A12.1.04.007,true,1.0986,42.6302,72.0373,-128.41,-107.846,1209.77,1225.36,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
+BP105774,FMA7260,Anterior papillary muscle of right ventricle,Musculus papillaris anterior ventriculi dextri,右心室の前乳頭筋,,A12.1.02.017,true,0.5237,7.2039,24.2572,-168.373,-149.006,1192.6801,1209.58,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98289,FMA50485,Anterior parietal artery,Arteria parietalis anterior,前頭頂動脈;前頭頂葉動脈,,A12.2.07.067,false,0.1014,-71.1296,71.1295,-61.4018,-34.5545,1571.8199,1606.15,no,,,,available_to_download,yes
 BP99578,FMA70713,Anterior part of angular gyrus,,,,,false,8.1523,-57.1595,57.1595,-42.6979,-8.6983,1553.65,1585.39,no,,,,available_to_download,yes
 BP103438,FMA61963,Anterior part of anterior commissure,'Commissura anterior,前交連の前部,"Anterior commissure, anterior part;Olfactory limb of anterior commissure;Olfactory part of anterior commissure",A14.1.09.253,false,0.0219,-12.2956,12.2956,-106.001,-102.441,1536.85,1543.37,no,,,,available_to_download,yes
@@ -923,8 +923,8 @@ BP106101,FMA53165,Cranial conduit,,,,,false,6.6599,-49.4052,49.4052,-166.48,-69.
 BP106253,FMA315245,Cranial conduit space,,,Space of cranial conduit,,false,1.4135,-34.0512,34.0807,-139.135,-76.5287,1500.97,1516.36,no,,,,available_to_download,yes
 BP105110,FMA5865,Cranial nerve,Nervus cranialis,脳神経,Cranial neural tree organ,A14.2.00.038,false,0.1265,-35.6249,34.3221,-140.09,-73.0625,1482.74,1528.34,no,,,,available_to_download,yes
 BP103863,FMA5895,Cranial parasympathetic ganglion,,,Parasympathetic ganglion of cranial nerve,,false,0.0204,-27.0391,25.7193,-134.058,-130.799,1523.95,1526.53,no,,,,available_to_download,yes
-BP103525,FMA18178,Cranial part of trunk of left vagus nerve,,,,,true,0.6623,14.8231,28.9061,-77.9239,-64.7792,1495.51,1499.42,no,,,,available_to_download,yes
-BP103524,FMA18177,Cranial part of trunk of right vagus nerve,,,,,true,0.6649,-28.9061,-14.8231,-77.9239,-64.7792,1495.51,1499.41,no,,,,available_to_download,yes
+BP103525,FMA18178,Cranial part of trunk of left vagus nerve,,,,,true,0.6623,14.8231,28.9061,-77.9239,-64.7792,1495.51,1499.42,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
+BP103524,FMA18177,Cranial part of trunk of right vagus nerve,,,,,true,0.6649,-28.9061,-14.8231,-77.9239,-64.7792,1495.51,1499.41,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104694,FMA6224,Cranial part of trunk of vagus nerve,,,,,false,1.3272,-28.9061,28.9061,-77.9239,-64.7792,1495.51,1499.42,no,,,,available_to_download,yes
 BP103237,FMA327358,Cranial root of spinal accessory nerve,,,,,false,0.084,-16.0006,16.0043,-64.3146,-56.0996,1480.41,1493.39,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla,in_resus,no
 BP106217,FMA314945,Cranial sinus space,,,,,false,24.6182,-38.3668,38.3965,-174.963,-97.5143,1482.9301,1554.08,no,,,,available_to_download,yes
@@ -1564,7 +1564,7 @@ BP105493,FMA83912,Gray matter of diencephalon,,,,,false,0.2213,-5.3448,5.3768,-9
 BP104772,FMA83915,Gray matter of hypothalamus,,,,,false,0.2213,-5.3448,5.3768,-95.5977,-89.4478,1533.65,1540.73,no,,,,available_to_download,yes
 BP105759,FMA67242,Gray matter of neuraxis,Substantia grisea,灰白質,Gray matter;Grey matter;Grey substance,A14.1.00.002,false,49.1936,-38.3735,38.3935,-122.018,-48.2821,1474.52,1571.9,no,,,,available_to_download,yes
 BP105492,FMA83911,Gray matter of telencephalon,,,,,false,0.56,-25.3692,25.3707,-115.275,-105.279,1527.14,1547.7,no,,,,available_to_download,yes
-BP99831,FMA4707,Great cardiac vein,Vena cardiaca magna;Vena cordis magna,大心臓静脈;大心静脈,,A12.3.01.003,true,1.0933,39.2305,79.3731,-165.948,-80.6974,1195.99,1251.05,no,,,,available_to_download,yes
+BP99831,FMA4707,Great cardiac vein,Vena cardiaca magna;Vena cordis magna,大心臓静脈;大心静脈,,A12.3.01.003,true,1.0933,39.2305,79.3731,-165.948,-80.6974,1195.99,1251.05,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98705,FMA14792,Great pancreatic artery,Arteria pancreatica magna,大膵動脈,Greater pancreatic artery,A12.2.12.045,true,0.0047,41.1033,44.9602,-108.596,-100.393,1065.8101,1075.42,no,,,,available_to_download,yes
 BP103424,FMA59496,Greater horn of hyoid bone,Cornu majus ossis hyoidei,舌骨の大角,Cornu majus;Greater cornu;Greater horn;Greater horn of hyoid,A02.1.16.004,false,0.7057,-18.3297,18.3364,-121.553,-94.3974,1424.71,1440.88,no,,,,available_to_download,yes
 BP105743,FMA57761,Greater palatine canal,Canalis palatinus major,大口蓋管,,A02.1.00.057,false,0.1971,-21.0485,21.0525,-135.528,-126.97,1476.46,1492.84,no,,,,available_to_download,yes
@@ -1705,8 +1705,8 @@ BP98296,FMA50998,Inferior choroid vein,Vena choroidea inferior,下脈絡叢静�
 BP99209,FMA20686,Inferior epigastric artery,Arteria epigastrica inferior,下腹壁動脈,,A12.2.16.003,false,1.2395,-56.5276,48.5922,-185.386,-109.162,830.656,1030.45,no,,,,available_to_download,yes
 BP99211,FMA21162,Inferior epigastric vein,Vena epigastrica inferior,下腹壁静脈,,A12.3.10.025,false,1.2581,-42.351,41.7907,-186.927,-108.507,826.707,1031.0699,no,,,,available_to_download,yes
 BP105820,FMA83757,Inferior frontal sulcus,Sulcus frontalis secundus,下前頭溝,Inferior frontal fissure;Sulcus f2,A14.1.09.117,false,4.637,-42.189,42.189,-155.902,-104.57,1566.42,1595.95,no,,,,available_to_download,yes
-BP102825,FMA53556,Inferior ganglion of left vagus nerve,,,,,true,0.0574,28.1205,31.8064,-83.8183,-79.8412,1480.27,1489.24,no,,,,available_to_download,yes
-BP102824,FMA53555,Inferior ganglion of right vagus nerve,,,,,true,0.0568,-31.7958,-28.1308,-83.8085,-79.8493,1480.28,1489.23,no,,,,available_to_download,yes
+BP102825,FMA53556,Inferior ganglion of left vagus nerve,,,,,true,0.0574,28.1205,31.8064,-83.8183,-79.8412,1480.27,1489.24,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
+BP102824,FMA53555,Inferior ganglion of right vagus nerve,,,,,true,0.0568,-31.7958,-28.1308,-83.8085,-79.8493,1480.28,1489.23,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP103449,FMA6230,Inferior ganglion of vagus nerve,Ganglion inferius nervus vagi,迷走神経の下神経節,Ganglion inferius (Nervus vagus);Inferior ganglion of vagus;Nodose ganglion;Tenth cranial nerve nodose ganglion;Vagus nerve inferior ganglion;Vagus nerve nodose ganglion,A14.2.01.157,false,0.1142,-31.7958,31.8064,-83.8183,-79.8412,1480.27,1489.24,no,,,,available_to_download,yes
 BP100559,FMA22537,Inferior genicular artery,,,,,false,2.0625,-115.976,115.98,-106.596,-53.7756,334.08,382.12,no,,,,available_to_download,yes
 BP103393,FMA53475,Inferior glossopharyngeal ganglion,Ganglion inferius nervus glossopharyngei,舌咽神経の下神経節,Ganglion inferius (Nervus glossopharygeus);Ganglion of Andersch;Glossopharyngeal nerve inferior ganglion;Glossopharyngeal nerve petrous ganglion;Inferior ganglion of glossopharyngeal nerve;Ninth cranial nerve inferior ganglion,A14.2.01.137,false,0.0685,-30.3194,30.3264,-85.2797,-80.096,1487.9,1494.58,no,,,,available_to_download,yes
@@ -1747,7 +1747,7 @@ BP104604,FMA53452,Inferior part of left vestibular nerve,,,,,true,0.1278,13.2119
 BP99544,FMA68983,Inferior part of medial segmental vein,,,Inferior tributary of medial segmental vein;Right V5b,,true,1.5923,-56.2941,-19.1016,-150.636,-89.2653,1192.3199,1246.5601,no,,,,available_to_download,yes
 BP98941,FMA68928,Inferior part of right anterior segmental vein,,,Infrasegmental part of right anterior segmental vein;Intersegmental part of right anterior segmental vein;Right V3b,,true,0.0691,-83.8711,-45.8013,-105.942,-100.145,1261.91,1272.8101,no,,,,available_to_download,yes
 BP104603,FMA53451,Inferior part of right vestibular nerve,,,,,true,0.1256,-35.9578,-13.2119,-80.937,-69.138,1503.9,1511.29,no,,,,available_to_download,yes
-BP105796,FMA77532,Inferior part of vestibular ganglion,Pars inferior ganglionis vestibularis,前庭神経節の下部,,A14.2.01.130,false,0.0092,-31.2529,31.2611,-80.0061,-77.9179,1509.96,1512.0601,no,,,,available_to_download,yes
+BP105796,FMA77532,Inferior part of vestibular ganglion,Pars inferior ganglionis vestibularis,前庭神経節の下部,,A14.2.01.130,false,0.0092,-31.2529,31.2611,-80.0061,-77.9179,1509.96,1512.0601,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP105365,FMA53450,Inferior part of vestibular nerve,,,Pars inferior (Nervus vestibularis),,false,0.2535,-35.9578,35.9578,-80.9488,-69.138,1503.9,1511.3,no,,,,available_to_download,yes
 BP101113,FMA297051,Inferior part proper of body of left scapula,,,Infraspinal part proper of body of left scapula,,true,15.5797,62.9562,132.167,-57.8372,2.4823,1191.91,1308.96,no,,,,available_to_download,yes
 BP101112,FMA297049,Inferior part proper of body of right scapula,,,Infraspinal part proper of body of right scapula,,true,15.5835,-132.167,-62.9562,-57.8372,2.4823,1191.91,1308.96,no,,,,available_to_download,yes
@@ -1889,13 +1889,13 @@ BP101422,FMA16035,Intervertebral disk of third lumbar vertebra,,,"Intervertebral
 BP101403,FMA13500,Intervertebral disk of third thoracic vertebra,,,"Intervertebral disk, T3-T4;T3 intervertebral disk",,true,3.2073,-15.5442,14.2062,-71.5834,-45.6897,1299.73,1314.4,no,,,,available_to_download,yes
 BP102502,FMA10455,Intervertebral disk of thoracic vertebra,,,,,false,62.5311,-21.7746,20.4661,-105.126,-30.6065,1061.5,1354.75,no,,,,available_to_download,yes
 BP101412,FMA13509,Intervertebral disk of twelfth thoracic vertebra,,,"Intervertebral disk, T12-L1;T12 intervertebral disk",,true,8.1218,-21.7746,20.4661,-105.126,-65.797,1061.5,1078.89,no,,,,available_to_download,yes
-BP103861,FMA58730,Intra-ocular part of left optic nerve,,,Intraocular part of left optic nerve,,true,0.0054,22.2735,25.2666,-143.641,-141.65,1516.83,1519.42,no,,,,available_to_download,yes
+BP103861,FMA58730,Intra-ocular part of left optic nerve,,,Intraocular part of left optic nerve,,true,0.0054,22.2735,25.2666,-143.641,-141.65,1516.83,1519.42,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104337,FMA58711,Intra-ocular part of optic nerve,Pars intraocularis nervus optici,視神経の眼球内部,Intraocular part of optic nerve;Pars intraocularis (Nervus opticus),A15.2.04.028,false,0.0107,-25.2625,25.2666,-143.641,-141.65,1516.83,1519.42,no,,,,available_to_download,yes
-BP103860,FMA58729,Intra-ocular part of right optic nerve,,,Intraocular part of right optic nerve,,true,0.0053,-25.2625,-22.2793,-143.631,-141.65,1516.83,1519.42,no,,,,available_to_download,yes
+BP103860,FMA58729,Intra-ocular part of right optic nerve,,,Intraocular part of right optic nerve,,true,0.0053,-25.2625,-22.2793,-143.631,-141.65,1516.83,1519.42,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP99648,FMA76264,Intracranial branch of vertebral artery,,,,,false,0.203,-53.5794,53.5794,-72.9001,-11.8997,1487.77,1517.3,no,,,,available_to_download,yes
-BP103859,FMA58727,Intracranial part of left optic nerve,,,,,true,0.0638,4.5614,12.5985,-119.447,-110.904,1525.86,1533.26,no,,,,available_to_download,yes
+BP103859,FMA58727,Intracranial part of left optic nerve,,,,,true,0.0638,4.5614,12.5985,-119.447,-110.904,1525.86,1533.26,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104334,FMA58708,Intracranial part of optic nerve,Pars intracranialis nervus optici,視神経の頭蓋内部,Pars intracranialis (Nervus Opticus),A15.2.04.025,false,0.128,-12.5952,12.5985,-119.447,-110.904,1525.86,1533.26,no,,,,available_to_download,yes
-BP103858,FMA58726,Intracranial part of right optic nerve,,,,,true,0.0642,-12.5952,-4.5614,-119.443,-110.909,1525.86,1533.26,no,,,,available_to_download,yes
+BP103858,FMA58726,Intracranial part of right optic nerve,,,,,true,0.0642,-12.5952,-4.5614,-119.443,-110.909,1525.86,1533.26,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP105186,FMA83772,Intraparietal sulcus,Sulcus interparietalis,頭頂内溝;頭頂間溝,Interparietal fissure;Intraparietal fissure,A14.1.09.127,false,9.1985,-40.285,40.3029,-47.5625,0.6194,1552.49,1597.05,no,,,,available_to_download,yes
 BP102773,FMA48967,Intrinsic auricular muscle,,,,,false,2.084,-81.3025,81.3025,-94.8214,-71.6367,1490.47,1532.61,no,,,,available_to_download,yes
 BP103948,FMA72058,Intrinsic ligament of larynx,,,,,false,0.0676,-4.9267,4.9293,-117.083,-97.2083,1404.71,1415.21,no,,,,available_to_download,yes
@@ -2280,7 +2280,7 @@ BP106122,FMA67598,Leaf of cardiac valve,,,Cardiac valvular leaf,,false,287.8675,
 BP105983,FMA7241,Leaflet of mitral valve,,,Mitral valve leaflet;Mitral valvular leaflet,,false,138.6747,7.9149,45.8529,-120.727,-86.9248,1205.02,1238.65,no,,,,available_to_download,yes
 BP105982,FMA7237,Leaflet of tricuspid valve,,,Tricuspid valve leaflet;Tricuspid valvular leaflet,,false,439.44,-15.6787,22.0315,-150.824,-119.022,1200.64,1232.92,no,,,,available_to_download,yes
 BP104794,FMA270763,Left Brodmann area 35,,,Brodmann area 35 in left cerebral cortex;Left BA35,,true,0.6712,22.8954,33.9558,-112.001,-83.5474,1517.78,1528.64,no,,,,available_to_download,yes
-BP103765,FMA50887,Left abducens nerve,,,Left abducens nerve tree,,true,0.1191,2.8469,34.3221,-140.09,-83.3332,1502.1899,1528.3101,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP103765,FMA50887,Left abducens nerve,,,Left abducens nerve tree,,true,0.1191,2.8469,34.3221,-140.09,-83.3332,1502.1899,1528.3101,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP103064,FMA73609,Left abducens nerve tract,,,Left abducens nerve fibers,,true,0.0447,2.2666,5.1362,-76.824,-65.7446,1495.9301,1507.12,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100772,FMA54507,Left abducens nucleus,,,Nucleus of left abducens nerve,,true,0.0032,2.6469,4.1869,-67.5544,-65.5318,1505.24,1507.7,no,,,,available_to_download,yes
 BP99372,FMA37387,Left abductor pollicis brevis,,,Left abductor pollicis brevis muscle,,true,2.1386,263.352,302.539,-152.743,-123.023,769.911,808.087,no,,,,available_to_download,yes
@@ -2321,7 +2321,7 @@ BP100132,FMA54623,Left anterior cochlear nucleus,,,,,true,0.0045,10.872,12.0673,
 BP103032,FMA72927,Left anterior column of fornix,,,,,true,0.1042,-0.0327,5.0539,-103.357,-93.0497,1535.53,1553.91,no,,,,available_to_download,yes
 BP101087,FMA268249,Left anterior corticospinal tract of medulla oblongata,,,,,true,0.0221,-0.0749,4.5483,-64.6302,-57.4202,1478.3,1486.92,no,,,,available_to_download,yes
 BP100085,FMA44616,Left anterior cruciate ligament,,,,,true,2.1772,58.5788,84.168,-105.365,-67.3078,364.724,395.33,no,,,,available_to_download,yes
-BP105144,FMA7247,Left anterior cusp of pulmonary valve,Valvula semilunaris anterior (Valva trunci pulmonalis),,Anterior cusp of pulmonic valve;Anterior semilunar valvule of pulmonary valve,,true,0.4054,22.9385,42.1439,-158.777,-143.341,1247.8199,1260.91,no,,,,available_to_download,yes
+BP105144,FMA7247,Left anterior cusp of pulmonary valve,Valvula semilunaris anterior (Valva trunci pulmonalis),,Anterior cusp of pulmonic valve;Anterior semilunar valvule of pulmonary valve,,true,0.4054,22.9385,42.1439,-158.777,-143.341,1247.8199,1260.91,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104634,FMA57469,Left anterior ethmoidal cell,,,,,true,0.3603,4.5231,12.9468,-161.827,-150.06,1522.01,1533.4,no,,,,available_to_download,yes
 BP100106,FMA52677,Left anterior ethmoidal nerve,,,,,true,0.0249,0.434,16.0256,-158.538,-136.983,1519.08,1529,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP103985,FMA80472,Left anterior inferior iliac spine,,,,,true,0.5299,97.9961,111.362,-114.021,-101.899,838.167,853.264,no,,,,available_to_download,yes
@@ -2417,7 +2417,7 @@ BP101881,FMA72877,Left claustral amygdaloid area,,,,,true,0.1145,15.3587,28.0912
 BP101865,FMA72835,Left claustrum,,,,,true,1.9852,23.4396,38.3935,-116.667,-71.8656,1535.26,1566.36,no,,,,available_to_download,yes
 BP101626,FMA46444,Left coccygeus,,,Left coccygeus muscle,,true,3.5837,2.4822,48.6923,-37.9678,-8.759,788.05,828.689,no,,,,available_to_download,yes
 BP100140,FMA60203,Left cochlea,,,,,true,0.1599,27.9057,38.1012,-87.1298,-78.4946,1506.33,1514.88,no,,,,available_to_download,yes
-BP102817,FMA53433,Left cochlear nerve,,,Cochlear root of left acoustic nerve;Cochlear root of left eighth cranial nerve,,true,0.0751,9.762,33.8864,-86.0738,-60.7973,1502.0699,1512.7,no,,,,available_to_download,yes
+BP102817,FMA53433,Left cochlear nerve,,,Cochlear root of left acoustic nerve;Cochlear root of left eighth cranial nerve,,true,0.0751,9.762,33.8864,-86.0738,-60.7973,1502.0699,1512.7,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP99783,FMA14826,Left colic artery,Arteria colica sinistra,左結腸動脈,,A12.2.12.071,true,0.1781,12.9722,31.8,-136.795,-126.654,971.879,979.081,no,,,,available_to_download,yes
 BP98713,FMA15394,Left colic vein,Vena colica sinistra,左結腸静脈,,A12.3.12.033,true,0.5302,21.9112,68.167,-127.269,-101.287,942.319,1065.5,no,,,,available_to_download,yes
 BP100083,FMA44579,Left collateral metatarsophalangeal ligament,,,,,true,1.0083,83.263,153.022,-197.182,-142.28,-67.987,-51.3794,no,,,,available_to_download,yes
@@ -2580,7 +2580,7 @@ BP100705,FMA46702,Left genioglossus,,,Left genioglossus muscle,,true,2.9212,-0.3
 BP101624,FMA46327,Left geniohyoid,,,Left geniohyoid muscle,,true,0.7218,-0.1516,7.2308,-154.328,-124.076,1429.16,1439.16,no,,,,available_to_download,yes
 BP100994,FMA73738,Left gigantocellular nucleus,,,,,true,0.0959,1.233,4.5215,-72.084,-65.6853,1498.9,1509.25,no,,,,available_to_download,yes
 BP100982,FMA73682,Left globose nucleus,,,,,true,0.0189,2.5292,5.3139,-56.8873,-53.0631,1512.98,1516.99,no,,,,available_to_download,yes
-BP103767,FMA50894,Left glossopharyngeal nerve,,,Left glossopharyngeal nerve tree,,true,0.0431,22.0871,30.6936,-88.5912,-73.0625,1482.74,1500.87,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla,in_resus,no
+BP103767,FMA50894,Left glossopharyngeal nerve,,,Left glossopharyngeal nerve tree,,true,0.0431,22.0871,30.6936,-88.5912,-73.0625,1482.74,1500.87,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla,in_resus,no
 BP100545,FMA22329,Left gluteus maximus,,,Left gluteus maximus muscle,,true,506.0224,-0.6991,138.927,-75.386,20.2081,691.889,932.083,no,,,,available_to_download,yes
 BP100547,FMA22331,Left gluteus medius,,,Left gluteus medius muscle,,true,197.9105,58.3064,154.001,-102.072,-16.7357,767.074,950.774,no,,,,available_to_download,yes
 BP100549,FMA22333,Left gluteus minimus,,,Left gluteus minimus muscle,,true,111.1762,67.9398,146.088,-102.205,-46.3183,765.779,923.273,no,,,,available_to_download,yes
@@ -2634,7 +2634,7 @@ BP99894,FMA12123,Left inferior articular process of twelfth thoracic vertebra,,,
 BP98794,FMA20689,Left inferior epigastric artery,,,,,true,0.6177,21.7982,48.5922,-185.379,-109.162,830.656,1030.4399,no,,,,available_to_download,yes
 BP98800,FMA21164,Left inferior epigastric vein,,,,,true,0.6118,18.1126,41.7907,-186.924,-111.47,831.366,1031.0699,no,,,,available_to_download,yes
 BP105546,FMA275321,Left inferior frontal sulcus,,,,,true,2.3234,19.9826,42.189,-155.902,-104.57,1566.42,1595.95,no,,,,available_to_download,yes
-BP102821,FMA53479,Left inferior glossopharyngeal ganglion,,,Inferior ganglion of left glossopharyngeal nerve,,true,0.0344,26.5596,30.3264,-85.2797,-80.096,1487.9,1494.58,no,,,,available_to_download,yes
+BP102821,FMA53479,Left inferior glossopharyngeal ganglion,,,Inferior ganglion of left glossopharyngeal nerve,,true,0.0344,26.5596,30.3264,-85.2797,-80.096,1487.9,1494.58,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98788,FMA18913,Left inferior gluteal vein,,,,,true,1.7249,12.9989,52.434,-64.0712,15.4199,753.268,873.754,no,,,,available_to_download,yes
 BP105430,FMA59577,Left inferior lacrimal canaliculus,,,,,true,0.0077,13.8835,19.5612,-162.427,-161.39,1514.12,1516.0601,no,,,,available_to_download,yes
 BP99424,FMA43893,Left inferior lateral genicular artery,,,,,true,0.4904,79.4329,115.98,-101.545,-53.7756,340.422,382.12,no,,,,available_to_download,yes
@@ -2877,7 +2877,7 @@ BP101644,FMA46762,Left occipitalis,,,Occipital belly of left occipitofrontalis,,
 BP105540,FMA275293,Left occipitotemporal sulcus,,,,,true,3.8077,37.4492,54.2176,-83.837,-18.5951,1519.96,1539.13,no,,,,available_to_download,yes
 BP100633,FMA33753,Left olecranon,,,,,true,4.9452,195.504,216.722,-63.9744,-44.5091,1025.86,1052.54,no,,,,available_to_download,yes
 BP105225,FMA223177,Left olfactory bulb,,,,,true,0.2393,1.9558,7.8364,-151.055,-136.868,1532.33,1538.65,no,,,,available_to_download,yes
-BP105362,FMA52593,Left olfactory nerve,,,,,true,0.0296,0.6469,4.4249,-153.602,-134.792,1513.6,1539.48,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla,in_resus,no
+BP105362,FMA52593,Left olfactory nerve,,,,,true,0.0296,0.6469,4.4249,-153.602,-134.792,1513.6,1539.48,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla,in_resus,no
 BP105562,FMA275371,Left olfactory sulcus,,,,,true,0.3706,4.6811,10.3527,-146.66,-117.665,1530.55,1541.14,no,,,,available_to_download,yes
 BP101463,FMA223162,Left olfactory tract,,,,,true,0.1865,4.0167,12.4851,-141.602,-112.642,1531.34,1536.22,no,,,,available_to_download,yes
 BP102031,FMA73874,Left olivocerebellar tract,,,,,false,0.5829,-11.5022,10.8724,-70.4878,-61.6451,1489.83,1513.2,no,,,,available_to_download,yes
@@ -2964,7 +2964,7 @@ BP103034,FMA72933,Left posterior column of fornix,,,,,true,0.2295,-0.0153,21.17,
 BP98565,FMA50086,Left posterior communicating artery,,,,,true,0.0228,5.4554,12.5675,-110.521,-97.1426,1530.49,1534.17,no,,,,available_to_download,yes
 BP100697,FMA46578,Left posterior crico-arytenoid,,,Left posterior crico-arytenoid muscle;Left posterior cricoarytenoid;Left posterior cricoarytenoid muscle;Left posterior cricoarytenoideus,,true,1.5897,1.3026,10.5133,-99.8492,-93.213,1391.11,1408.83,no,,,,available_to_download,yes
 BP100087,FMA44619,Left posterior cruciate ligament,,,,,true,5.1845,53.768,83.4444,-83.7504,-54.5891,348.867,400.339,no,,,,available_to_download,yes
-BP105149,FMA7254,Left posterior cusp of aortic valve,Valvula semilunaris sinistra (Valva aortae),左半月弁;大動脈弁の左冠尖,Left coronary cusp of aortic valve;Left cusp of aortic valve;Left semilunar cusp of aortic valve;Left semilunar valvule of aortic valve,A12.1.04.014,true,0.602,13.2221,34.2564,-129.656,-105.711,1235.3199,1250.1801,no,,,,available_to_download,yes
+BP105149,FMA7254,Left posterior cusp of aortic valve,Valvula semilunaris sinistra (Valva aortae),左半月弁;大動脈弁の左冠尖,Left coronary cusp of aortic valve;Left cusp of aortic valve;Left semilunar cusp of aortic valve;Left semilunar valvule of aortic valve,A12.1.04.014,true,0.602,13.2221,34.2564,-129.656,-105.711,1235.3199,1250.1801,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104638,FMA57473,Left posterior ethmoidal cell,,,,,true,0.4872,6.0366,14.7309,-142.762,-127.283,1515,1530.55,no,,,,available_to_download,yes
 BP100112,FMA52716,Left posterior ethmoidal nerve,,,,,true,0.0018,7.7833,16.0375,-135.19,-132.874,1521.9301,1527.54,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP98258,FMA71218,Left posterior humeral circumflex vein,,,,,true,0.1396,142.202,192.94,-98.1757,-62.4291,1285.88,1298.4399,no,,,,available_to_download,yes
@@ -3152,7 +3152,7 @@ BP98862,FMA4083,Left superior epigastric artery,,,,,true,0.6061,5.8121,16.2728,-
 BP98535,FMA4785,Left superior epigastric vein,,,Vena epigastrica superioris sinistra,,true,1.741,14.1574,43.6225,-201,-138.602,806.682,933.302,no,,,,available_to_download,yes
 BP105542,FMA275297,Left superior frontal sulcus,,,,,true,2.4242,11.9171,26.2316,-146.436,-88.1231,1579.98,1615.05,no,,,,available_to_download,yes
 BP100028,FMA35440,Left superior glenohumeral ligament,,,,,true,1.3189,132.706,164.715,-100.825,-75.2428,1311.3101,1326.52,no,,,,available_to_download,yes
-BP102819,FMA53477,Left superior glossopharyngeal ganglion,,,Superior ganglion of left glossopharyngeal nerve,,true,0.0344,23.2345,27.4955,-80.2306,-74.5803,1494.09,1500.08,no,,,,available_to_download,yes
+BP102819,FMA53477,Left superior glossopharyngeal ganglion,,,Superior ganglion of left glossopharyngeal nerve,,true,0.0344,23.2345,27.4955,-80.2306,-74.5803,1494.09,1500.08,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98786,FMA18910,Left superior gluteal vein,,,,,true,0.9775,13.3542,56.5218,-64.5363,-27.792,849.212,896.691,no,,,,available_to_download,yes
 BP99236,FMA4797,Left superior intercostal vein,Vena intercostalis superior sinistra,左上肋間静脈,,A12.3.04.024,true,0.1833,20.5395,36.4324,-63.217,-43.6554,1298.24,1350.75,no,,,,available_to_download,yes
 BP105428,FMA59575,Left superior lacrimal canaliculus,,,,,true,0.0115,13.7445,18.8086,-162.933,-161.774,1516.03,1518.23,no,,,,available_to_download,yes
@@ -3293,7 +3293,7 @@ BP102005,FMA73637,Left ventral trigeminal tract,,,,,true,0.1037,-8.3933,9.7597,-
 BP100914,FMA73342,Left ventromedial nucleus of hypothalamus,,,,,true,0.0497,0.5971,3.7757,-101.747,-95.4898,1532.74,1538.05,no,,,,available_to_download,yes
 BP100713,FMA46718,Left vertical muscle of tongue,,,Left vertical lingual muscle,,true,1.668,-1.1072,10.9486,-146.76,-116.65,1441.23,1465.47,no,,,,available_to_download,yes
 BP101817,FMA64149,Left vestibular ligament,,,,,true,0.0153,-1.6238,4.9293,-117.083,-97.2083,1408.33,1411.11,no,,,,available_to_download,yes
-BP102814,FMA53409,Left vestibular nerve,,,Vestibular root of left acoustic nerve;Vestibular root of left eighth cranial nerve,,true,0.0509,6.4358,20.1646,-75.928,-63.3643,1501.91,1510.1,no,,,,available_to_download,yes
+BP102814,FMA53409,Left vestibular nerve,,,Vestibular root of left acoustic nerve;Vestibular root of left eighth cranial nerve,,true,0.0509,6.4358,20.1646,-75.928,-63.3643,1501.91,1510.1,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP102009,FMA73641,Left vestibulocerebellar tract,,,,,true,0.1383,-3.9179,10.6036,-66.2195,-56.5719,1501.45,1518.92,no,,,,available_to_download,yes
 BP102038,FMA73890,Left vestibulospinal tract,,,,,true,0.0995,-6.6583,6.6477,-68.7281,-58.2972,1477.8,1504.49,no,,,,available_to_download,yes
 BP105392,FMA55246,Left vocal ligament,,,,,true,0.0142,-1.2674,2.8038,-117.163,-100.157,1404.86,1406.4399,no,,,,available_to_download,yes
@@ -3674,7 +3674,7 @@ BP102103,FMA268210,Midbrain segment of corticospinal tract,,,,,false,0.5253,-16.
 BP101079,FMA268214,Midbrain segment of left corticospinal tract,,,,,true,0.2628,3.3168,16.8794,-90.994,-78.2951,1523.72,1539.2,no,,,,available_to_download,yes
 BP101078,FMA268212,Midbrain segment of right corticospinal tract,,,,,true,0.2625,-16.8794,-3.3269,-90.994,-78.2951,1523.72,1539.2,no,,,,available_to_download,yes
 BP102175,FMA327604,Midbrain segment of tectospinal tract,,,,,false,0.0223,-3.1198,3.1232,-77.9249,-74.8223,1527.23,1532.37,no,,,,available_to_download,yes
-BP99834,FMA4713,Middle cardiac vein,Vena cardiaca media;Vena cordis media,中心臓静脈;中心静脈;後室間静脈,Lesser cardiac vein;Posterior interventricular vein,A12.3.01.009,true,0.3196,3.6463,40.1153,-143.875,-106.655,1178.37,1203.3,no,,,,available_to_download,yes
+BP99834,FMA4713,Middle cardiac vein,Vena cardiaca media;Vena cordis media,中心臓静脈;中心静脈;後室間静脈,Lesser cardiac vein;Posterior interventricular vein,A12.3.01.009,true,0.3196,3.6463,40.1153,-143.875,-106.655,1178.37,1203.3,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP102459,FMA72515,Middle cerebellar peduncle,Pedunculus cerebellaris medialis,中小脳脚;橋腕|中小脳脚;橋腕,,A14.1.07.416,false,11.5846,-20.4422,20.4485,-89.9405,-64.9391,1497.49,1527.3199,no,,,,available_to_download,yes
 BP103397,FMA54700,Middle clinoid process,Processus clinoideus medius,中床突起,,A02.1.05.008,false,0.0083,-7.2488,7.2488,-114.981,-111.824,1523.35,1526.27,no,,,,available_to_download,yes
 BP99781,FMA14810,Middle colic artery,Arteria colica media,中結腸動脈,,A12.2.12.067,true,2.0887,-68.398,62.5537,-179.459,-119.444,1013.38,1065.0699,no,,,,available_to_download,yes
@@ -3756,10 +3756,10 @@ BP100463,FMA54582,Motor nucleus of facial nerve,Nucleus facialis,顔面神経核
 BP100120,FMA54584,Motor nucleus of left facial nerve,,,,,true,0.0032,4.9576,6.7243,-67.7479,-66.3209,1502.33,1505.0601,no,,,,available_to_download,yes
 BP100119,FMA54583,Motor nucleus of right facial nerve,,,,,true,0.0029,-6.6934,-4.9858,-67.7233,-66.3533,1502.36,1505.03,no,,,,available_to_download,yes
 BP102815,FMA53419,Motor root of facial nerve,,,Facial nerve motor root;Seventh cranial nerve motor root,,false,0.0522,-21.2294,21.2294,-78.205,-65.6666,1502.9,1509.83,no,,,,available_to_download,yes
-BP101725,FMA53421,Motor root of left facial nerve,,,,,true,0.0263,2.03,21.2294,-78.205,-65.6666,1502.9,1509.83,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP101677,FMA52616,Motor root of left trigeminal nerve,,,,,true,0.0378,6.969,14.8393,-83.5,-68.0668,1511.33,1516.9301,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP101724,FMA53420,Motor root of right facial nerve,,,,,true,0.0258,-21.2294,-2.045,-78.205,-65.6721,1502.91,1509.83,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP101676,FMA52615,Motor root of right trigeminal nerve,,,,,true,0.0374,-14.8393,-6.969,-83.5,-68.0678,1511.33,1516.92,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP101725,FMA53421,Motor root of left facial nerve,,,,,true,0.0263,2.03,21.2294,-78.205,-65.6666,1502.9,1509.83,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP101677,FMA52616,Motor root of left trigeminal nerve,,,,,true,0.0378,6.969,14.8393,-83.5,-68.0668,1511.33,1516.9301,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP101724,FMA53420,Motor root of right facial nerve,,,,,true,0.0258,-21.2294,-2.045,-78.205,-65.6721,1502.91,1509.83,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP101676,FMA52615,Motor root of right trigeminal nerve,,,,,true,0.0374,-14.8393,-6.969,-83.5,-68.0678,1511.33,1516.92,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP102320,FMA52612,Motor root of trigeminal nerve,Portio minor nervi trigemini,三叉神経の運動根,Motor branch of trigeminal nerve;Motor root of Nervus V;Radix motoria (Nervus trigeminus [V]),A14.2.01.015,false,0.0753,-14.8393,14.8393,-83.5,-68.0668,1511.33,1516.9301,no,,,,available_to_download,yes
 BP104710,FMA64015,Mucosa of epiglottis,,,Epiglottis mucosa,,true,0.8399,-7.9184,8.0577,-114.729,-106.03,1409.71,1444.84,no,,,,available_to_download,yes
 BP104711,FMA64016,Mucosa of infraglottic part of larynx,,,,,true,0.842,-7.6156,7.6151,-116.948,-95.2004,1387.3199,1407.79,no,,,,available_to_download,yes
@@ -4153,9 +4153,9 @@ BP99383,FMA37400,Opponens digiti minimi of right hand,,,,,true,1.1233,-245.419,-
 BP99797,FMA37379,Opponens pollicis,Musculus opponens pollicis,母指対立筋,Opponens pollicis muscle,A04.6.02.058,false,4.4102,-305.86,305.86,-148.969,-130.379,773.83,806.003,no,,,,available_to_download,yes
 BP106062,FMA58163,Optic axis,Axis opticus,視軸,,A15.2.01.008,false,0.1426,-32.6191,32.6217,-182.679,-131.603,1515.53,1519.27,no,,,,available_to_download,yes
 BP106059,FMA54774,Optic canal,Canalis opticus,視神経管;視神経孔,,A02.1.05.021,false,0.128,-17.289,17.2961,-125.595,-118.23,1522.2,1529.8199,no,,,,available_to_download,yes
-BP103857,FMA58725,Optic canal part of left optic nerve,,,,,true,0.1149,8.6291,19.9433,-130.296,-115.897,1520.1,1529.55,no,,,,available_to_download,yes
+BP103857,FMA58725,Optic canal part of left optic nerve,,,,,true,0.1149,8.6291,19.9433,-130.296,-115.897,1520.1,1529.55,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104335,FMA58709,Optic canal part of optic nerve,Pars canalis nervus optici,管内部;視神経管部,Intracanalicular part of optic nerve;Pars canalis (Nervus opticus);Part in canal of optic nerve,A15.2.04.026,false,0.2293,-19.9433,19.9433,-130.296,-115.897,1520.1,1529.55,no,,,,available_to_download,yes
-BP103856,FMA58724,Optic canal part of right optic nerve,,,,,true,0.1144,-19.9433,-8.6313,-130.294,-115.899,1520.1,1529.55,no,,,,available_to_download,yes
+BP103856,FMA58724,Optic canal part of right optic nerve,,,,,true,0.1144,-19.9433,-8.6313,-130.294,-115.899,1520.1,1529.55,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104348,FMA62045,Optic chiasm,Chiasma nervorum opticorum,視神経交叉;視交叉,Decussation of optic nerve fibers;Optic chiasma,A14.1.08.403,true,0.3805,-7.0412,7.0474,-111.434,-100.65,1528.37,1537.36,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP104333,FMA58634,Optic disc,Discus nervi optici,視神経円板;視神経乳頭,,A15.2.04.019,false,0.0051,-25.2318,25.233,-144.294,-142.747,1517.01,1518.99,no,,,,available_to_download,yes
 BP103852,FMA58642,Optic part proper of left retina,,,,,true,0.7345,18.3174,39.9903,-159.141,-141.921,1507.28,1528.87,no,,,,available_to_download,yes
@@ -4190,7 +4190,7 @@ BP99252,FMA61982,Orbital part of inferior frontal gyrus,Pars orbitalis gyri fron
 BP102830,FMA54681,Orbital part of left greater wing of sphenoid,,,,,true,3.0477,15.6493,45.487,-147.143,-115.55,1506.66,1536.13,no,,,,available_to_download,yes
 BP98977,FMA72755,Orbital part of left inferior frontal gyrus,,,,,true,3.3377,16.3437,46.0039,-155.25,-118.535,1547.8101,1573.49,no,,,,available_to_download,yes
 BP102827,FMA54673,Orbital part of left maxilla,,,,,true,1.262,13.6131,31.4443,-160.064,-135.183,1490.41,1512.88,no,,,,available_to_download,yes
-BP103855,FMA58723,Orbital part of left optic nerve,,,,,true,0.1272,15.9392,25.5538,-143.143,-126.984,1516.28,1524.29,no,,,,available_to_download,yes
+BP103855,FMA58723,Orbital part of left optic nerve,,,,,true,0.1272,15.9392,25.5538,-143.143,-126.984,1516.28,1524.29,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP102755,FMA46783,Orbital part of left orbicularis oculi,,,,,true,3.5319,8.1156,53.375,-176.907,-144.844,1495.15,1546.0699,no,,,,available_to_download,yes
 BP103800,FMA54671,Orbital part of maxilla,,,,,false,2.523,-31.4349,31.4443,-160.064,-135.183,1490.41,1512.88,no,,,,available_to_download,yes
 BP104336,FMA58710,Orbital part of optic nerve,Pars orbitalis nervus optici,視神経の眼窩部,Pars orbitalis (Nervus opticus),A15.2.04.027,false,0.2538,-25.5538,25.5538,-143.143,-126.984,1516.28,1524.29,no,,,,available_to_download,yes
@@ -4198,7 +4198,7 @@ BP103356,FMA46781,Orbital part of orbicularis oculi,Pars orbitalis musculus orbi
 BP102829,FMA54680,Orbital part of right greater wing of sphenoid,,,,,true,3.0021,-45.487,-15.6512,-147.143,-115.55,1506.66,1536.13,no,,,,available_to_download,yes
 BP98976,FMA72754,Orbital part of right inferior frontal gyrus,,,,,true,3.3146,-45.9943,-16.3437,-155.243,-118.535,1547.8199,1573.48,no,,,,available_to_download,yes
 BP102826,FMA54672,Orbital part of right maxilla,,,,,true,1.261,-31.4349,-13.6259,-160.064,-135.192,1490.41,1512.87,no,,,,available_to_download,yes
-BP103854,FMA58722,Orbital part of right optic nerve,,,,,true,0.1266,-25.5538,-15.9537,-143.143,-126.994,1516.29,1524.28,no,,,,available_to_download,yes
+BP103854,FMA58722,Orbital part of right optic nerve,,,,,true,0.1266,-25.5538,-15.9537,-143.143,-126.994,1516.29,1524.28,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP102754,FMA46782,Orbital part of right orbicularis oculi,,,,,true,3.5258,-53.375,-8.1439,-176.907,-144.869,1495.15,1546.0699,no,,,,available_to_download,yes
 BP103843,FMA57625,Orbital part proper of lacrimal bone,,,,,false,0.4129,-17.8411,17.8477,-162.184,-149.137,1501.79,1528.28,no,,,,available_to_download,yes
 BP102906,FMA57627,Orbital part proper of left lacrimal bone,,,,,true,0.2067,10.7221,17.8477,-162.184,-149.137,1501.79,1528.28,no,,,,available_to_download,yes
@@ -4460,10 +4460,10 @@ BP105971,FMA65239,Peripheral nerve,,,Peripheral nerve tree,,false,12.5131,25.001
 BP104063,FMA288210,Peripheral segment of abducens nerve,,,,,false,0.1439,-18.4271,18.4426,-129.112,-75.153,1495.9301,1524.58,no,,,,available_to_download,yes
 BP104809,FMA288184,Peripheral segment of cranial nerve,,,,,false,0.6186,-27.711,27.711,-138.729,-69.9451,1495.9301,1532.34,no,,,,available_to_download,yes
 BP103186,FMA288214,Peripheral segment of left abducens nerve,,,,,true,0.1731,3.3031,18.4426,-129.112,-75.153,1495.9301,1524.58,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP103184,FMA288202,Peripheral segment of left trochlear nerve,,,,,true,0.2641,1.0772,27.711,-138.729,-69.9451,1524.72,1532.34,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP103184,FMA288202,Peripheral segment of left trochlear nerve,,,,,true,0.2641,1.0772,27.711,-138.729,-69.9451,1524.72,1532.34,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP105606,FMA288182,Peripheral segment of nerve,,,,,false,0.6186,-27.711,27.711,-138.729,-69.9451,1495.9301,1532.34,no,,,,available_to_download,yes
 BP103185,FMA288212,Peripheral segment of right abducens nerve,,,,,true,0.0302,-18.4271,-3.3085,-129.096,-75.153,1495.9301,1524.5601,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP103183,FMA288200,Peripheral segment of right trochlear nerve,,,,,true,0.2568,-27.711,-1.0772,-138.729,-69.9746,1524.75,1532.34,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP103183,FMA288200,Peripheral segment of right trochlear nerve,,,,,true,0.2568,-27.711,-1.0772,-138.729,-69.9746,1524.75,1532.34,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP104062,FMA288198,Peripheral segment of trochlear nerve,,,,,false,0.521,-27.711,27.711,-138.729,-69.9451,1524.72,1532.34,no,,,,available_to_download,yes
 BP105220,FMA20570,Peritoneal mesentery,,,,,false,47.401,-83.1061,92.673,-168.9,-86.0791,819.847,1030.35,no,,,,available_to_download,yes
 BP102493,FMA84354,Periventricular nucleus,Nucleus periventricularis,脳室周囲核|視床下部脳室周囲核,,A14.1.08.924,false,0.0573,-2.2731,2.275,-103.361,-89.7728,1543.3,1551.01,no,,,,available_to_download,yes
@@ -4579,7 +4579,7 @@ BP102278,FMA45237,Posterior cord of brachial nerve plexus,Fasciculus posterior p
 BP101592,FMA45243,Posterior cord of left brachial nerve plexus,,,Posterior cord of left brachial plexus,,true,0.2263,61.0303,87.9603,-81.8758,-75.267,1330.14,1354.51,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP101226,FMA46576,Posterior crico-arytenoid,Musculus cricoarytenoideus posterior,後輪状披裂筋,Posterior crico-arytenoid muscle;Posterior cricoarytenoid;Posterior cricoarytenoid muscle;Posterior cricoarytenoideus,A06.2.08.004,false,3.2361,-10.5041,10.5133,-99.8492,-93.213,1391.11,1408.83,no,,,,available_to_download,yes
 BP100451,FMA44617,Posterior cruciate ligament,Ligamentum cruciatum posterius,後十字靱帯,,A03.6.08.008,false,10.3442,-83.4444,83.4444,-83.7504,-54.5891,348.867,400.339,no,,,,available_to_download,yes
-BP105146,FMA7250,Posterior cusp of pulmonary valve,Valvula semilunaris sinistra (Valva trunci pulmonalis),,Left cusp of pulmonic valve;Left semilunar valvule of pulmonary valve,,true,0.3881,24.7447,42.6227,-146.147,-132.915,1242.14,1257.98,no,,,,available_to_download,yes
+BP105146,FMA7250,Posterior cusp of pulmonary valve,Valvula semilunaris sinistra (Valva trunci pulmonalis),,Left cusp of pulmonic valve;Left semilunar valvule of pulmonary valve,,true,0.3881,24.7447,42.6227,-146.147,-132.915,1242.14,1257.98,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104015,FMA9489,Posterior division of left branch of atrioventricular bundle,,,Left posterior division of left branch of atrioventricular bundle;Posterior sheet of left branch of atrioventricular bundle,,true,0.0659,18.8578,41.9337,-138.354,-117.249,1193.95,1219.4,no,,,,available_to_download,yes
 BP99559,FMA70490,Posterior division of left renal artery,,,Posterior part of left renal artery,,true,0.1743,15.9546,57.3935,-112.64,-68.6847,1037.65,1044.49,no,,,,available_to_download,yes
 BP100205,FMA70488,Posterior division of renal artery,,,Posterior part of renal artery,,false,0.5859,-74.2163,57.3935,-112.64,-68.6847,1006.25,1044.49,no,,,,available_to_download,yes
@@ -4605,8 +4605,8 @@ BP98292,FMA50775,Posterior intercavernous sinus,Sinus intercavernosus posterior,
 BP100443,FMA4176,Posterior intercostal artery,Arteria intercostalis posterior,,,,false,2.1144,-94.6807,94.6859,-164.093,-59.7525,1271.5,1346.17,no,,,,available_to_download,yes
 BP103148,FMA9483,Posterior internodal tract,,,Internodal tract of Thorel;Posterior internodal fasciculus;Posterior internodal tract muscle tissue,,true,0.2046,-32.5773,9.0852,-134.69,-108.502,1202.48,1264.22,no,,,,available_to_download,yes
 BP103418,FMA57609,Posterior lacrimal crest,Crista lacrimalis posterior,後涙嚢稜,,A02.1.09.002,false,0.0481,-16.9342,16.9342,-162.178,-154.574,1504.9399,1522.41,no,,,,available_to_download,yes
-BP105143,FMA7243,Posterior leaflet of mitral valve,Cuspis posterior (Valva mitralis),僧帽弁の後尖,Mural leaflet of mitral valve;Posterior cusp of mitral valve;Posterior mitral leaflet;Posterolateral leaflet of mitral valve;Smaller leaflet of mitral valve;Ventricular leaflet of mitral valve,A12.1.04.005,true,375.0984,7.9149,45.8529,-120.727,-86.9248,1205.02,1238.65,no,,,,available_to_download,yes
-BP105139,FMA7239,Posterior leaflet of tricuspid valve,Cuspis posterior (Valva tricuspidalis),三尖弁の後尖,Posterior cusp of tricuspid valve;Posterior tricuspid leaflet;Right inferolateral leaflet of tricuspid valve,A12.1.02.005,true,387.8783,-15.6787,16.4109,-150.824,-126.339,1200.64,1220.05,no,,,,available_to_download,yes
+BP105143,FMA7243,Posterior leaflet of mitral valve,Cuspis posterior (Valva mitralis),僧帽弁の後尖,Mural leaflet of mitral valve;Posterior cusp of mitral valve;Posterior mitral leaflet;Posterolateral leaflet of mitral valve;Smaller leaflet of mitral valve;Ventricular leaflet of mitral valve,A12.1.04.005,true,375.0984,7.9149,45.8529,-120.727,-86.9248,1205.02,1238.65,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
+BP105139,FMA7239,Posterior leaflet of tricuspid valve,Cuspis posterior (Valva tricuspidalis),三尖弁の後尖,Posterior cusp of tricuspid valve;Posterior tricuspid leaflet;Right inferolateral leaflet of tricuspid valve,A12.1.02.005,true,387.8783,-15.6787,16.4109,-150.824,-126.339,1200.64,1220.05,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP102371,FMA60883,Posterior ligament of incus,Ligamentum incudis posterius,後キヌタ骨靱帯,LIg. incudis posterius,A15.3.02.058,false,0.0026,-46.0277,46.0277,-81.0735,-78.1462,1510.6,1511.72,no,,,,available_to_download,yes
 BP101803,FMA60888,Posterior ligament of left incus,,,,,true,0.0015,44.4546,46.0277,-81.0735,-78.1462,1510.6,1511.72,no,,,,available_to_download,yes
 BP101361,FMA76858,Posterior ligament of proximal epiphysis of fibula,Ligamentum capitis fibulae posterius,後腓骨頭靱帯,Posterior ligament of fibular head;Posterior ligament of head of fibula,A03.6.09.003,false,2.0686,-113.917,113.917,-71.1949,-52.7745,349.247,369.11,no,,,,available_to_download,yes
@@ -4620,8 +4620,8 @@ BP101359,FMA76855,Posterior meniscofemoral ligament,Ligamentum meniscofemorale p
 BP99146,FMA306061,Posterior middle cingulate gyrus,,,Posterior part of middle cingulate gyrus,,false,5.5992,-18.4485,18.4485,-86.349,-52.6773,1568.4,1590.51,no,,,,available_to_download,yes
 BP101304,FMA62350,Posterior nucleus of hypothalamus,Area posterior hypothalami,視床下部後野;視床下部後域;後視床下部野|視床下部後核,Posterior hypothalamic area;Posterior hypothalamic nucleus,A14.1.08.939|A14.1.08.933,false,0.184,-5.103,5.1048,-97.5826,-90.4304,1537.55,1544.6801,no,,,,available_to_download,yes
 BP99679,FMA80184,Posterior orbital gyrus,,,,,false,3.4256,-44.1649,44.1786,-135.531,-114.884,1533.34,1552.97,no,,,,available_to_download,yes
-BP105778,FMA7266,Posterior papillary muscle of left ventricle,Musculus papillaris posterior ventriculi sinistri,左心室の後乳頭筋,Posteromedial papillary muscle of left ventricle,A12.1.04.008,true,0.7882,29.2744,47.5911,-130.374,-117.718,1182.54,1207.91,no,,,,available_to_download,yes
-BP105775,FMA7261,Posterior papillary muscle of right ventricle,Musculus papillaris posterior ventriculi dextri,右心室の後乳頭筋,Inferior papillary muscle of right ventricle,A12.1.02.018,true,0.284,15.1752,37.6437,-150.049,-140.583,1191.3199,1202.71,no,,,,available_to_download,yes
+BP105778,FMA7266,Posterior papillary muscle of left ventricle,Musculus papillaris posterior ventriculi sinistri,左心室の後乳頭筋,Posteromedial papillary muscle of left ventricle,A12.1.04.008,true,0.7882,29.2744,47.5911,-130.374,-117.718,1182.54,1207.91,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
+BP105775,FMA7261,Posterior papillary muscle of right ventricle,Musculus papillaris posterior ventriculi dextri,右心室の後乳頭筋,Inferior papillary muscle of right ventricle,A12.1.02.018,true,0.284,15.1752,37.6437,-150.049,-140.583,1191.3199,1202.71,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98290,FMA50488,Posterior parietal artery,Arteria parietalis posterior,後頭頂葉動脈;後頭頂動脈,,A12.2.07.068,false,1.0247,-66.4099,66.5132,-88.1872,-13.3547,1554.66,1603.14,no,,,,available_to_download,yes
 BP105218,FMA19757,Posterior part of abdominal peritoneum,,,Parietal peritoneum of posterior abdominal wall;Peritoneum of posterior abdominal wall,,true,47.7428,-81.9,91.1461,-181.821,-50.5898,860.872,1063.63,no,,,,available_to_download,yes
 BP99579,FMA70714,Posterior part of angular gyrus,,,,,false,6.4507,-50.6077,50.6433,-31.3355,-5.2365,1548.15,1571.22,no,,,,available_to_download,yes
@@ -5151,7 +5151,7 @@ BP105807,FMA78486,Rhomboid fossa of fourth ventricle,Fossa rhomboidea,菱形窩;
 BP102403,FMA62154,Rhomboidal nucleus,Nucleus rhomboidalis thalami,菱形核,Rhomboid nucleus;Rhomboid thalamic nucleus,A14.1.08.633,false,0.0176,-1.9739,1.9754,-93.8442,-89.8532,1545.52,1548.7,no,,,,available_to_download,yes
 BP104372,FMA7574,Rib,Costa;Os costale (Costa),肋硬骨,,A02.3.02.001,false,471.8291,-137.085,135.778,-197.688,-3.6414,1008.06,1370.48,no,,,,available_to_download,yes
 BP104793,FMA270761,Right Brodmann area 35,,,Brodmann area 35 in right cerebral cortex;Right BA35,,true,0.6691,-33.9558,-22.898,-112.001,-83.5474,1517.79,1528.64,no,,,,available_to_download,yes
-BP103764,FMA50886,Right abducens nerve,,,Right abducens nerve tree,,true,0.1629,-35.6249,-4.1663,-140.086,-83.3083,1502.1899,1528.34,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP103764,FMA50886,Right abducens nerve,,,Right abducens nerve tree,,true,0.1629,-35.6249,-4.1663,-140.086,-83.3083,1502.1899,1528.34,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP103063,FMA73608,Right abducens nerve tract,,,Right abducens nerve fibers,,true,0.6023,-5.1297,-2.2831,-76.824,-65.7555,1495.9301,1507.11,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100771,FMA54506,Right abducens nucleus,,,Nucleus of right abducens nerve,,true,0.0031,-4.1797,-2.6551,-67.5469,-65.5395,1505.25,1507.6899,no,,,,available_to_download,yes
 BP99371,FMA37386,Right abductor pollicis brevis,,,Right abductor pollicis brevis muscle,,true,2.1333,-302.539,-263.352,-152.743,-123.023,769.911,808.087,no,,,,available_to_download,yes
@@ -5193,7 +5193,7 @@ BP100131,FMA54622,Right anterior cochlear nucleus,,,,,true,0.0045,-12.0623,-10.8
 BP103031,FMA72926,Right anterior column of fornix,,,,,true,0.1035,-5.0539,0.0321,-103.347,-93.0497,1535.53,1553.9,no,,,,available_to_download,yes
 BP101086,FMA268247,Right anterior corticospinal tract of medulla oblongata,,,,,true,0.022,-4.5482,0.0717,-64.6268,-57.4243,1478.3,1486.92,no,,,,available_to_download,yes
 BP100084,FMA44615,Right anterior cruciate ligament,,,,,true,2.1438,-84.1256,-58.6061,-105.346,-67.3442,364.724,395.304,no,,,,available_to_download,yes
-BP105145,FMA7249,Right anterior cusp of pulmonary valve,Valvula semilunaris dextra (Valva trunci pulmonalis),,Right cusp of pulmonic valve;Right semilunar valvule of pulmonary valve,,true,0.2743,15.4186,30.1332,-154.487,-132.862,1243.84,1260.42,no,,,,available_to_download,yes
+BP105145,FMA7249,Right anterior cusp of pulmonary valve,Valvula semilunaris dextra (Valva trunci pulmonalis),,Right cusp of pulmonic valve;Right semilunar valvule of pulmonary valve,,true,0.2743,15.4186,30.1332,-154.487,-132.862,1243.84,1260.42,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104633,FMA57468,Right anterior ethmoidal cell,,,,,true,0.3577,-12.9372,-4.5349,-161.813,-150.072,1522.03,1533.39,no,,,,available_to_download,yes
 BP100105,FMA52676,Right anterior ethmoidal nerve,,,,,true,0.0129,-17.3181,-1.7483,-158.557,-136.98,1519.09,1529.01,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP103984,FMA80471,Right anterior inferior iliac spine,,,,,true,0.5218,-111.362,-98.0492,-114.021,-101.899,838.167,853.264,no,,,,available_to_download,yes
@@ -5296,7 +5296,7 @@ BP101880,FMA72876,Right claustral amygdaloid area,,,,,true,0.1177,-28.0828,-15.3
 BP101864,FMA72834,Right claustrum,,,,,true,1.9853,-38.3735,-23.4499,-116.667,-71.8858,1535.26,1566.36,no,,,,available_to_download,yes
 BP101625,FMA46443,Right coccygeus,,,Right coccygeus muscle,,true,3.6027,-48.7138,-2.4765,-38.0385,-8.7095,788.078,828.624,no,,,,available_to_download,yes
 BP100139,FMA60202,Right cochlea,,,,,true,0.1581,-38.0972,-27.9151,-87.1057,-78.5019,1506.34,1514.87,no,,,,available_to_download,yes
-BP102816,FMA53432,Right cochlear nerve,,,Cochlear root of right acoustic nerve;Cochlear root of right eighth cranial nerve,,true,0.0741,-33.8651,-9.762,-86.0655,-60.8022,1502.08,1512.6899,no,,,,available_to_download,yes
+BP102816,FMA53432,Right cochlear nerve,,,Cochlear root of right acoustic nerve;Cochlear root of right eighth cranial nerve,,true,0.0741,-33.8651,-9.762,-86.0655,-60.8022,1502.08,1512.6899,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP99782,FMA14811,Right colic artery,Arteria colica dextra,右結腸動脈,,A12.2.12.065,true,0.689,-68.946,-5.3971,-149.693,-118.76,985.677,1039.13,no,,,,available_to_download,yes
 BP99205,FMA15407,Right colic vein,Vena colica dextra,右結腸静脈,,A12.3.12.026,true,0.9355,-70.7652,-7.1927,-144.068,-115.051,985.491,1039.05,no,,,,available_to_download,yes
 BP100082,FMA44578,Right collateral metatarsophalangeal ligament,,,,,true,0.9987,-153.003,-83.3018,-197.182,-142.28,-67.967,-51.4212,no,,,,available_to_download,yes
@@ -5466,7 +5466,7 @@ BP100704,FMA46698,Right genioglossus,,,Right genioglossus muscle,,true,2.9187,-7
 BP101623,FMA46326,Right geniohyoid,,,Right geniohyoid muscle,,true,0.7196,-7.2243,0.1448,-154.318,-124.076,1429.17,1439.15,no,,,,available_to_download,yes
 BP100993,FMA73737,Right gigantocellular nucleus,,,,,true,0.0936,-4.5066,-1.251,-72.0621,-65.7076,1498.9301,1509.23,no,,,,available_to_download,yes
 BP100981,FMA73681,Right globose nucleus,,,,,true,0.0189,-5.3117,-2.5328,-56.8843,-53.0657,1512.98,1516.99,no,,,,available_to_download,yes
-BP103766,FMA50892,Right glossopharyngeal nerve,,,Right glossopharyngeal nerve tree,,true,0.0426,-30.6865,-22.0974,-88.5818,-73.0682,1482.75,1500.86,no,,,,available_to_download,yes
+BP103766,FMA50892,Right glossopharyngeal nerve,,,Right glossopharyngeal nerve tree,,true,0.0426,-30.6865,-22.0974,-88.5818,-73.0682,1482.75,1500.86,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP100544,FMA22328,Right gluteus maximus,,,Right gluteus maximus muscle,,true,505.2645,-138.883,0.6991,-75.386,20.1766,691.889,932.083,no,,,,available_to_download,yes
 BP100546,FMA22330,Right gluteus medius,,,Right gluteus medius muscle,,true,197.4558,-153.943,-58.3064,-102.072,-16.7599,767.074,950.774,no,,,,available_to_download,yes
 BP100548,FMA22332,Right gluteus minimus,,,Right gluteus minimus muscle,,true,111.0081,-146.088,-67.9398,-102.193,-46.3463,765.779,923.273,no,,,,available_to_download,yes
@@ -5523,7 +5523,7 @@ BP98237,FMA51001,Right inferior choroid vein,,,,,true,0.0388,-36.5554,-25.7703,-
 BP98793,FMA20688,Right inferior epigastric artery,,,,,true,0.6217,-56.5276,-21.7965,-185.386,-109.164,830.656,1030.45,no,,,,available_to_download,yes
 BP98799,FMA21163,Right inferior epigastric vein,,,,,true,0.6463,-42.351,-18.1113,-186.927,-108.507,826.707,1031.0699,no,,,,available_to_download,yes
 BP105545,FMA275319,Right inferior frontal sulcus,,,,,true,2.3136,-42.189,-20.0035,-155.902,-104.585,1566.4301,1595.92,no,,,,available_to_download,yes
-BP102820,FMA53478,Right inferior glossopharyngeal ganglion,,,Inferior ganglion of right glossopharyngeal nerve,,true,0.034,-30.3194,-26.5638,-85.2732,-80.1055,1487.91,1494.5699,no,,,,available_to_download,yes
+BP102820,FMA53478,Right inferior glossopharyngeal ganglion,,,Inferior ganglion of right glossopharyngeal nerve,,true,0.034,-30.3194,-26.5638,-85.2732,-80.1055,1487.91,1494.5699,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98787,FMA18912,Right inferior gluteal vein,,,,,true,1.7174,-62.7773,-21.8785,-79.6263,1.3117,753.916,875.113,no,,,,available_to_download,yes
 BP98334,FMA49568,Right inferior labial artery,,,,,true,0.2494,-37.1993,-0.9399,-172.273,-142.025,1430.8199,1445.53,no,,,,available_to_download,yes
 BP98415,FMA52542,Right inferior labial vein,,,,,true,0.0504,-38.4481,-1.4737,-172.251,-140.282,1431.74,1446.66,no,,,,available_to_download,yes
@@ -5785,7 +5785,7 @@ BP101643,FMA46761,Right occipitalis,,,Occipital belly of right occipitofrontalis
 BP105539,FMA275291,Right occipitotemporal sulcus,,,,,true,3.7861,-54.2176,-37.4492,-83.837,-18.5951,1519.96,1539.1,no,,,,available_to_download,yes
 BP100632,FMA33752,Right olecranon,,,,,true,4.9866,-216.756,-195.47,-63.9744,-44.4824,1025.86,1052.61,no,,,,available_to_download,yes
 BP105224,FMA223176,Right olfactory bulb,,,,,true,0.2364,-7.8207,-1.9714,-151.039,-136.887,1532.34,1538.64,no,,,,available_to_download,yes
-BP105361,FMA52592,Right olfactory nerve,,,,,true,0.0267,-5.7485,-1.9553,-153.598,-134.804,1513.58,1539.48,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla,in_resus,no
+BP105361,FMA52592,Right olfactory nerve,,,,,true,0.0267,-5.7485,-1.9553,-153.598,-134.804,1513.58,1539.48,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla,in_resus,no
 BP105561,FMA275369,Right olfactory sulcus,,,,,true,0.366,-10.3203,-4.6811,-146.66,-117.665,1530.58,1541.14,no,,,,available_to_download,yes
 BP101464,FMA223163,Right olfactory tract,,,,,true,0.1851,-12.4851,-4.0307,-141.586,-112.644,1531.35,1536.21,no,,,,available_to_download,yes
 BP102030,FMA73873,Right olivocerebellar tract,,,,,false,0.5823,-10.9515,11.5022,-70.4878,-61.6451,1489.83,1513.2,no,,,,available_to_download,yes
@@ -5872,7 +5872,7 @@ BP103033,FMA72932,Right posterior column of fornix,,,,,true,0.2283,-21.17,0.0153
 BP98564,FMA50085,Right posterior communicating artery,,,,,true,0.0229,-12.5674,-5.4554,-110.522,-97.1426,1530.49,1534.17,no,,,,available_to_download,yes
 BP100696,FMA46577,Right posterior crico-arytenoid,,,Right posterior crico-arytenoid muscle;Right posterior cricoarytenoid;Right posterior cricoarytenoid muscle;Right posterior cricoarytenoideus,,true,1.6464,-10.5041,-1.3172,-99.8492,-93.2171,1391.13,1408.83,no,,,,available_to_download,yes
 BP100086,FMA44618,Right posterior cruciate ligament,,,,,true,5.1597,-83.4444,-53.768,-83.7504,-54.5891,348.867,400.339,no,,,,available_to_download,yes
-BP105147,FMA7252,Right posterior cusp of aortic valve,Valvula semilunaris posterior (Valva aortae),後半月弁;大動脈弁の無冠尖,Noncoronary cusp of aortic valve;Posterior cusp of aortic valve;Posterior semilunar cusp of aortic valve;Posterior semilunar valvule of aortic valve,A12.1.04.015,true,0.3289,6.4817,19.4413,-128.857,-106.466,1227.01,1247.4,no,,,,available_to_download,yes
+BP105147,FMA7252,Right posterior cusp of aortic valve,Valvula semilunaris posterior (Valva aortae),後半月弁;大動脈弁の無冠尖,Noncoronary cusp of aortic valve;Posterior cusp of aortic valve;Posterior semilunar cusp of aortic valve;Posterior semilunar valvule of aortic valve,A12.1.04.015,true,0.3289,6.4817,19.4413,-128.857,-106.466,1227.01,1247.4,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP104637,FMA57472,Right posterior ethmoidal cell,,,,,true,0.4869,-14.7277,-6.0413,-142.756,-127.29,1515.01,1530.54,no,,,,available_to_download,yes
 BP100111,FMA52715,Right posterior ethmoidal nerve,,,,,true,0.0016,-17.3465,-9.0894,-135.191,-132.901,1521.9399,1527.53,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP98257,FMA71217,Right posterior humeral circumflex vein,,,,,true,0.142,-192.952,-142.181,-98.1884,-62.4144,1285.87,1298.46,no,,,,available_to_download,yes
@@ -6074,7 +6074,7 @@ BP98860,FMA3988,Right superior epigastric artery,,,,,true,0.6058,-16.2758,-5.819
 BP98533,FMA4771,Right superior epigastric vein,,,Vena epigastrica superioris dextra,,true,1.9518,-43.6304,-14.1476,-201.004,-132.467,805.161,933.348,no,,,,available_to_download,yes
 BP105541,FMA275295,Right superior frontal sulcus,,,,,true,2.3985,-26.2116,-11.948,-146.415,-88.1231,1579.98,1615.02,no,,,,available_to_download,yes
 BP100027,FMA35439,Right superior glenohumeral ligament,,,,,true,1.3139,-164.715,-132.713,-100.812,-75.2526,1311.3199,1326.51,no,,,,available_to_download,yes
-BP102818,FMA53476,Right superior glossopharyngeal ganglion,,,Superior ganglion of right glossopharyngeal nerve,,true,0.034,-27.4889,-23.2405,-80.2229,-74.5892,1494.1,1500.0699,no,,,,available_to_download,yes
+BP102818,FMA53476,Right superior glossopharyngeal ganglion,,,Superior ganglion of right glossopharyngeal nerve,,true,0.034,-27.4889,-23.2405,-80.2229,-74.5892,1494.1,1500.0699,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98785,FMA18909,Right superior gluteal vein,,,,,true,0.6984,-67.4444,-23.8507,-78.7429,-41.7897,849.741,897.385,no,,,,available_to_download,yes
 BP98557,FMA49850,Right superior hypophyseal artery,,,Right superior hypophysial artery,,true,0.0351,-13.1451,-0.8409,-112.219,-102.028,1526.46,1536,no,,,,available_to_download,yes
 BP99237,FMA4877,Right superior intercostal vein,Vena intercostalis superior dextra,右上肋間静脈,,A12.3.07.003,true,0.2553,-36.4285,-9.8768,-72.439,-43.6425,1277.73,1350.73,no,,,,available_to_download,yes
@@ -6229,7 +6229,7 @@ BP100913,FMA73341,Right ventromedial nucleus of hypothalamus,,,,,true,0.0496,-3.
 BP98873,FMA4756,Right vertebral vein,,,Vena vertebralis dextra,,true,0.7525,-50.4379,-15.0659,-107.645,-62.7972,1347.59,1489.3199,no,,,,available_to_download,yes
 BP100712,FMA46717,Right vertical muscle of tongue,,,Right vertical lingual muscle,,true,1.6408,-10.9486,1.1072,-146.76,-116.65,1441.23,1465.47,no,,,,available_to_download,yes
 BP101816,FMA64148,Right vestibular ligament,,,,,true,0.0152,-4.9267,1.6238,-117.083,-97.209,1408.33,1411.11,no,,,,available_to_download,yes
-BP102813,FMA53402,Right vestibular nerve,,,Vestibular root of right acoustic nerve;Vestibular root of right eighth cranial nerve,,true,0.0505,-20.1646,-6.4441,-75.928,-63.3765,1501.92,1510.1,no,,,,available_to_download,yes
+BP102813,FMA53402,Right vestibular nerve,,,Vestibular root of right acoustic nerve;Vestibular root of right eighth cranial nerve,,true,0.0505,-20.1646,-6.4441,-75.928,-63.3765,1501.92,1510.1,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP102008,FMA73640,Right vestibulocerebellar tract,,,,,true,0.1381,-10.5182,4.0164,-66.2215,-56.5632,1501.45,1518.92,no,,,,available_to_download,yes
 BP102037,FMA73889,Right vestibulospinal tract,,,,,true,0.1019,-6.6174,6.6018,-68.7154,-58.519,1478.51,1504.45,no,,,,available_to_download,yes
 BP105391,FMA55245,Right vocal ligament,,,,,true,0.0146,-2.7966,1.2608,-117.162,-100.161,1404.86,1406.4399,no,,,,available_to_download,yes
@@ -6442,18 +6442,18 @@ BP100431,FMA22829,Semispinalis cervicis,Musculus semispinalis colli,頚半棘筋
 BP100430,FMA22828,Semispinalis thoracis,Musculus semispinalis thoracis,胸半棘筋,Semispinalis thoracis muscle,A04.3.02.207,false,28.3549,-32.9098,32.9098,-44.4057,-2.2087,1082.0699,1358.1899,no,,,,available_to_download,yes
 BP100411,FMA22357,Semitendinosus,Musculus semitendinosus,半腱様筋,Semitendinosus muscle,A04.7.02.035,false,257.0813,-73.9707,73.9707,-104.947,-15.869,288.771,799.08,no,,,,available_to_download,yes
 BP102347,FMA53410,Sensory root of facial nerve,Nervus intermedius,中間神経,Intermediate nerve;Wrisberg's nerve,A14.2.01.115,false,0.0372,-26.4841,26.4841,-82.115,-65.3535,1501.75,1512.35,no,,,,available_to_download,yes
-BP101723,FMA53412,Sensory root of left facial nerve,,,Left intermediate nerve,,true,0.0176,3.9741,26.4841,-82.115,-65.3535,1501.75,1512.35,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP101675,FMA52614,Sensory root of left trigeminal nerve,,,,,true,0.0468,7.1606,15.4686,-80.6698,-67.0236,1510.8199,1515.9301,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP101722,FMA53411,Sensory root of right facial nerve,,,Right intermediate nerve,,true,0.0197,-26.4841,-3.9847,-82.115,-65.3669,1501.76,1512.35,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP101674,FMA52613,Sensory root of right trigeminal nerve,,,,,true,0.0466,-15.4658,-7.1654,-80.6698,-67.0254,1510.8199,1515.9301,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP101723,FMA53412,Sensory root of left facial nerve,,,Left intermediate nerve,,true,0.0176,3.9741,26.4841,-82.115,-65.3535,1501.75,1512.35,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP101675,FMA52614,Sensory root of left trigeminal nerve,,,,,true,0.0468,7.1606,15.4686,-80.6698,-67.0236,1510.8199,1515.9301,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP101722,FMA53411,Sensory root of right facial nerve,,,Right intermediate nerve,,true,0.0197,-26.4841,-3.9847,-82.115,-65.3669,1501.76,1512.35,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP101674,FMA52613,Sensory root of right trigeminal nerve,,,,,true,0.0466,-15.4658,-7.1654,-80.6698,-67.0254,1510.8199,1515.9301,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP102319,FMA52611,Sensory root of trigeminal nerve,Radix sensoria nervus trigemini,三叉神経の感覚根;三叉神経の知覚根,Radix sensoria (Nervus trigeminus [V]),A14.2.01.013,false,0.0933,-15.4658,15.4686,-80.6698,-67.0236,1510.8199,1515.9301,no,,,,available_to_download,yes
 BP98859,FMA3892,Septal branch of anterior interventricular artery,,,,,false,0.2735,13.2621,55.124,-164.489,-130.64,1202.5,1249.67,no,,,,available_to_download,yes
 BP99392,FMA3845,Septal branch of right posterior interventricular artery,,,Ramus interventricularis septalis;Right coronary septal ramus,,false,0.033,22.674,30.0087,-131.846,-128.383,1179.08,1196.1,no,,,,available_to_download,yes
 BP103995,FMA83331,Septal division of left branch of atrioventricular bundle,,,,,true,0.1092,13.7767,47.7403,-147.38,-125.875,1196.3199,1226.35,no,,,,available_to_download,yes
-BP105140,FMA7240,Septal leaflet of tricuspid valve,Cuspis septalis (Valva tricuspidalis),三尖弁の中隔尖,Septal cusp of right atrioventricular valve;Septal cusp of tricuspid valve;Septal tricuspid leaflet,A12.1.02.006,true,49.8651,-0.4575,22.0315,-142.828,-119.022,1200.86,1231.91,no,,,,available_to_download,yes
+BP105140,FMA7240,Septal leaflet of tricuspid valve,Cuspis septalis (Valva tricuspidalis),三尖弁の中隔尖,Septal cusp of right atrioventricular valve;Septal cusp of tricuspid valve;Septal tricuspid leaflet,A12.1.02.006,true,49.8651,-0.4575,22.0315,-142.828,-119.022,1200.86,1231.91,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP105200,FMA13257,Septal limb of supraventricular crest,,,,,true,2.4577,13.4923,45.1444,-167.815,-131.084,1206.4301,1244.99,no,,,,available_to_download,yes
 BP103426,FMA59503,Septal nasal cartilage,Cartilago septi nasi,鼻中隔軟骨,Cartilago septal nasi,A06.1.01.013,true,2.8427,-1.8295,1.944,-190.374,-140.269,1479.1801,1514.01,no,,,,available_to_download,yes
-BP105776,FMA7262,Septal papillary muscle of right ventricle,Musculus papillaris septalis ventriculi dextri,右心室の中隔乳頭筋,Accessory septal papillary muscle of right ventricle;Medial papillary muscle,A12.1.02.019,true,0.2,20.098,36.936,-156.245,-141.808,1214.6899,1222.0601,no,,,,available_to_download,yes
+BP105776,FMA7262,Septal papillary muscle of right ventricle,Musculus papillaris septalis ventriculi dextri,右心室の中隔乳頭筋,Accessory septal papillary muscle of right ventricle;Medial papillary muscle,A12.1.02.019,true,0.2,20.098,36.936,-156.245,-141.808,1214.6899,1222.0601,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP105498,FMA84095,Septal wall of left atrium,,,Left side of interatrial septum,,true,4.2579,-22.2626,-1.2123,-102.687,-76.0682,1207.45,1256.4399,no,,,,available_to_download,yes
 BP105512,FMA9345,Septal wall of left ventricle,,,Left side of interventricular septum,,true,22.5071,6.8819,61.7257,-165.437,-110.659,1184.61,1246.59,no,,,,available_to_download,yes
 BP105497,FMA84094,Septal wall of right atrium,,,Right side of interatrial septum,,true,4.7749,-17.2708,10.6465,-135.499,-97.1557,1186.61,1275.42,no,,,,available_to_download,yes
@@ -6582,7 +6582,7 @@ BP106032,FMA297500,Skeletal muscle body,,,,,false,2593.6925,-303.532,303.532,-19
 BP105463,FMA68013,Skeletal muscle fasciculus,,,,,false,491.5102,-144.529,144.529,-163.43,2.9953,-72.5898,1374.33,no,,,,available_to_download,yes
 BP105772,FMA7163,Skin,Cutis,皮膚,Skin of body,A16.0.00.002,true,3443.3081,-334.119,332.825,-246.783,45.2476,-78.1112,1641.36,yes,Kropps-atlas,BodyParts3D 4.0,exakt namn i uttrycklig BodyParts3D-fil,in_resus,no
 BP104745,FMA74803,Skin of umbilicus,,,Umbilical skin,,true,1.2431,-7.9092,6.6212,-192.803,-181.837,974.43,991.418,no,,,,available_to_download,yes
-BP99835,FMA4714,Small cardiac vein,Vena cardiaca parva;Vena cordis parva,小心臓静脈;小心静脈,Right cardiac vein,A12.3.01.010,true,0.4073,-16.0693,8.1243,-166.147,-110.65,1192.41,1211.17,no,,,,available_to_download,yes
+BP99835,FMA4714,Small cardiac vein,Vena cardiaca parva;Vena cordis parva,小心臓静脈;小心静脈,Right cardiac vein,A12.3.01.010,true,0.4073,-16.0693,8.1243,-166.147,-110.65,1192.41,1211.17,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98269,FMA44333,Small saphenous vein,Vena saphena parva,小伏在静脈,Lesser saphenous vein;Short saphenous vein,A12.3.11.010,false,5.471,-112.434,-62.311,-86.3938,-11.0701,-44.2412,410.169,no,,,,available_to_download,yes
 BP106057,FMA14070,Smooth muscle tissue,Textus muscularis nonstriatus,,Involuntary muscle;Non-striated muscle;Portion of smooth muscle tissue,,false,0.3904,-41.6447,41.6545,-164.801,-152.696,1520.97,1534.66,no,,,,available_to_download,yes
 BP99786,FMA22542,Soleus,Musculus soleus,ヒラメ筋,Soleus muscle,A04.7.02.047,false,616.4249,-115.083,115.083,-90.3221,-32.3253,33.4155,357.177,no,,,,available_to_download,yes
@@ -6645,7 +6645,7 @@ BP101755,FMA55430,Squamous part proper of right temporal bone,,,,,true,12.0905,-
 BP102864,FMA55429,Squamous part proper of temporal bone,,,,,false,24.1822,-72.5089,72.5296,-125.807,-46.8541,1501.5601,1550.8199,no,,,,available_to_download,yes
 BP102314,FMA49027,Stapedius,Musculus stapedius,アブミ骨筋,Stapedius muscle,A15.3.02.062,false,0.0007,-42.1704,42.1704,-81.057,-79.3462,1508.03,1508.76,no,,,,available_to_download,yes
 BP103372,FMA52751,Stapes,Stapes,アブミ骨,Stirrup,A15.3.02.033,false,0.0067,-40.3164,40.3164,-81.9319,-78.6649,1508.08,1510.95,no,,,,available_to_download,yes
-BP103718,FMA4685,Stem of left coronary artery,,,Left coronary arterial stem;Left coronary artery main stem;Main stem of left coronary artery,,true,0.123,29.3593,38.3009,-127.28,-118.089,1248.33,1253.39,no,,,,available_to_download,yes
+BP103718,FMA4685,Stem of left coronary artery,,,Left coronary arterial stem;Left coronary artery main stem;Main stem of left coronary artery,,true,0.123,29.3593,38.3009,-127.28,-118.089,1248.33,1253.39,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP103331,FMA23297,Sternal end of clavicle,Extremitas sternalis claviculae,鎖骨の胸骨端,Extremitas sternalis (Clavicula);Medial end of clavicle;Proximal epyphysis of clavicle,A02.4.02.002,false,7.2021,-27.0318,27.0318,-147.09,-127.007,1308.5601,1334.4301,no,,,,available_to_download,yes
 BP102617,FMA23299,Sternal end of left clavicle,,,,,true,3.6108,8.2735,27.0318,-147.09,-127.007,1308.5601,1334.4301,no,,,,available_to_download,yes
 BP102616,FMA23298,Sternal end of right clavicle,,,,,true,3.5913,-27.0318,-8.3039,-147.061,-127.038,1308.6,1334.4301,no,,,,available_to_download,yes
@@ -6872,8 +6872,8 @@ BP99187,FMA10646,Superior epigastric artery,Arteria epigastrica superior,上腹�
 BP98871,FMA4731,Superior epigastric vein,,,,,false,3.6914,-43.6304,43.6225,-201.004,-132.467,805.161,933.348,no,,,,available_to_download,yes
 BP105172,FMA78481,Superior fovea,Fovea rostralis,,Superior fovea of sulcus limitans,,false,0.0232,-7.0694,7.0694,-68.9321,-65.8304,1510.91,1516.12,no,,,,available_to_download,yes
 BP105819,FMA83755,Superior frontal sulcus,Sulcus frontalis primus,上前頭溝,Sulcus f1;Superior frontal fissure,A14.1.09.122,false,4.8227,-26.2116,26.2316,-146.436,-88.1231,1579.98,1615.05,no,,,,available_to_download,yes
-BP102823,FMA53554,Superior ganglion of left vagus nerve,,,,,true,0.0429,26.7212,30.8203,-80.6735,-75.485,1491.39,1498.24,no,,,,available_to_download,yes
-BP102822,FMA53553,Superior ganglion of right vagus nerve,,,,,true,0.0424,-30.8079,-26.7269,-80.6641,-75.4934,1491.39,1498.23,no,,,,available_to_download,yes
+BP102823,FMA53554,Superior ganglion of left vagus nerve,,,,,true,0.0429,26.7212,30.8203,-80.6735,-75.485,1491.39,1498.24,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
+BP102822,FMA53553,Superior ganglion of right vagus nerve,,,,,true,0.0424,-30.8079,-26.7269,-80.6641,-75.4934,1491.39,1498.23,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP103448,FMA6229,Superior ganglion of vagus nerve,Ganglion superius nervus vagi,迷走神経の上神経節,Ganglion superius (Nervus vagus);Jugular ganglion;Superior ganglion of vagus;Tenth cranial nerve jugular ganglion;Vagus nerve jugular ganglion;Vagus nerve superior ganglion,A14.2.01.154,false,0.0853,-30.8079,30.8203,-80.6735,-75.485,1491.39,1498.24,no,,,,available_to_download,yes
 BP100558,FMA22535,Superior genicular artery,,,,,false,1.6927,-111.904,111.895,-110.929,-63.215,382.467,430.412,no,,,,available_to_download,yes
 BP100636,FMA35436,Superior glenohumeral ligament,,,,,false,2.6329,-164.715,164.715,-100.825,-75.2428,1311.3101,1326.52,no,,,,available_to_download,yes
@@ -6928,7 +6928,7 @@ BP99543,FMA68982,Superior part of medial segmental vein,,,Right V5a;Superior tri
 BP102139,FMA299608,Superior part of right acromion,,,,,true,2.8222,-160.141,-142.404,-78.5686,-43.6757,1333.67,1349.83,no,,,,available_to_download,yes
 BP98940,FMA68926,Superior part of right anterior segmental vein,,,Intrasegmental part of right anterior segmental vein;Right V3a,,true,0.454,-52.4675,-28.3667,-139.145,-103.741,1255.46,1288.87,no,,,,available_to_download,yes
 BP104605,FMA53453,Superior part of right vestibular nerve,,,,,true,0.068,-42.1361,-12.2438,-82.9195,-68.0665,1504.0601,1514.5699,no,,,,available_to_download,yes
-BP105795,FMA77531,Superior part of vestibular ganglion,Pars superior ganglionis vestibularis,前庭神経節の上部,,A14.2.01.125,false,0.0092,-31.5792,31.5874,-80.9314,-78.8432,1512.36,1514.47,no,,,,available_to_download,yes
+BP105795,FMA77531,Superior part of vestibular ganglion,Pars superior ganglionis vestibularis,前庭神経節の上部,,A14.2.01.125,false,0.0092,-31.5792,31.5874,-80.9314,-78.8432,1512.36,1514.47,yes,Kropps-atlas;Neuro,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP105364,FMA53449,Superior part of vestibular nerve,,,Pars superior (Nervus vestibularis),,false,0.0976,-42.1361,42.1361,-82.9338,-68.0665,1504.0601,1514.58,no,,,,available_to_download,yes
 BP102137,FMA298196,Superior part proper of body of scapula,,,Supraspinal part proper of body of scapula,,false,9.1766,-128.928,128.928,-52.9732,-12.5898,1298.41,1333.83,no,,,,available_to_download,yes
 BP103209,FMA304659,Superior peripheral part of orbicularis oris,,,Pars peripheralis superior of orbicularis oris;Peripheral part of superior zone of orbicularis oris,,true,3.5052,-31.916,31.925,-181.028,-154.085,1458.75,1483.78,no,,,,available_to_download,yes
@@ -7489,7 +7489,7 @@ BP104380,FMA77545,Trunk of accessory nerve,Truncus nervi accessorii,副神経幹
 BP100271,FMA76061,Trunk of anterior cerebral artery,,,Anterior cerebral arterial trunk,,false,0.0051,-9.5722,-3.9367,-103.547,-100.596,1531.84,1538.05,no,,,,available_to_download,yes
 BP100275,FMA76253,Trunk of anterior choroidal artery,,,Anterior choroidal arterial trunk,,false,0.1188,-33.0099,-2.9187,-110.577,-58.7936,1535.27,1566.64,no,,,,available_to_download,yes
 BP99033,FMA79528,Trunk of anterior deep temporal artery,,,Anterior deep temporal arterial trunk,,false,0.0949,-69.4649,-24.8522,-137.827,-114.292,1502.84,1568.3101,no,,,,available_to_download,yes
-BP100260,FMA74912,Trunk of anterior interventricular branch of left coronary artery,,,,,true,0.4482,35.9236,57.1139,-166.242,-124.688,1186.97,1252.08,no,,,,available_to_download,yes
+BP100260,FMA74912,Trunk of anterior interventricular branch of left coronary artery,,,,,true,0.4482,35.9236,57.1139,-166.242,-124.688,1186.97,1252.08,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP98915,FMA66420,Trunk of anterior tibial artery,,,Anterior tibial arterial trunk,,false,18.5713,-105.555,105.556,-98.1066,-70.1058,4.3191,321.821,no,,,,available_to_download,yes
 BP99540,FMA68879,Trunk of apical segmental vein,,,Apical segmental venous trunk,,false,0.8061,-37.7076,-24.1332,-110.784,-99.3426,1254.49,1296.03,no,,,,available_to_download,yes
 BP98631,FMA76156,Trunk of artery of left precentral sulcus,,,,,true,0.1527,-68.0287,66.7185,-100.476,-68.1157,1551.11,1606.91,no,,,,available_to_download,yes
@@ -7546,7 +7546,7 @@ BP100367,FMA302097,Trunk of branch of vertebral artery,,,,,false,0.5362,-53.3801
 BP99671,FMA79537,Trunk of buccal artery,,,Buccal arterial trunk,,false,0.1288,-35.5192,-23.9669,-150.148,-118.995,1467.92,1507.0699,no,,,,available_to_download,yes
 BP99017,FMA76078,Trunk of callosomarginal artery,,,Callosomarginal arterial trunk,,false,0.1278,-3.7302,-0.9343,-93.0525,-68.7287,1550.87,1566.21,no,,,,available_to_download,yes
 BP103944,FMA6987,Trunk of cervical nerve,,,Cervical neural trunk;Cervical spinal nerve trunk,,false,2.2496,0.6785,46.4018,-89.4075,-56.5877,1353.34,1463.22,no,,,,available_to_download,yes
-BP100261,FMA74923,Trunk of circumflex branch of left coronary artery,,,,,true,0.6744,12.2259,44.4152,-124.977,-82.023,1188.9399,1254.17,no,,,,available_to_download,yes
+BP100261,FMA74923,Trunk of circumflex branch of left coronary artery,,,,,true,0.6744,12.2259,44.4152,-124.977,-82.023,1188.9399,1254.17,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP100267,FMA75907,Trunk of clivus branch of internal carotid artery,,,,,false,0.0282,-13.1686,-1.4891,-94.8529,-90.6,1513.75,1521.3199,no,,,,available_to_download,yes
 BP99636,FMA75908,Trunk of clivus branch of right internal carotid artery,,,,,true,0.0282,-13.1686,-1.4891,-94.8529,-90.6,1513.75,1521.3199,no,,,,available_to_download,yes
 BP100184,FMA68916,Trunk of common basal vein,,,Common basal venous trunk,,false,1.7443,-33.8538,-6.3469,-89.0433,-75.7645,1211.3101,1228.84,no,,,,available_to_download,yes
@@ -7592,14 +7592,14 @@ BP100600,FMA24551,Trunk of intrapulmonary vein,,,Intrapulmonary venous trunk,,fa
 BP99023,FMA76148,Trunk of lateral frontobasal artery,,,Lateral frontobasal arterial trunk,,false,0.0451,-47.4424,-27.4459,-161.035,-113.333,1546.35,1569.86,no,,,,available_to_download,yes
 BP101058,FMA86133,Trunk of lateral occipital artery,,,Lateral occipital arterial trunk,,false,0.1188,-57.2281,12.0241,-98.7195,9.6897,1518.77,1546.04,no,,,,available_to_download,yes
 BP98619,FMA69565,Trunk of lateral plantar artery,,,Lateral plantar arterial trunk,,false,0.2589,-113.589,113.586,-103.266,-85.5832,-59.8645,-39.3439,no,,,,available_to_download,yes
-BP103991,FMA81015,Trunk of left accessory nerve,,,Left accessory neural trunk;Trunk of left spinal accessory nerve,,true,0.1479,4.3687,49.1806,-95.8802,-59.0225,1368.76,1497.24,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP103991,FMA81015,Trunk of left accessory nerve,,,Left accessory neural trunk;Trunk of left spinal accessory nerve,,true,0.1479,4.3687,49.1806,-95.8802,-59.0225,1368.76,1497.24,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP98611,FMA66425,Trunk of left anterior tibial artery,,,Left anterior tibial arterial trunk,,true,9.2835,68.1334,105.556,-98.1048,-70.1085,4.3215,321.82,no,,,,available_to_download,yes
 BP101029,FMA80541,Trunk of left auriculotemporal nerve,,,Left auriculotemporal neural trunk,,true,0.0711,32.8442,71.3175,-107.406,-87.9936,1485.89,1565.7,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100187,FMA69326,Trunk of left common carotid artery,,,Left common carotid arterial trunk,,true,1.107,9.8425,37.4652,-114.555,-94.0398,1434.54,1537.72,no,,,,available_to_download,yes
 BP100189,FMA69384,Trunk of left common iliac artery,,,Left common iliac arterial trunk,,true,6.2959,0.908,35.9843,-129.72,-90.635,901.733,964.635,no,,,,available_to_download,yes
 BP99653,FMA76470,Trunk of left common interosseous artery,,,Left common interosseous arterial trunk,,true,0.0799,211.707,222.743,-80.1383,-71.1191,991.613,999.693,no,,,,available_to_download,yes
 BP101857,FMA7015,Trunk of left eighth cervical nerve,,,Left eighth cervical neural trunk;Left eighth cervical spinal nerve trunk,,true,0.5066,1.3119,46.4018,-80.3352,-60.3573,1353.34,1377.35,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP102995,FMA65422,Trunk of left facial nerve,,,Left facial neural trunk,,true,0.0398,24.3965,47.0754,-85.9537,-77.5436,1494.05,1513.42,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP102995,FMA65422,Trunk of left facial nerve,,,Left facial neural trunk,,true,0.0398,24.3965,47.0754,-85.9537,-77.5436,1494.05,1513.42,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP99952,FMA20732,Trunk of left femoral artery,,,Femoral part of trunk of left external iliac artery;Left femoral arterial trunk,,true,32.4567,37.8669,65.9103,-143.021,-85.408,470.426,830.408,no,,,,available_to_download,yes
 BP101507,FMA24105,Trunk of left fifth cervical nerve,,,Left fifth cervical neural trunk,,true,0.3059,1.0019,40.0215,-89.4075,-64.7209,1378.9399,1418.67,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP101054,FMA85332,Trunk of left first intercostal nerve,,,Left first intercostal neural trunk,,true,0.0077,18.5385,68.4421,-161.761,-63.2766,1295.21,1360.6899,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
@@ -7607,7 +7607,7 @@ BP101858,FMA7023,Trunk of left first thoracic nerve,,,Left first thoracic neural
 BP101854,FMA7007,Trunk of left fourth cervical nerve,,,Left fourth cervical neural trunk;Left fourth cervical spinal nerve trunk,,true,0.1568,1.0037,28.9942,-84.1709,-62.5241,1414.34,1428.5699,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP102993,FMA65396,Trunk of left great auricular nerve,,,Left great auricular neural trunk,,true,0.1789,32.0321,51.746,-123.616,-74.0228,1427.24,1459.37,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP98949,FMA70457,Trunk of left hepatic artery,,,Left hepatic arterial trunk,,true,0.3922,-22.0322,5.2172,-159.796,-147.022,1107.24,1130.75,no,,,,available_to_download,yes
-BP103110,FMA80483,Trunk of left hypoglossal nerve,,,Left hypoglossal neural trunk,,true,0.3579,6.1116,31.6015,-154.515,-69.7588,1446.6899,1500.09,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP103110,FMA80483,Trunk of left hypoglossal nerve,,,Left hypoglossal neural trunk,,true,0.3579,6.1116,31.6015,-154.515,-69.7588,1446.6899,1500.09,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100293,FMA80519,Trunk of left inferior alveolar nerve,,,Left inferior alveolar neural trunk,,true,0.0454,20.9732,38.4229,-158,-110.997,1435.84,1482.22,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100099,FMA50306,Trunk of left inferior pulmonary vein,,,Left inferior pulmonary venous trunk;Trunk of left inferior pulmonary venous tree;Trunk of left lower lobar vein,,true,2.7523,32.8841,72.9431,-91.2173,-53.572,1201.5699,1236.3101,no,,,,available_to_download,yes
 BP100264,FMA75867,Trunk of left internal carotid artery,,,Left internal carotid arterial trunk,,true,2.835,10.8208,22.933,-112.224,-96.0063,1307.39,1373.6801,no,,,,available_to_download,yes
@@ -7621,7 +7621,7 @@ BP102056,FMA80595,Trunk of left maxillary nerve,,,Left maxillary neural trunk,,t
 BP100331,FMA86137,Trunk of left medial occipital artery,,,Left medial occipital arterial trunk,,true,0.1006,0.5751,18.3343,-63.1851,1.7562,1538.04,1585.05,no,,,,available_to_download,yes
 BP98421,FMA69757,Trunk of left medial plantar artery,,,Left medial plantar arterial trunk,,true,0.1137,66.8152,75.4256,-126.233,-86.394,-43.9296,-37.0553,no,,,,available_to_download,yes
 BP99681,FMA80524,Trunk of left mylohyoid nerve,,,Left mylohyoid neural trunk,,true,0.0201,7.2179,37.5199,-144.346,-105.399,1433.98,1473.97,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
-BP102999,FMA65426,Trunk of left oculomotor nerve,,,Left oculomotor neural trunk,,true,0.0325,0.8001,19.3337,-125.74,-91.9559,1528.77,1534.67,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP102999,FMA65426,Trunk of left oculomotor nerve,,,Left oculomotor neural trunk,,true,0.0325,0.8001,19.3337,-125.74,-91.9559,1528.77,1534.67,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP102992,FMA65387,Trunk of left phrenic nerve,,,Left phrenic neural trunk,,true,0.5466,24.3419,101.853,-166.38,-72.4631,1179.0699,1433.04,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100325,FMA82697,Trunk of left portal vein,,,Left portal venous trunk;Trunk of left hepatic portal vein,,true,1.4467,-21.2142,8.2373,-158.299,-137.308,1104.08,1138.04,no,,,,available_to_download,yes
 BP102060,FMA80806,Trunk of left posterior auricular nerve,,,Left posterior auricular neural trunk,,true,0.0701,40.2443,65.952,-84.0139,-35.9675,1484.76,1505.9301,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
@@ -7642,7 +7642,7 @@ BP100098,FMA50305,Trunk of left superior pulmonary vein,,,Left superior pulmonar
 BP101853,FMA7005,Trunk of left third cervical nerve,,,Left third cervical neural trunk;Left third cervical spinal nerve trunk,,true,0.098,2.8644,39.1411,-82.0249,-59.189,1419.4301,1446.1801,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP99513,FMA66564,Trunk of left thoraco-acromial artery,,,Left thoraco-acromial arterial trunk,,true,0.1411,91.6654,96.5244,-102.866,-97.8614,1318.33,1330.9,no,,,,available_to_download,yes
 BP99045,FMA81009,Trunk of left transverse cervical artery,,,Left transverse cervical arterial trunk,,true,0.0506,40.971,60.8277,-100.138,-95.0887,1354.96,1360.67,no,,,,available_to_download,yes
-BP102997,FMA65424,Trunk of left trigeminal nerve,,,Left trigeminal neural trunk,,true,0.0509,18.3984,22.4176,-85.2215,-77.2431,1515.65,1520.5699,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP102997,FMA65424,Trunk of left trigeminal nerve,,,Left trigeminal neural trunk,,true,0.0509,18.3984,22.4176,-85.2215,-77.2431,1515.65,1520.5699,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100164,FMA66624,Trunk of left ulnar artery,,,Left ulnar arterial trunk,,true,1.8577,211.051,243.72,-131.073,-76.9837,794.684,1024.45,no,,,,available_to_download,yes
 BP99647,FMA76262,Trunk of left vertebral artery,,,Left vertebral arterial trunk,,true,0.3436,-0.384,33.6652,-86.8711,-58.5749,1398.41,1506.03,no,,,,available_to_download,yes
 BP100153,FMA66446,Trunk of lingual artery,,,Lingual arterial trunk,,false,0.125,-29.1843,-4.0426,-139.098,-93.7028,1435.84,1444.25,no,,,,available_to_download,yes
@@ -7691,7 +7691,7 @@ BP99015,FMA75970,Trunk of recurrent meningeal branch of lacrimal artery,,,,,fals
 BP98624,FMA75971,Trunk of recurrent meningeal branch of right lacrimal artery,,,,,true,0.0049,-45.5566,-39.7252,-150.327,-124.714,1526.7,1538.48,no,,,,available_to_download,yes
 BP100899,FMA73203,Trunk of region of axillary artery,,,Trunk of subdivision of axillary artery,,false,0.2828,-96.4686,96.5244,-102.866,-97.851,1318.33,1330.92,no,,,,available_to_download,yes
 BP100822,FMA66362,Trunk of renal artery,,,Renal arterial trunk,,false,4.745,-40.4226,38.5442,-120.232,-98.1011,1027.22,1049.71,no,,,,available_to_download,yes
-BP103990,FMA81014,Trunk of right accessory nerve,,,Right accessory neural trunk;Trunk of right spinal accessory nerve,,true,0.1485,-50.4985,-5.6742,-95.8785,-59.0265,1368.76,1497.24,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP103990,FMA81014,Trunk of right accessory nerve,,,Right accessory neural trunk;Trunk of right spinal accessory nerve,,true,0.1485,-50.4985,-5.6742,-95.8785,-59.0265,1368.76,1497.24,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP99640,FMA76062,Trunk of right anterior cerebral artery,,,Right anterior cerebral arterial trunk,,true,0.0051,-9.5722,-3.9367,-103.547,-100.596,1531.84,1538.05,no,,,,available_to_download,yes
 BP99645,FMA76254,Trunk of right anterior choroidal artery,,,Right anterior choroidal arterial trunk,,true,0.1188,-33.0099,-2.9187,-110.577,-58.7936,1535.27,1566.64,no,,,,available_to_download,yes
 BP98634,FMA79529,Trunk of right anterior deep temporal artery,,,Right anterior deep temporal arterial trunk,,true,0.0949,-69.4649,-24.8522,-137.827,-114.292,1502.84,1568.3101,no,,,,available_to_download,yes
@@ -7706,14 +7706,14 @@ BP99364,FMA31529,Trunk of right common basal vein,,,Right common basal venous tr
 BP100186,FMA69325,Trunk of right common carotid artery,,,Right common carotid arterial trunk,,true,1.8698,-27.873,-8.5848,-104.497,-89.3383,1330.46,1432.6899,no,,,,available_to_download,yes
 BP100188,FMA69383,Trunk of right common iliac artery,,,Right common iliac arterial trunk,,true,4.8989,-37.5029,10.1767,-130.066,-105.044,903.462,964.665,no,,,,available_to_download,yes
 BP99652,FMA76469,Trunk of right common interosseous artery,,,Right common interosseous arterial trunk,,true,0.0807,-222.74,-211.707,-80.1326,-71.1162,991.607,999.689,no,,,,available_to_download,yes
-BP100037,FMA3802,Trunk of right coronary artery,,,Right coronary arterial trunk;Right coronary artery (trunk);Trunk of right coronary arterial tree,,true,1.1298,-16.894,16.5645,-154.222,-124.139,1193.92,1240.39,no,,,,available_to_download,yes
+BP100037,FMA3802,Trunk of right coronary artery,,,Right coronary arterial trunk;Right coronary artery (trunk);Trunk of right coronary arterial tree,,true,1.1298,-16.894,16.5645,-154.222,-124.139,1193.92,1240.39,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla,in_resus,no
 BP99037,FMA79568,Trunk of right descending palatine artery,,,Right descending palatine arterial trunk,,true,0.0538,-19.9324,-5.8652,-133.023,-120.202,1482.89,1512.96,no,,,,available_to_download,yes
 BP100160,FMA66531,Trunk of right external carotid artery,,,Right external carotid arterial trunk,,true,0.538,-49.1973,-24.2153,-96.8559,-87.7881,1429.02,1489.6899,no,,,,available_to_download,yes
 BP99506,FMA66450,Trunk of right facial artery,,,Right facial arterial trunk,,true,0.5824,-38.2012,-13.354,-172,-93.1841,1433.25,1505.75,no,,,,available_to_download,yes
-BP102994,FMA65421,Trunk of right facial nerve,,,Right facial neural trunk,,true,0.0393,-47.0754,-24.3975,-85.9447,-77.5492,1494.0601,1513.41,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP102994,FMA65421,Trunk of right facial nerve,,,Right facial neural trunk,,true,0.0393,-47.0754,-24.3975,-85.9447,-77.5492,1494.0601,1513.41,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP98636,FMA79572,Trunk of right greater palatine artery,,,Right greater palatine arterial trunk,,true,0.0661,-19.95,-6.0598,-172.55,-131.866,1464.39,1484.02,no,,,,available_to_download,yes
 BP98948,FMA70456,Trunk of right hepatic artery,,,Right hepatic arterial trunk,,true,0.1276,-30.1293,-18.0209,-151.001,-145.247,1107.3,1113.13,no,,,,available_to_download,yes
-BP103109,FMA80482,Trunk of right hypoglossal nerve,,,Right hypoglossal neural trunk,,true,0.0781,-32.97,-7.4034,-154.539,-69.7496,1446.6801,1500.11,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP103109,FMA80482,Trunk of right hypoglossal nerve,,,Right hypoglossal neural trunk,,true,0.0781,-32.97,-7.4034,-154.539,-69.7496,1446.6801,1500.11,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100292,FMA80518,Trunk of right inferior alveolar nerve,,,Right inferior alveolar neural trunk,,true,0.0453,-39.7323,-22.2825,-157.995,-110.996,1435.85,1482.22,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP99362,FMA31525,Trunk of right inferior basal vein,,,Right inferior basal venous trunk,,true,1.6966,-88.8489,-27.7654,-81.8292,-37.7456,1134.5,1217.0601,no,,,,available_to_download,yes
 BP99635,FMA75898,Trunk of right inferior hypophyseal artery,,,Right inferior hypophyseal arterial trunk,,true,0.0302,-14.1089,-1.5829,-106.89,-102.618,1520.73,1526.9399,no,,,,available_to_download,yes
@@ -7737,7 +7737,7 @@ BP99029,FMA79494,Trunk of right middle meningeal artery,,,Right middle meningeal
 BP99028,FMA79455,Trunk of right middle temporal artery,,,Right middle temporal arterial trunk,,true,0.3292,-66.0149,-1.0126,-165.84,-89.1362,1528.64,1628.8101,no,,,,available_to_download,yes
 BP99680,FMA80523,Trunk of right mylohyoid nerve,,,Right mylohyoid neural trunk,,true,0.0204,-38.8307,-8.5177,-144.349,-105.406,1433.96,1473.96,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP99507,FMA66453,Trunk of right occipital artery,,,Right occipital arterial trunk,,true,0.7583,-66.2828,-4.8173,-96.4442,18.1172,1461.88,1596.26,no,,,,available_to_download,yes
-BP102998,FMA65425,Trunk of right oculomotor nerve,,,Right oculomotor neural trunk,,true,0.0055,-39.3174,-2.1367,-157.076,-91.9525,1503.41,1534.65,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP102998,FMA65425,Trunk of right oculomotor nerve,,,Right oculomotor neural trunk,,true,0.0055,-39.3174,-2.1367,-157.076,-91.9525,1503.41,1534.65,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP99563,FMA70525,Trunk of right ophthalmic artery,,,Right ophthalmic arterial trunk,,true,0.8073,-40.8971,-11.99,-160.362,-112.27,1525.5,1539.49,no,,,,available_to_download,yes
 BP98625,FMA76076,Trunk of right polar frontal artery,,,Right polar frontal arterial trunk,,true,0.0284,-4.9547,-0.1334,-161.849,-132.872,1551.41,1584.72,no,,,,available_to_download,yes
 BP98628,FMA76113,Trunk of right polar temporal artery,,,Right polar temporal arterial trunk,,true,0.1771,-51.5595,-31.0827,-128.967,-104.541,1527.17,1553.79,no,,,,available_to_download,yes
@@ -7762,7 +7762,7 @@ BP99509,FMA66472,Trunk of right superior thyroid artery,,,Right superior thyroid
 BP98633,FMA79516,Trunk of right superior tympanic artery,,,Right superior tympanic arterial trunk,,true,0.0244,-48.8989,-30.1159,-97.5235,-72.1606,1509.0601,1522.1,no,,,,available_to_download,yes
 BP99512,FMA66563,Trunk of right thoraco-acromial artery,,,Right thoraco-acromial arterial trunk,,true,0.1417,-96.4686,-91.6617,-102.836,-97.851,1318.34,1330.92,no,,,,available_to_download,yes
 BP99044,FMA81008,Trunk of right transverse cervical artery,,,Right transverse cervical arterial trunk,,true,0.0499,-60.8613,-40.9183,-100.133,-95.062,1354.9399,1360.67,no,,,,available_to_download,yes
-BP102996,FMA65423,Trunk of right trigeminal nerve,,,Right trigeminal neural trunk,,true,0.0498,-23.7702,-19.6483,-85.2334,-77.2164,1515.6899,1520.5601,yes,Neuro,blandad/deriverad BodyParts3D,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
+BP102996,FMA65423,Trunk of right trigeminal nerve,,,Right trigeminal neural trunk,,true,0.0498,-23.7702,-19.6483,-85.2334,-77.2164,1515.6899,1520.5601,yes,Neuro;Kropps-atlas,blandad/deriverad BodyParts3D;20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP100163,FMA66623,Trunk of right ulnar artery,,,Right ulnar arterial trunk,,true,1.857,-243.726,-211.049,-131.074,-76.9856,794.679,1024.45,no,,,,available_to_download,yes
 BP99644,FMA76193,Trunk of right uncal artery,,,Right uncal arterial trunk,,true,0.1952,-18.7797,-10.1233,-109.552,-89.3484,1526.28,1533.17,no,,,,available_to_download,yes
 BP99705,FMA8616,Trunk of right upper lobar artery,,,Ramus lobi superioris (dexter);Right upper lobar arterial trunk;Superior lobar branch of right pulmonary artery;Truncus anterior;Truncus anterior of right pulmonary artery,,true,8.7381,-44.6534,4.894,-106.445,-85.9501,1265,1292.42,no,,,,available_to_download,yes

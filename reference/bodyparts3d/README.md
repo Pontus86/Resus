@@ -32,10 +32,10 @@ The audit is deliberately conservative:
 Consequently, `in_resus=no` means that the audit found no reliable provenance match. It may
 include a small number of false negatives where old merge steps discarded all source IDs.
 
-The 2026-07-25 audit securely identifies 284 catalogue concepts in Resus and leaves 7,845
-available to download. Of the missing entries, 4,325 are primitive elements and 3,520 are
+The 2026-07-25 audit securely identifies 332 catalogue concepts in Resus and leaves 7,797
+available to integrate. Of the missing entries, 4,279 are primitive elements and 3,518 are
 compound concepts. For a local source library, the primitive elements are the important first
-download set; many compound concepts can be reconstructed from their constituent elements.
+integration set; many compound concepts can be reconstructed from their constituent elements.
 
 To regenerate the committed CSV and browser data from a freshly retrieved JSON response:
 

@@ -100,6 +100,8 @@ const scannedFiles = [
   ...fs.readdirSync(path.join(repoRoot, 'Kroppsatlas/models/body/brain'))
     .filter(name => name.endsWith('.js'))
     .map(name => `Kroppsatlas/models/body/brain/${name}`),
+  'Kroppsatlas/models/body/cranial_nerves.js',
+  'Kroppsatlas/models/body/cardiac_detail.js',
   'Kroppsatlas/models/body/organ.js',
   'Kroppsatlas/models/body/skin.js'
 ];

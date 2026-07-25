@@ -13,9 +13,9 @@
      - Models/body/Body (hela BodyParts3D, 2623 filer) -- ryggmärgen ("Neural tissue of
        spinal cord", den enda ryggmärgs-YTA som finns i något av biblioteken).
 
-   VIKTIG BEGRÄNSNING: inget av biblioteken har spinalnervrötter, meninger, eller en
-   segmenterad ryggmärg (bara EN sammanhängande yta för hela märgen) -- se filkommentarer i
-   Neuro/js/tracts.js för hur det påverkar 3D-banorna. */
+   VIKTIG BEGRÄNSNING: ryggmärgen är fortfarande EN sammanhängande yta och spinalrötterna
+   saknas som komplett bilateral serie. 2018-biblioteket bidrar däremot med separata
+   intrakraniella nervrötter och ganglier i cranial_roots.js. */
 let brain3d = null; // {renderer, scene, camera, group, parts:{}, clip:{...}, ...}
 
 const BRAIN3D_CATEGORIES = [
@@ -23,7 +23,7 @@ const BRAIN3D_CATEGORIES = [
   "basalganglia_l","basalganglia_r",
   "capsule_l","capsule_r",
   "midbrain_l","midbrain_r","pons_l","pons_r","medulla_l","medulla_r",
-  "cerebellum_l","cerebellum_r","cerebellum_vermis","corpus_callosum","white_matter","ventricles","spinalcord","vertebrae","peripheral_nerves",
+  "cerebellum_l","cerebellum_r","cerebellum_vermis","corpus_callosum","white_matter","ventricles","spinalcord","vertebrae","peripheral_nerves","cranial_roots",
   "cortex",   // sist av de "riktiga" delarna -- ska ritas ovanpå/genomskinligt, se materialkommentaren
   // Funktionella cortex-delregioner (se merge-scriptet i konversationen + BRAIN3D_CORTEX_REGIONS) --
   // SAMMA gyrus-ytor som redan ingår i "cortex" ovan, avsiktligt överlappande geometri. Dolda
@@ -69,6 +69,7 @@ const NEURO_ATLAS_COLORS = {
   // Mörkare ockra än övriga vävnader: de tunna distala grenarna blir annars subpixel-bleka
   // mot diagrammets ljusa bakgrund i Helkropp, även när materialet är helt ogenomskinligt.
   peripheral_nerves:"#B86A00",
+  cranial_roots:"#D6A900",
   active:"#D8473D", gray:"#C9C5C2"
 };
 function _brain3dGroupOf(cat){
@@ -85,6 +86,7 @@ function _brain3dGroupOf(cat){
   if(cat==="spinalcord")return "spinalcord";
   if(cat==="vertebrae")return "vertebrae";
   if(cat==="peripheral_nerves")return "peripheral_nerves";
+  if(cat==="cranial_roots")return "cranial_roots";
   return "gray";
 }
 // "Distinkt"-läge (se setBrain3DColorMode) -- identiskt med _brain3dGroupOf FÖRUTOM att
@@ -153,7 +155,7 @@ const BRAIN3D_REGION_PARTS = {
 // ryggmärgskanalen (se filkommentaren i applyParts), inte något man förväntas "snitta genom"
 // för att se ischemi/skada i, till skillnad från själva hjärn-/hjärnstamsstrukturerna. Cortex
 // TESTAS nu med kapning (var tidigare hoppad över) -- se capMat-logiken i _buildStencilCaps.
-const BRAIN3D_CAP_SKIP = {vertebrae:1, peripheral_nerves:1, ctx_motor:1, ctx_sensory:1, ctx_broca:1, ctx_wernicke:1,
+const BRAIN3D_CAP_SKIP = {vertebrae:1, peripheral_nerves:1, cranial_roots:1, ctx_motor:1, ctx_sensory:1, ctx_broca:1, ctx_wernicke:1,
   ctx_visual:1, ctx_prefrontal:1, ctx_parietal:1, ctx_cingulate:1, ctx_insula:1, ctx_orbitofrontal:1};
 // Enda stället att ändra hur ljusa/mörka snittytorna (locken) är -- 1.0 = exakt samma
 // kulör som organets egen yta, lägre värden = mörkare ("nyss snittad yta"-effekten, samma
@@ -1459,6 +1461,7 @@ function setBrain3DCordVisible(v){
   // urvalslogik -- bara ren kontext som följer SAMMA på/av-knapp som ryggmärgen/kotpelaren,
   // av exakt samma skäl (se kommentaren ovan om kotpelaren).
   if(brain3d && brain3d.parts.peripheral_nerves) brain3d.parts.peripheral_nerves.wrapper.visible = v;
+  if(brain3d && brain3d.parts.cranial_roots) brain3d.parts.cranial_roots.wrapper.visible = v;
 }
 // "Visa EN struktur" -- valfri knapp per anatomisk grupp (samma grupper som NEURO_ATLAS_COLORS/
 // _brain3dGroupOf). Vald grupp: röd och helt ogenomskinlig. Alla andra: sin egen färg men
@@ -1468,6 +1471,7 @@ function _brain3dNormalOpacity(cat){
   if(cat==="ventricles") return {opacity:0.55, transparent:true, depthWrite:false};
   if(cat==="vertebrae") return {opacity:0.35, transparent:true, depthWrite:false};
   if(cat==="peripheral_nerves") return {opacity:1, transparent:false, depthWrite:true};
+  if(cat==="cranial_roots") return {opacity:1, transparent:false, depthWrite:true};
   if(cat==="cortex" || cat==="spinalcord"){
     const opaque = brain3d.ghostState && brain3d.ghostState[cat];
     return opaque ? {opacity:1, transparent:false, depthWrite:true}

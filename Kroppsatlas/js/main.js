@@ -6,6 +6,7 @@
   // ladda och klicka på i 3D-vyn.
   const fullIndex = (window.BODY3D_MANIFEST||[])
     .concat(typeof BODY3D_FEMALE_PELVIS_PARTS === "undefined" ? [] : BODY3D_FEMALE_PELVIS_PARTS)
+    .concat(window.BODY3D_BP3D_CLINICAL_PARTS||[])
     .concat(
     BODY3D_BRAIN_CATEGORIES.map(b => ({
       name: b.cat, label: b.label, system: "brain", region: b.region,
@@ -84,8 +85,15 @@
   function selectStructure(name){
     const sys = fullIndex.find(p=>p.name===name);
     if(sys && body3d && !body3d.loadedSystems[sys.system]){
+      // Sökresultatet kan peka på ett latladdat system. Vänta tills dess mesh finns i
+      // registret innan urvalet görs; annars nollställs valet tyst av body3dSelectByName.
+      _body3dOnSystemReady(sys.system, () => {
+        body3dSelectByName(name);
+        updateSelectedInfo(name);
+      });
       const chk = systemsHost.querySelector(`input[data-system="${sys.system}"]`);
       if(chk && !chk.checked){ chk.checked = true; chk.dispatchEvent(new Event("change")); }
+      return;
     }
     body3dSelectByName(name);
     updateSelectedInfo(name);
