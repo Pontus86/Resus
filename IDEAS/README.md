@@ -9,6 +9,7 @@ explicitly scoped assignment in `TASKS.md`.
 | Topic | Document | Status | Baton |
 |---|---|---|---|
 | I-001 — Feature/fix backlog review | `2026-07-25-feature-and-fix-backlog.md` | `decision proposed` | Claude (paused) |
+| I-002 — Neuro nerve and skull repair request | `2026-07-25-neuro-nerve-skull-repair.md` | `decision proposed` | Claude |
 
 Statuses: `discussing`, `decision proposed`, `approved`, `closed`.
 
