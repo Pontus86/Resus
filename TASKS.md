@@ -23,7 +23,6 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
-| R-010 | in progress | Codex | Thoraxdrän interaction experiment: `Sandbox/chest-tube-sandbox.html` and task closeout only. | `codex/work` | User requested restored progressive tissue excavation plus skin preparation and material-dependent palpation. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -66,19 +65,6 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
 
-### R-010 — Thoraxdrän tissue interaction experiment
-
-- Extend the existing sandbox rather than moving behavior into production.
-- Add skin preparation as an explicit tool/step; dragging it over skin must leave a subtle
-  yellow antiseptic field with enough coverage required before incision.
-- Make soft-tissue palpation visibly depress the skin slightly while palpation over a rib
-  remains firm and does not deform the surface.
-- Replace instant blunt dissection with progressive drag-based excavation through fat and
-  muscle using the clamp. Preserve staged scalpel incision, pleural opening, finger sweep,
-  drain placement, trauma scoring, cutaway, reset, and instrument animation.
-- Verify JavaScript syntax, the complete success path, invalid-tool/unsafe-area feedback, reset,
-  cutaway, desktop/narrow layout, and zero console errors.
-
 ## Assignment rules
 
 1. Give every task a stable ID such as `R-001`.
@@ -114,6 +100,24 @@ don't leave it dangling as still `open`/`suspected` there.
 - 2026-07-25 — Repository coordination established. Added `AGENTS.md`, removed the tracked
   `Blodgas/bloodgas_pkg 7` and `Blodgas/bloodgas_pkg 8` snapshots, and reserved a separate
   Codex worktree. Commits: `a82997e`, `7bb2099`.
+
+### R-010 — Thoraxdrän tissue interaction experiment — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: `f00f7ab`
+- Changed: Expanded the sandbox to seven steps with a modeled preparation swab and persistent
+  yellow antiseptic field; added slight local skin-mesh depression over soft tissue but none
+  over ribs; made clamp excavation through fat/muscle proportional to repeated drag distance;
+  preserved the staged incision, pleural opening, finger sweep, drain, trauma scoring,
+  cutaway/reset, and animated instruments. Cutaway now also affects regenerated aperture
+  pieces, and selecting the wrong tool gives explicit feedback.
+- Verified: Extracted inline JavaScript passes `node --check`; the locally served HTML is
+  byte-identical to the source; structural assertions confirm all six tools, preparation,
+  deformable skin, progressive dissection, seven-step metrics, and cutaway support; local
+  HTTP returned 200; `git diff --check` passes.
+- Notes: Full visual desktop/narrow interaction and console QA could not be completed because
+  the available in-app browser could not reach the local server from its isolated environment.
+  No production module files changed.
 
 ### R-009 — Audit BodyParts3D coverage — done
 
