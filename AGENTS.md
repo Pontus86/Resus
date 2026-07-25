@@ -10,6 +10,13 @@ new task to Codex. Follow the "Start every task" checklist below, read the curre
 assignment and brief in `TASKS.md`, and begin that task without waiting for a second prompt. If
 `TASKS.md` has no task assigned to Codex, report that instead of guessing a task.
 
+When the user's entire message matches `wait N sec`, `wait N seconds`, `wait N min`, or
+`wait N minutes` (where `N` is a positive integer) and an ideation task is active, keep the
+current turn open for that short interval. When it expires, reread the idea document named in
+the active `TASKS.md` brief before replying or editing. A wait instruction only delays the
+current active turn; it cannot wake a finished Codex turn. For longer or durable unattended
+delays, use a scheduled task or an external process that starts a new Codex run.
+
 ## Start every task
 
 1. Read `CLAUDE.md` completely.
@@ -99,3 +106,4 @@ change is risky.
 - Account statistics: `stats.html`, `stats.js`
 - Project purpose and attribution: `about.html`
 - Module and 3D-specific details: `CLAUDE.md`
+- Shared pre-implementation discussions: `IDEAS/README.md`
