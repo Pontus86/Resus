@@ -23,7 +23,6 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
-| R-011 | in progress | Codex | Thoraxdrän suture experiment: `Sandbox/chest-tube-sandbox.html` and task closeout only. | `codex/work` | User requested needle-and-thread closure after drain placement. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -66,17 +65,6 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
 
-### R-011 — Thoraxdrän closure with needle and thread
-
-- Add a modeled needle/thread instrument and an eighth final procedural step.
-- Require multiple correctly oriented, spatially separated skin sutures across the incision.
-- Keep the drain in place and close the skin around it rather than unrealistically sealing
-  over the tube.
-- Preserve all prior sandbox steps, material-dependent palpation, progressive dissection,
-  trauma scoring, cutaway, reset, and wrong-tool guidance.
-- Verify JavaScript syntax, step/tool wiring, suture acceptance/rejection logic, completion
-  state, and nearby prior interactions.
-
 ## Assignment rules
 
 1. Give every task a stable ID such as `R-001`.
@@ -112,6 +100,21 @@ don't leave it dangling as still `open`/`suspected` there.
 - 2026-07-25 — Repository coordination established. Added `AGENTS.md`, removed the tracked
   `Blodgas/bloodgas_pkg 7` and `Blodgas/bloodgas_pkg 8` snapshots, and reserved a separate
   Codex worktree. Commits: `a82997e`, `7bb2099`.
+
+### R-011 — Thoraxdrän closure with needle and thread — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: `5737963`
+- Changed: Added a modeled curved needle with trailing thread and an eighth final step.
+  Users must place three spatially distinct sutures perpendicular to the incision; the visible
+  threads close the skin around and fixate the indwelling drain. Duplicate placement and
+  longitudinal/off-wound passes are rejected with feedback.
+- Verified: Extracted inline JavaScript passes `node --check`; structural checks confirm all
+  seven tools, the suture model, eighth step, and three-suture completion gate; direct
+  predicate tests accept a correct cross-incision pass and reject longitudinal/outside passes;
+  `git diff --check` passes.
+- Notes: Preserves all R-010 interactions and changes no production files. Full visual browser
+  QA remains unavailable because the in-app browser cannot reach the isolated local server.
 
 ### R-010 — Thoraxdrän tissue interaction experiment — done
 
