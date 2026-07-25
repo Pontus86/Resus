@@ -62,13 +62,16 @@
 <script>window.BODY3D_MODELS_BASE = "../Kroppsatlas/models/body/";</script>
 <script src="../Kroppsatlas/js/body3d-data.js"></script>
 <script src="../Kroppsatlas/models/body/manifest.js"></script>
-<!-- Ingen models/body/brain/*.js här ännu -- io-tibia (första skivan) behöver ingen hjärn-/
-     ryggmärgsdata. Läggs till när lumbar-puncture-skivan byggs (behöver spinalcord.js), se
-     planfilen. body3d.js hoppar tyst över saknade hjärnkategorier (system!=="brain"-grenen i
-     _body3dLoadSystem gäller inte "brain", men _body3dLoadSystemParsed:s nextBrainFile
-     hoppar redan över varje kategori vars window.BRAIN3D_OBJ[cat] saknas). Skelett (default-
-     på, se BODY3D_DEFAULT_ON) laddas ändå automatiskt via den vanliga lazy-mekanismen tack
-     vare BODY3D_MODELS_BASE ovan -- ingen egen <script>-tagg för skeletal.js behövs här. -->
+<!-- Bara spinalcord.js av de 20 hjärnkategorierna (828KB, försumbart) -- lumbar-puncture
+     behöver ryggmärgen som ankare för dural_sac_schematic/cauda_equina_schematic (se
+     procedures3d.js), men ingen av de övriga 19 (cortex/thalamus/etc). body3d.js:s
+     _body3dLoadSystemParsed:s nextBrainFile hoppar redan tyst över varje kategori vars
+     window.BRAIN3D_OBJ[cat] saknas (system!=="brain"-grenen i _body3dLoadSystem gäller inte
+     "brain" annars) -- att bara inkludera EN av 20 <script>-taggar är alltså redan ett stött
+     , avsett användningsfall, inte ett hack. Skelett (default-på, se BODY3D_DEFAULT_ON) laddas
+     ändå automatiskt via den vanliga lazy-mekanismen tack vare BODY3D_MODELS_BASE ovan -- ingen
+     egen <script>-tagg för skeletal.js behövs här. -->
+<script src="../Kroppsatlas/models/body/brain/spinalcord.js"></script>
 <script src="../Kroppsatlas/js/body3d.js"></script>
 <script src="js/procedures-data.js"></script>
 <script src="js/procedures3d.js"></script>

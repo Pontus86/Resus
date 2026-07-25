@@ -42,6 +42,28 @@ const BODY3D_SCHEMATIC_POINTS = {
       ijv.getCenter(new THREE.Vector3()).x, ijv.getCenter(new THREE.Vector3()).y, ijv.max.z
     );
     return [lower, upper];
+  },
+  // Duralsäcken (och därmed subarachnoidalrummet, LP:s faktiska mål) har ingen egen mesh i
+  // biblioteket -- ett rör mellan ryggmärgens EGEN nedre (kaudala) spets och en punkt ca 30%
+  // ner i sacrum (ungefärlig S2-nivå, där duralsäcken normalt slutar). Midjelinje-struktur,
+  // inget sido-argument (name-formatet "dural_sac_schematic" utan ".l"/".r" matchar redan
+  // resolvern nedan, sido-gruppen blir bara undefined). OBS: _body3dWorldBox arbetar i
+  // VÄRLDSRYMD (efter body3d.js:s delade transform) -- där är Y konsekvent den vertikala/
+  // kraniokaudala axeln för ALLA system (bekräftat av att _brain3dCordPoint/denna fils egna
+  // tibial_tuberosity/sternocleidomastoid redan använder .y så här) -- INTE samma sak som Z
+  // i de RÅA, otransformerade OBJ-filerna (som jag använde för att bekräfta att skiv-mergen
+  // låg i rätt källrymd, se merge-scriptet -- två olika kontroller, två olika rymder).
+  dural_sac(){
+    const cord = _body3dWorldBox("spinalcord");
+    const sacrum = _body3dWorldBox("Sacrum");
+    if(!cord || !sacrum) return null;
+    const cordC = cord.getCenter(new THREE.Vector3());
+    const sacrumC = sacrum.getCenter(new THREE.Vector3());
+    const top = new THREE.Vector3(cordC.x, cord.min.y, cordC.z);
+    const bottom = new THREE.Vector3(
+      sacrumC.x, sacrum.max.y - (sacrum.max.y - sacrum.min.y) * 0.3, sacrumC.z
+    );
+    return [top, bottom];
   }
 };
 
@@ -91,6 +113,39 @@ function renderSafetyTriangle(pointNames, color){
   );
   body3d.overlayGroup.add(mesh);
   return mesh;
+}
+
+// Cauda equina: flera (default 6) lätt utspridda rör mellan SAMMA två ankarpunkter som
+// dural_sac ovan (ryggmärgens kaudala spets -> ca S2-nivå) -- schematiskt, inte spårade
+// enskilda nervrötter (det finns ingen sådan data). Egen lokal hjälpfunktion i stället för
+// en generisk "flera punkter"-gren i body3dAddOverlayMarker, samma designval som
+// renderSafetyTriangle (chest-tube) redan gjorde: en form som inte är "punkt eller rör
+// mellan två punkter" hör hemma som en egen liten funktion, inte en växande generisk
+// avgrening i den delade markörfunktionen. Strängarna får inget pickName (som triangeln) --
+// schematiskt smyckedekor, inget eget klickbart landmärke (dural_sac_schematic täcker redan
+// samma anatomiska region som ett riktigt klickbart landmärke).
+function renderCaudaEquina(color, strandCount){
+  if(!body3d) return null;
+  const anchors = BODY3D_SCHEMATIC_POINTS.dural_sac();
+  if(!anchors) return null;
+  const [top, bottom] = anchors;
+  const spread = top.distanceTo(bottom) * 0.12;
+  const n = strandCount || 6;
+  const meshes = [];
+  for(let i=0; i<n; i++){
+    const angle = (i / n) * Math.PI * 2;
+    const jitter = new THREE.Vector3(Math.cos(angle)*spread, 0, Math.sin(angle)*spread);
+    const mid = top.clone().lerp(bottom, 0.55).add(jitter);
+    const end = bottom.clone().add(jitter.clone().multiplyScalar(0.3));
+    const curve = new THREE.CatmullRomCurve3([top, mid, end]);
+    const mesh = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 24, 0.025, 6, false),
+      new THREE.MeshLambertMaterial({color:new THREE.Color(color || "#E8C744"), clippingPlanes:body3d.clipPlanes})
+    );
+    body3d.overlayGroup.add(mesh);
+    meshes.push(mesh);
+  }
+  return meshes;
 }
 
 let proc3d = {key:null, stageIndex:-1};
@@ -225,6 +280,9 @@ function renderProcedure3DStage(){
   });
   if(proc.safetyTriangle){
     renderSafetyTriangle(proc.safetyTriangle.points, proc.safetyTriangle.color);
+  }
+  if(proc.caudaEquina){
+    renderCaudaEquina(proc.caudaEquina.color, proc.caudaEquina.strandCount);
   }
 }
 
