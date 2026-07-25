@@ -1,0 +1,136 @@
+:root {
+  color-scheme: light;
+}
+
+.catalog-wrap {
+  max-width: 1240px;
+}
+
+.catalog-intro {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.catalog-intro p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.catalog-actions {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+.catalog-actions a {
+  padding: 9px 13px;
+  border: 1px solid var(--red);
+  border-radius: 9px;
+  background: var(--red);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.catalog-actions a.secondary {
+  border-color: var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+
+.catalog-controls {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 210px;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.catalog-controls label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.catalog-controls input,
+.catalog-controls select {
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.catalog-summary {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.catalog-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.catalog-table th,
+.catalog-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.catalog-table th {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.catalog-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.catalog-table .catalog-id {
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.catalog-muted {
+  color: var(--muted);
+}
+
+.catalog-empty {
+  padding: 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  .catalog-intro {
+    display: block;
+  }
+
+  .catalog-actions {
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .catalog-controls {
+    grid-template-columns: 1fr;
+  }
+}

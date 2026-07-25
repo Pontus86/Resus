@@ -23,6 +23,7 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-008 | in progress | Codex | BodyParts3D `20181210i412` reference catalogue: `reference/bodyparts3d/`, `tools/build_bp3d_catalog.js`, `about.html`, and task closeout only. | `codex/work` | User requested a permanent CSV and searchable HTML view after the official 8,129-record catalogue was located. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -64,6 +65,18 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   a no-op since none currently do).
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
+
+### R-008 — BodyParts3D 20181210i412 reference catalogue
+
+- Preserve the official 8,129-record IS-A catalogue for data version `20181210i412` as a
+  versioned CSV under `reference/bodyparts3d/`.
+- Add a lightweight searchable HTML view that works through both `file://` and the `/Resus/`
+  GitHub Pages subpath without fetching local files.
+- Include a reproducible conversion tool and document the source endpoint, record semantics,
+  licence, retrieval date, and the distinction between catalogue objects and underlying OBJ
+  representations.
+- Verify exact source/output counts and unique FMA/BP IDs, CSV quoting, JavaScript syntax,
+  desktop/narrow search interactions, and source/CSV links.
 
 ## Assignment rules
 

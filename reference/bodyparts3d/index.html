@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BodyParts3D 20181210i412 – objektkatalog</title>
+<link rel="stylesheet" href="../../css/theme.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="rs-header">
+  <div class="rs-head-inner">
+    <h1>BodyParts3D · objektkatalog</h1>
+    <span class="sub">Dataversion 20181210i412</span>
+  </div>
+</header>
+
+<main class="wrap catalog-wrap">
+  <section class="card">
+    <div class="catalog-intro">
+      <div>
+        <h3>8 129 anatomiska katalogobjekt</h3>
+        <p>Sök på engelskt, latinskt eller japanskt namn, synonym, FMA-ID, BP-ID eller TA-ID.</p>
+      </div>
+      <div class="catalog-actions">
+        <a class="rs-btn" href="20181210i412-objects.csv" download>Ladda ned CSV</a>
+        <a class="rs-btn secondary" href="https://lifesciencedb.jp/bp3d/" target="_blank" rel="noopener">Öppna källan</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <div class="catalog-controls">
+      <label>
+        Sök
+        <input id="catalog-search" type="search" placeholder="Exempel: brachial plexus, FMA5906 eller BP…" autocomplete="off">
+      </label>
+      <label>
+        Representation
+        <select id="catalog-type">
+          <option value="all">Alla objekt</option>
+          <option value="primitive">Endast element</option>
+          <option value="compound">Endast sammansatta</option>
+        </select>
+      </label>
+    </div>
+
+    <p id="catalog-summary" class="catalog-summary" aria-live="polite"></p>
+
+    <div class="catalog-table-wrap">
+      <table class="catalog-table">
+        <thead>
+          <tr>
+            <th>Engelskt namn</th>
+            <th>Latinskt namn</th>
+            <th>FMA-ID</th>
+            <th>BP-ID</th>
+            <th>Typ</th>
+            <th>Volym</th>
+          </tr>
+        </thead>
+        <tbody id="catalog-results"></tbody>
+      </table>
+      <div id="catalog-empty" class="catalog-empty" hidden>Inga objekt matchar sökningen.</div>
+    </div>
+  </section>
+</main>
+
+<script src="catalog-data.js"></script>
+<script src="catalog.js"></script>
+</body>
+</html>
