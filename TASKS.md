@@ -23,7 +23,6 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
-| R-008 | in progress | Codex | BodyParts3D `20181210i412` reference catalogue: `reference/bodyparts3d/`, `tools/build_bp3d_catalog.js`, `about.html`, and task closeout only. | `codex/work` | User requested a permanent CSV and searchable HTML view after the official 8,129-record catalogue was located. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -66,18 +65,6 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
 
-### R-008 — BodyParts3D 20181210i412 reference catalogue
-
-- Preserve the official 8,129-record IS-A catalogue for data version `20181210i412` as a
-  versioned CSV under `reference/bodyparts3d/`.
-- Add a lightweight searchable HTML view that works through both `file://` and the `/Resus/`
-  GitHub Pages subpath without fetching local files.
-- Include a reproducible conversion tool and document the source endpoint, record semantics,
-  licence, retrieval date, and the distinction between catalogue objects and underlying OBJ
-  representations.
-- Verify exact source/output counts and unique FMA/BP IDs, CSV quoting, JavaScript syntax,
-  desktop/narrow search interactions, and source/CSV links.
-
 ## Assignment rules
 
 1. Give every task a stable ID such as `R-001`.
@@ -113,6 +100,24 @@ don't leave it dangling as still `open`/`suspected` there.
 - 2026-07-25 — Repository coordination established. Added `AGENTS.md`, removed the tracked
   `Blodgas/bloodgas_pkg 7` and `Blodgas/bloodgas_pkg 8` snapshots, and reserved a separate
   Codex worktree. Commits: `a82997e`, `7bb2099`.
+
+### R-008 — BodyParts3D 20181210i412 reference catalogue — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: `cc746d4`
+- Changed: Preserved the official 8,129-object IS-A catalogue as CSV under
+  `reference/bodyparts3d/`, added a compact browser-data script and searchable standalone
+  HTML view, documented provenance/licence and the 8,129-vs-13,312 distinction, added a
+  reproducible JSON-to-catalogue converter, and linked the catalogue from `about.html`.
+- Verified: Source and generated outputs contain exactly 8,129 records, 8,129 unique FMA IDs,
+  and 8,129 unique BP IDs; Python's CSV parser reads all 15 columns and every row; both
+  generated and handwritten JavaScript pass `node --check`; relative files and links exist;
+  the search dataset returns 14 `brachial plexus` matches and the type split is 4,598
+  elements/3,531 compounds; `git diff --check` passes.
+- Notes: Direct `file://` browser verification and responsive visual QA could not be completed
+  because the available browser blocked local-file navigation by policy. The page avoids
+  `fetch()` and uses relative stylesheet/script links specifically for file and Pages
+  compatibility.
 
 ### R-007 — Canonical bilateral arm nerves — done
 
