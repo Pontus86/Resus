@@ -9,13 +9,13 @@
    (se PROCEDURE3D_ROLE_COLOR), "kind" om punkten är en riktig registry-struktur eller ett
    schematiskt märke (se BODY3D_SCHEMATIC_POINTS i procedures3d.js).
 
-   "io-tibia", "central-line-ijv" och "chest-tube" är byggda hittills (tre första vertikala
-   skivorna, se planfilen mighty-meandering-adleman.md) -- resten (central-line-subclavian/
-   -femoral, lumbar-puncture, cricothyrotomy, io-humerus) läggs till i egna omgångar, en i
-   taget. PROCEDURE3D_LIST styr ordning/synlighet i UI:t, main.js hoppar bara över nycklar som
-   saknas i PROCEDURE3D_ANATOMY. */
+   "io-tibia", "central-line-ijv", "chest-tube" och "lumbar-puncture" är byggda hittills
+   (fyra första vertikala skivorna, se planfilen mighty-meandering-adleman.md) -- resten
+   (central-line-subclavian/-femoral, cricothyrotomy, io-humerus) läggs till i egna omgångar,
+   en i taget. PROCEDURE3D_LIST styr ordning/synlighet i UI:t, main.js hoppar bara över nycklar
+   som saknas i PROCEDURE3D_ANATOMY. */
 
-const PROCEDURE3D_LIST = ["io-tibia", "central-line-ijv", "chest-tube"];
+const PROCEDURE3D_LIST = ["io-tibia", "central-line-ijv", "chest-tube", "lumbar-puncture"];
 
 // Matchar delvis de globala CSS-variablerna i css/theme.css (--red/--warn) men dessa är
 // THREE.js-materialfärger (3D-scenen), inte DOM-CSS -- kan inte bara referera var(...) här.
@@ -113,6 +113,44 @@ const PROCEDURE3D_ANATOMY = {
        desc:"Farostruktur — undvik en för djup eller felriktad införing i lungparenkymet."},
       {name:"Diaphragm", kind:"real", role:"danger",
        desc:"Farostruktur — ett för lågt insticksställe riskerar diafragma- och subdiafragmatisk skada."}
+    ]
+  },
+
+  "lumbar-puncture": {
+    name: "Lumbalpunktion",
+    checklistId: "lumbar-puncture",
+    region: "axial", side: "both",
+    caudaEquina: {color:"#E8C744"},
+    stages: [
+      {id:"skin", label:"Hud",
+       desc:"Positionera patienten med flekterad ländrygg och identifiera medellinjen. Palpera crista iliaca-nivån som orientering mot L4 och välj interstitiet L3–L4 eller L4–L5.",
+       cut:["Skin"], focus:"Lumbar_vertebrae_(L4)"},
+      {id:"level", label:"Insticksnivå",
+       desc:"För nålen i medellinjen mellan spinalutskotten vid L3–L4 eller L4–L5, under conus medullaris. Rikta lätt kranialt mot naveln.",
+       focus:"Intervertebral_disc_L3_L4"},
+      {id:"target", label:"Duralsäck",
+       desc:"Efter passage genom ligamentum flavum och dura nås subarachnoidalrummet. Avlägsna mandrängen och bekräfta fritt återflöde av cerebrospinalvätska.",
+       focus:"dural_sac_schematic"}
+    ],
+    landmarks: [
+      {name:"Lumbar_vertebrae_(L1)", kind:"real", role:"context",
+       desc:"L1-kotan — kranial orienteringspunkt; conus medullaris slutar vanligen kring L1–L2 hos vuxna."},
+      {name:"Lumbar_vertebrae_(L2)", kind:"real", role:"context",
+       desc:"L2-kotan — lumbalpunktionen görs kaudalt om denna nivå för att minska risken för ryggmärgsskada."},
+      {name:"Lumbar_vertebrae_(L3)", kind:"real", role:"landmark",
+       desc:"L3-kotan — övre benlandmärke för det vanliga insticksinterstitiet L3–L4."},
+      {name:"Lumbar_vertebrae_(L4)", kind:"real", role:"landmark",
+       desc:"L4-kotan — Tuffiers linje mellan crista iliaca passerar ungefär denna nivå."},
+      {name:"Lumbar_vertebrae_(L5)", kind:"real", role:"landmark",
+       desc:"L5-kotan — nedre benlandmärke för det alternativa insticksinterstitiet L4–L5."},
+      {name:"Sacrum", kind:"real", role:"context",
+       desc:"Sacrum — närmaste verkliga mesh-proxy för bäckenets nivå och duralsäckens kaudala riktning."},
+      {name:"Intervertebral_disc_L3_L4", kind:"real", role:"landmark",
+       desc:"Disk L3–L4 — markerar nivån för ett vanligt insticksinterstitium mellan motsvarande spinalutskott."},
+      {name:"Intervertebral_disc_L4_L5", kind:"real", role:"landmark",
+       desc:"Disk L4–L5 — markerar nivån för ett alternativt insticksinterstitium."},
+      {name:"dural_sac_schematic", kind:"schematic", role:"target",
+       desc:"Duralsäck och subarachnoidalrum (schematiskt rör) — målområdet för nålspetsen och provtagning av cerebrospinalvätska."}
     ]
   }
 };
