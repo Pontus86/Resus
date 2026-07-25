@@ -22,7 +22,7 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| — | — | — | No task assigned | — | — |
+| R-005 | in progress | Codex | Repair B-006 peripheral-nerve overlap/legibility and investigate/restore the missing Kropps-atlas calvarium. Scope: authoritative merge scripts/manifests, `Neuro/models/brain/peripheral_nerves.js`, `Neuro/js/brain3d.js`, `Kroppsatlas/models/body/skeletal.js`, `Kroppsatlas/models/body/manifest.js`, and `BUGS.md`; only touch generated assets when regenerated from source. | `codex/work` | User authorized Codex to take over coordination because Claude reached its limit; implementation requirements are recorded in I-002. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -34,7 +34,12 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-_None right now._
+### R-005 — Peripheral nerves and calvarium repair
+
+Implement the two repairs requested in `IDEAS/2026-07-25-neuro-nerve-skull-repair.md`.
+Keep source-pipeline changes reproducible, preserve the shared BodyParts3D coordinate system,
+and do not hand-edit embedded OBJ strings. Verify both Neuro and Kropps-atlas, plus a
+Procedurträning smoke test if shared skeletal output changes.
 
 ## Assignment rules
 
