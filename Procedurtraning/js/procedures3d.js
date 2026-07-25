@@ -67,6 +67,32 @@ function _procedure3dPointFor(name){
   return _procedure3dPointsFor(name)[0] || null;
 }
 
+// Säkerhetstriangeln är en yta, inte ett klickbart anatomiskt landmärke. Därför får meshen
+// inget pickName: raycastingen fortsätter igenom till de riktiga musklerna/revbenet bakom.
+function renderSafetyTriangle(pointNames, color){
+  if(!body3d || !pointNames || pointNames.length !== 3) return null;
+  const points = pointNames.map(_procedure3dPointFor);
+  if(points.some(p=>!p)) return null;
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(
+    points.flatMap(p=>[p.x, p.y, p.z]), 3
+  ));
+  geometry.computeVertexNormals();
+  const mesh = new THREE.Mesh(
+    geometry,
+    new THREE.MeshLambertMaterial({
+      color:new THREE.Color(color || "#4A90A4"),
+      transparent:true,
+      opacity:0.3,
+      side:THREE.DoubleSide,
+      depthWrite:false,
+      clippingPlanes:body3d.clipPlanes
+    })
+  );
+  body3d.overlayGroup.add(mesh);
+  return mesh;
+}
+
 let proc3d = {key:null, stageIndex:-1};
 
 // Alla RIKTIGA registry-namn en procedur refererar till -- både landmärken och stegens
@@ -197,6 +223,9 @@ function renderProcedure3DStage(){
     const pts = _procedure3dPointsFor(l.name);
     if(pts.length) body3dAddOverlayMarker(l.name, pts, PROCEDURE3D_ROLE_COLOR[l.role]||"#4A90A4", regionSize*0.012);
   });
+  if(proc.safetyTriangle){
+    renderSafetyTriangle(proc.safetyTriangle.points, proc.safetyTriangle.color);
+  }
 }
 
 function advanceProcedure3DStage(){

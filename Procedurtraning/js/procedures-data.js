@@ -9,13 +9,13 @@
    (se PROCEDURE3D_ROLE_COLOR), "kind" om punkten är en riktig registry-struktur eller ett
    schematiskt märke (se BODY3D_SCHEMATIC_POINTS i procedures3d.js).
 
-   "io-tibia" och "central-line-ijv" är byggda hittills (två första vertikala skivorna, se
-   planfilen mighty-meandering-adleman.md) -- resten (central-line-subclavian/-femoral,
-   chest-tube, lumbar-puncture, cricothyrotomy, io-humerus) läggs till i egna omgångar, en i
+   "io-tibia", "central-line-ijv" och "chest-tube" är byggda hittills (tre första vertikala
+   skivorna, se planfilen mighty-meandering-adleman.md) -- resten (central-line-subclavian/
+   -femoral, lumbar-puncture, cricothyrotomy, io-humerus) läggs till i egna omgångar, en i
    taget. PROCEDURE3D_LIST styr ordning/synlighet i UI:t, main.js hoppar bara över nycklar som
    saknas i PROCEDURE3D_ANATOMY. */
 
-const PROCEDURE3D_LIST = ["io-tibia", "central-line-ijv"];
+const PROCEDURE3D_LIST = ["io-tibia", "central-line-ijv", "chest-tube"];
 
 // Matchar delvis de globala CSS-variablerna i css/theme.css (--red/--warn) men dessa är
 // THREE.js-materialfärger (3D-scenen), inte DOM-CSS -- kan inte bara referera var(...) här.
@@ -73,6 +73,46 @@ const PROCEDURE3D_ANATOMY = {
        desc:"Farostruktur — ligger medialt om venen. Ultraljudsvägledning rekommenderas för att undvika artärpunktion."},
       {name:"sternocleidomastoid_schematic.r", kind:"schematic", role:"landmark",
        desc:"M. sternocleidomastoideus (schematiskt band mellan dess klavikulära fäste och halsvenens övre del) — ingen egen muskelgeometri i biblioteket. Triangeln mellan dess två huvuden och klavikeln är det klassiska ytliga landmärket."}
+    ]
+  },
+
+  "chest-tube": {
+    name: "Thoraxdrän",
+    checklistId: "chest-tube",
+    region: "axial", side: "r",
+    safetyTriangle: {
+      points:["Latissimus_dorsi.r", "Pectoralis_major.r", "Rib_(5th).r"],
+      color:"#4A90A4"
+    },
+    stages: [
+      {id:"skin", label:"Hud",
+       desc:"Identifiera säkerhetstriangeln: mellan m. latissimus dorsis främre kant, m. pectoralis majors laterala kant och femte revbenet. Incisionen läggs vanligen i fjärde eller femte interkostalrummet.",
+       cut:["Skin"], focus:"Rib_(5th).r"},
+      {id:"landmarks", label:"Säkerhetstriangel",
+       desc:"Palpera revbenet och gå över dess övre kant för att undvika kärl-nervsträngen som löper längs revbenets underkant.",
+       reveal:["Rib_(5th).r"], focus:"Rib_(5th).r"},
+      {id:"pleura", label:"Pleura",
+       desc:"Trubbdissekera genom interkostalmuskulaturen, penetrera pleura med peang och gör en fingersvepning för att bekräfta intrapleural placering.",
+       focus:"Middle_lobe_of_right_lung"},
+      {id:"drain", label:"Drän",
+       desc:"För dränet intrapleuralt. Undvik att rikta det in i lungparenkymet och håll insticksstället över femte revbenet för att minska risken för diafragma- eller subdiafragmatisk skada.",
+       focus:"Middle_lobe_of_right_lung"}
+    ],
+    landmarks: [
+      {name:"Rib_(5th).r", kind:"real", role:"landmark",
+       desc:"Femte revbenet — säkerhetstriangelns nedre gräns. Gå över revbenets övre kant för att undvika den interkostala kärl-nervsträngen."},
+      {name:"Latissimus_dorsi.r", kind:"real", role:"landmark",
+       desc:"M. latissimus dorsis främre kant bildar säkerhetstriangelns bakre gräns."},
+      {name:"Pectoralis_major.r", kind:"real", role:"landmark",
+       desc:"M. pectoralis majors laterala kant bildar säkerhetstriangelns främre gräns."},
+      {name:"Superior_lobe_of_right_lung", kind:"real", role:"danger",
+       desc:"Farostruktur — undvik att föra peang eller drän in i lungparenkymet."},
+      {name:"Middle_lobe_of_right_lung", kind:"real", role:"danger",
+       desc:"Farostruktur — ligger nära det vanliga insticksområdet på höger sida."},
+      {name:"Inferior_lobe_of_right_lung", kind:"real", role:"danger",
+       desc:"Farostruktur — undvik en för djup eller felriktad införing i lungparenkymet."},
+      {name:"Diaphragm", kind:"real", role:"danger",
+       desc:"Farostruktur — ett för lågt insticksställe riskerar diafragma- och subdiafragmatisk skada."}
     ]
   }
 };
