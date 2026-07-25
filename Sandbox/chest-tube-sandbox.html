@@ -63,7 +63,7 @@
     <div id="metrics">
       <span>Vävnadstrauma</span><output id="trauma">0</output>
       <span>Riskstrukturer</span><output id="injuries">0</output>
-      <span>Tekniskt steg</span><output id="stageMetric">0 / 7</output>
+      <span>Tekniskt steg</span><output id="stageMetric">0 / 8</output>
       <span>Vävnadsdjup</span><output id="depthMetric">0 %</output>
     </div>
   </aside>
@@ -75,6 +75,7 @@
     <button data-tool="clamp">⌖ Peang</button>
     <button data-tool="finger">● Finger</button>
     <button data-tool="drain">↗ Drän</button>
+    <button data-tool="suture">◡ Nål &amp; tråd</button>
   </nav>
 
   <div id="hint">Dra för att arbeta · Shift-dra för att rotera · scrolla för zoom</div>
@@ -287,29 +288,51 @@
       g.userData.tipOffset=.02;
       return g;
     }
+    function makeSuture(){
+      const g=new THREE.Group();
+      const needle=new THREE.Mesh(
+        new THREE.TorusGeometry(.24,.025,8,28,Math.PI*1.45),
+        steel
+      );
+      needle.rotation.set(Math.PI/2,0,-.28);
+      needle.position.z=.22;
+      g.add(needle);
+      const threadCurve=new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-.18,0,.15),new THREE.Vector3(-.32,.02,.48),
+        new THREE.Vector3(-.18,.04,.83),new THREE.Vector3(.08,.02,1.08)
+      ]);
+      g.add(new THREE.Mesh(
+        new THREE.TubeGeometry(threadCurve,28,.018,8,false),
+        material(0x173b46)
+      ));
+      g.userData.tipOffset=.02;
+      return g;
+    }
     instrumentModels.scalpel=makeScalpel();
     instrumentModels.prep=makePrep();
     instrumentModels.clamp=makeClamp();
     instrumentModels.finger=makeFinger();
     instrumentModels.palpate=makeFinger();
     instrumentModels.drain=makeDrain();
+    instrumentModels.suture=makeSuture();
     Object.values(instrumentModels).forEach(tool=>{tool.visible=false;instruments.add(tool);});
 
     const safe = {xMin:-1.55, xMax:1.35, yMin:-0.67, yMax:0.22};
     const steps = [
       "Palpera två revben", "Sprita huden", "Lägg hudincision", "Trubbdissekera",
-      "Öppna pleura", "Fingersvep", "För in drän"
+      "Öppna pleura", "Fingersvep", "För in drän", "Suturera runt dränet"
     ];
-    const expectedTools = ["palpate","prep","scalpel","clamp","clamp","finger","drain"];
+    const expectedTools = ["palpate","prep","scalpel","clamp","clamp","finger","drain","suture"];
     const toolLabels = {
       palpate:"Palpera", prep:"Sprita", scalpel:"Skalpell", clamp:"Peang",
-      finger:"Finger", drain:"Drän"
+      finger:"Finger", drain:"Drän", suture:"Nål & tråd"
     };
     const state = {
       tool:"palpate", stage:0, trauma:0, injuries:0, palpated:new Set(),
       dragStart:null, lastPoint:null, orbiting:false, acting:false, cutCenter:null,
       opened:new Set(), swept:false, drain:null, prepCoverage:new Set(),
-      prepDistance:0, incisionDistance:0, dissectionProgress:0
+      prepDistance:0, incisionDistance:0, dissectionProgress:0,
+      cutWidth:0, stitches:new Set()
     };
     let instrumentPoint=new THREE.Vector3(0,0,layerZ.skin+.02);
     function showInstrument(toolName){
@@ -355,7 +378,7 @@
         : steps[state.stage];
       document.getElementById("trauma").textContent = state.trauma;
       document.getElementById("injuries").textContent = state.injuries;
-      document.getElementById("stageMetric").textContent = `${Math.min(state.stage,7)} / 7`;
+      document.getElementById("stageMetric").textContent = `${Math.min(state.stage,8)} / 8`;
       document.getElementById("depthMetric").textContent =
         `${Math.min(100,Math.round(state.dissectionProgress/2.15*100))} %`;
     }
@@ -451,6 +474,13 @@
         new THREE.Vector3(b.x,b.y,1.58),
         width,color,"mark"
       );
+    }
+    function addSuture(a,b){
+      const thread=line(a,b,0x173b46,0.024);
+      thread.position.z=.015;
+      const knot=new THREE.Mesh(new THREE.SphereGeometry(.055,12,8),material(0x173b46));
+      knot.position.set((a.x+b.x)/2,(a.y+b.y)/2,1.61);
+      model.add(knot);
     }
     function inSafe(p){ return p.x>safe.xMin && p.x<safe.xMax && p.y>safe.yMin && p.y<safe.yMax; }
 
@@ -549,7 +579,8 @@
         else if(!horizontal || Math.abs(delta.x)<0.75 || state.incisionDistance<.7) penalize("Snittet är för kort eller har olämplig riktning.");
         else{
           state.cutCenter=center;
-          aperture("skin",center,Math.min(Math.abs(delta.x),2.2),0.26);
+          state.cutWidth=Math.min(Math.abs(delta.x),2.2);
+          aperture("skin",center,state.cutWidth,0.26);
           prepMarks.children.forEach(mark=>{
             if(Math.abs(mark.position.x-center.x)<Math.abs(delta.x)/2 &&
                Math.abs(mark.position.y-center.y)<.22)mark.visible=false;
@@ -576,6 +607,30 @@
         state.drain=tube;
         advance(`Godkänd placering. Trauma ${state.trauma}, skadade riskstrukturer ${state.injuries}.`);
       }
+      if(state.tool==="suture" && state.stage===7){
+        const center=state.dragStart.clone().add(p).multiplyScalar(.5);
+        const crossesIncision=
+          Math.abs(delta.y)>.3 &&
+          Math.abs(delta.y)>Math.abs(delta.x)*1.5 &&
+          Math.abs(center.y-state.cutCenter.y)<.24 &&
+          Math.abs(center.x-state.cutCenter.x)<state.cutWidth/2+.08;
+        if(!crossesIncision){
+          penalize("Suturen måste korsa hudincisionen vinkelrätt nära sårkanten.");
+        }else{
+          const slot=Math.round((center.x-state.cutCenter.x)/.28);
+          if(state.stitches.has(slot)){
+            setMessage("Placera nästa sutur på en ny del av incisionen.", "warn");
+          }else{
+            state.stitches.add(slot);
+            addSuture(state.dragStart,p);
+            if(state.stitches.size>=3){
+              advance("Tre hudsuturer sluter incisionen tätt runt och fixerar dränet.");
+            }else{
+              setMessage(`${state.stitches.size} av 3 suturer lagda. Fortsätt längs incisionen.`, "ok");
+            }
+          }
+        }
+      }
       state.dragStart=null;
       restoreSkin();
       moveInstrument(p,false);
@@ -595,7 +650,8 @@
         scalpel:"Dra ett horisontellt snitt där du bedömer att säkerhetstriangeln ligger.",
         clamp:"Dra peangen fram och tillbaka i incisionen för att arbeta genom vävnaden; klicka sedan för pleura.",
         finger:"Klicka genom öppningen för en fingersvepning.",
-        drain:"Dra från öppningen i den riktning du vill föra dränet."
+        drain:"Dra från öppningen i den riktning du vill föra dränet.",
+        suture:"Dra vinkelrätt över incisionen på tre skilda ställen för att suturera runt dränet."
       }[state.tool]);
     }));
 

@@ -23,6 +23,7 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-011 | in progress | Codex | Thoraxdrän suture experiment: `Sandbox/chest-tube-sandbox.html` and task closeout only. | `codex/work` | User requested needle-and-thread closure after drain placement. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -64,6 +65,17 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   a no-op since none currently do).
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
+
+### R-011 — Thoraxdrän closure with needle and thread
+
+- Add a modeled needle/thread instrument and an eighth final procedural step.
+- Require multiple correctly oriented, spatially separated skin sutures across the incision.
+- Keep the drain in place and close the skin around it rather than unrealistically sealing
+  over the tube.
+- Preserve all prior sandbox steps, material-dependent palpation, progressive dissection,
+  trauma scoring, cutaway, reset, and wrong-tool guidance.
+- Verify JavaScript syntax, step/tool wiring, suture acceptance/rejection logic, completion
+  state, and nearby prior interactions.
 
 ## Assignment rules
 
