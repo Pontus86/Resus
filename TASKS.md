@@ -22,7 +22,7 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| R-005 | in progress | Codex | Repair B-006 peripheral-nerve overlap/legibility and investigate/restore the missing Kropps-atlas calvarium. Scope: authoritative merge scripts/manifests, `Neuro/models/brain/peripheral_nerves.js`, `Neuro/js/brain3d.js`, `Kroppsatlas/models/body/skeletal.js`, `Kroppsatlas/models/body/manifest.js`, and `BUGS.md`; only touch generated assets when regenerated from source. | `codex/work` | User authorized Codex to take over coordination because Claude reached its limit; implementation requirements are recorded in I-002. |
+| — | — | — | No task assigned to Codex right now. | — | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -34,12 +34,7 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-### R-005 — Peripheral nerves and calvarium repair
-
-Implement the two repairs requested in `IDEAS/2026-07-25-neuro-nerve-skull-repair.md`.
-Keep source-pipeline changes reproducible, preserve the shared BodyParts3D coordinate system,
-and do not hand-edit embedded OBJ strings. Verify both Neuro and Kropps-atlas, plus a
-Procedurträning smoke test if shared skeletal output changes.
+_None right now._
 
 ## Assignment rules
 
@@ -191,3 +186,24 @@ don't leave it dangling as still `open`/`suspected` there.
     viewport/systems/camera-preset/interaction sequence that reproduces a real cutoff.
 - Notes: none beyond the above — both are logged accurately in `BUGS.md` for whenever they're
   picked up (or, for B-007, reopened with better repro info).
+
+### R-005 — Peripheral nerves and calvarium repair — done
+
+- Owner/branch: `Codex`, `codex/work` (user-authorized takeover while Claude was unavailable)
+- Commit: `bbb213f`
+- Changed: Added `tools/repair_3d_models.js` as the reproducible source-to-embedded-asset repair
+  step. It removes 26 overlapping legacy BodyParts3D arm-nerve surface blocks while retaining
+  the calibrated Open3D upper-limb/hand representation and all 94 lower-limb sources. Neuro's
+  nerve material is now opaque and dark ochre for whole-body legibility. The four cropped
+  skull-roof objects in `skeletal.js` were regenerated from their complete BodyParts3D source
+  objects, restoring the calvarium without changing object names, coordinates, or the manifest.
+- Verified: `node --check` passed for the repair tool, both generated model scripts, and
+  `Neuro/js/brain3d.js`; `git diff --check` passed; a second repair run produced identical
+  hashes. Browser-tested Neuro's full-body peripheral nerves, Kropps-atlas default and front
+  views, and Procedurträning's shared skeletal load against localhost with no console errors.
+  Also confirmed the nearby Neuro spinal-cord and coronal-cut controls still work and that
+  Procedurträning's start control enables after loading.
+- Notes: The calvarium objects were not absent from the source library; the embedded product
+  asset had used cropped coloured-skull-base variants whose superior extent stopped below the
+  cortex. Regeneration requires the ignored raw model library at `Models/` in the coordinator's
+  checkout, supplied via `--source-root`; no new external source or licence was introduced.
