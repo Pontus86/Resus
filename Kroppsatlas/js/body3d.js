@@ -230,8 +230,8 @@ function _body3dRegister(mesh, name, system, region, side, color){
   body3d.registry[name] = {mesh, system, region: region||"axial", side: side||"mid"};
 }
 
-// muscular/nervous/vascular/connective är INTE statiska <script>-taggar i index.html (13-37MB
-// var, ~115MB totalt) -- laddas dynamiskt on-demand här, en gång, cachat därefter av samma
+// muscular/nervous/vascular/connective/female_pelvis är INTE statiska <script>-taggar i
+// index.html -- laddas dynamiskt on-demand här, en gång, cachat därefter av samma
 // window.BODY3D_OBJ[system]-kontroll som redan skyddar mot dubbelladdning.
 function _body3dLoadSystemScript(system, cb){
   if(window.BODY3D_OBJ && window.BODY3D_OBJ[system]){ cb(); return; }
@@ -317,7 +317,9 @@ function _body3dLoadSystemParsed(system, done){
   try{ obj = loader.parse(text); }
   catch(e){ console.error("body3d: kunde inte tolka OBJ för", system, e); finish(); return; }
 
-  const manifestBySystem = (window.BODY3D_MANIFEST||[]).filter(p=>p.system===system);
+  const manifestBySystem = (window.BODY3D_MANIFEST||[])
+    .concat(typeof BODY3D_FEMALE_PELVIS_PARTS === "undefined" ? [] : BODY3D_FEMALE_PELVIS_PARTS)
+    .filter(p=>p.system===system);
   const metaByName = {};
   manifestBySystem.forEach(p=>{ metaByName[p.name] = p; });
 
@@ -326,7 +328,7 @@ function _body3dLoadSystemParsed(system, done){
   obj.traverse(c=>{
     if(!c.isMesh) return;
     const meta = metaByName[c.name] || {region:"axial", side:"mid"};
-    let color = BODY3D_SYSTEM_COLOR[system] || "#cccccc";
+    let color = meta.color || BODY3D_SYSTEM_COLOR[system] || "#cccccc";
     if(system === "vascular") color = /vein/i.test(c.name) ? BODY3D_SYSTEM_COLOR.vascular_vein : BODY3D_SYSTEM_COLOR.vascular_artery;
     _body3dRegister(c, c.name, system, meta.region, meta.side, color);
   });

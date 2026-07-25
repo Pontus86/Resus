@@ -116,10 +116,10 @@
 <script src="models/body/brain/spinalcord.js"></script>
 <script src="models/body/manifest.js"></script>
 <script src="models/body/skeletal.js"></script>
-<!-- muscular/nervous/vascular/connective (13-37MB var) laddas DYNAMISKT först när användaren
-     slår på det systemet första gången (se _body3dLoadSystemScript i body3d.js) -- annars
-     skulle sidan alltid ladda ~115MB extra vid varje besök, oavsett om de systemen någonsin
-     visas. Skelett+hjärna/ryggmärg (~68MB) är default-på och laddas direkt ovan/nedan. -->
+<!-- muscular/nervous/vascular/connective/female_pelvis laddas DYNAMISKT först när användaren
+     slår på systemet första gången (se _body3dLoadSystemScript i body3d.js) -- annars skulle
+     sidan alltid ladda >120MB extra vid varje besök, oavsett om systemen någonsin visas.
+     Skelett+hjärna/ryggmärg (~68MB) är default-på och laddas direkt ovan/nedan. -->
 <script src="js/body3d.js"></script>
 <script src="js/main.js"></script>
 <script src="../nav.js"></script>

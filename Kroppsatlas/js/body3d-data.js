@@ -44,12 +44,12 @@ const BODY3D_BRAIN_CATEGORIES = [
 // som VANLIGA BODY3D_OBJ-filer med "o "-rader kvar (individuellt adresserbara, till skillnad
 // från hjärnfilernas ett-mesh-per-fil-konvention) -- går genom samma kodväg som skelett/
 // muskler/nerver/kärl/ledband i body3d.js, inga motorändringar behövda.
-const BODY3D_SYSTEMS = ["brain","skeletal","muscular","nervous","vascular","connective","organ","skin"];
+const BODY3D_SYSTEMS = ["brain","skeletal","muscular","nervous","vascular","connective","organ","female_pelvis","skin"];
 
 const BODY3D_SYSTEM_LABEL = {
   brain: "Hjärna & ryggmärg", skeletal: "Skelett", muscular: "Muskler",
   nervous: "Nerver", vascular: "Kärl", connective: "Ledband/bindväv",
-  organ: "Inre organ", skin: "Hud"
+  organ: "Inre organ", female_pelvis: "Kvinnligt bäcken", skin: "Hud"
 };
 // Standardpalett per system -- kärl särskiljs artär(röd)/ven(blå) via namnkontroll i body3d.js
 // (samma _isVein-heuristik som används vid färgsättning), övriga system: en färg räcker.
@@ -62,6 +62,7 @@ const BODY3D_SYSTEM_COLOR = {
   vascular_vein: "#3B6FA0",
   connective: "#8FB8C9",
   organ: "#C9776B",
+  female_pelvis: "#D98CA3",
   skin: "#E8C9A8"
 };
 // Per-kategori nyanser inom "brain"-pseudo-systemet, återanvänt rakt av från Neuro/js/
@@ -79,7 +80,21 @@ function _body3dBrainColorFor(cat){
 // Vilka system laddas/visas som DEFAULT (resten laddas lazy första gången de slås på, se
 // setBody3DSystemVisible i body3d.js) -- skelett+hjärna/ryggmärg ger en meningsfull "helkropp"
 // direkt utan att tvinga fram en flera-tiotals-MB-laddning av alla mjukdelar på en gång.
-const BODY3D_DEFAULT_ON = {brain:true, skeletal:true, muscular:false, nervous:false, vascular:false, connective:false, organ:false, skin:false};
+const BODY3D_DEFAULT_ON = {brain:true, skeletal:true, muscular:false, nervous:false, vascular:false, connective:false, organ:false, female_pelvis:false, skin:false};
+
+// HRA v1.2-data laddas lazy som ett eget system. Bäcken-GLB:n används bara som
+// kalibreringsreferens i tools/build_hra_female_pelvis.js; atlasens befintliga höftben,
+// sacrum och coccyx visas i stället för ett överlappande andra bäckenskelett.
+const BODY3D_FEMALE_PELVIS_PARTS = [
+  {name:"Uterus", label:"Livmoder", system:"female_pelvis", region:"axial", side:"mid", color:"#D7839B"},
+  {name:"Ovary.l", label:"Vänster äggstock", system:"female_pelvis", region:"axial", side:"l", color:"#E8A6B8"},
+  {name:"Ovary.r", label:"Höger äggstock", system:"female_pelvis", region:"axial", side:"r", color:"#E8A6B8"},
+  {name:"Fallopian_tube.l", label:"Vänster äggledare", system:"female_pelvis", region:"axial", side:"l", color:"#D7839B"},
+  {name:"Fallopian_tube.r", label:"Höger äggledare", system:"female_pelvis", region:"axial", side:"r", color:"#D7839B"},
+  {name:"Urinary_bladder", label:"Urinblåsa (kvinnlig)", system:"female_pelvis", region:"axial", side:"mid", color:"#D8B45B"},
+  {name:"Ureter.l", label:"Vänster uretär", system:"female_pelvis", region:"axial", side:"l", color:"#E0C979"},
+  {name:"Ureter.r", label:"Höger uretär", system:"female_pelvis", region:"axial", side:"r", color:"#E0C979"}
+];
 
 const BODY3D_REGION_LABEL = {
   all: "Alla regioner", head_neck: "Huvud & hals", axial: "Bål & rygg",

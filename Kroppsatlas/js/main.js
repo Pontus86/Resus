@@ -1,16 +1,17 @@
 /* ---------- Kropps-atlas: sidwiring ---------- */
 (() => {
-  // Sökbart index = Open3DModel-manifestet (skelett/muskler/nerver/kärl/ledband) PLUS
-  // hjärn-/ryggmärgskategorierna (som INTE ingår i BODY3D_MANIFEST -- de kommer från ett helt
-  // annat, återanvänt Neuro-dataset, se BODY3D_BRAIN_CATEGORIES i body3d-data.js). Utan detta
-  // hittar sökrutan aldrig t.ex. "Cortex" eller "Thalamus" trots att de faktiskt laddas och går
-  // att klicka på i 3D-vyn.
-  const fullIndex = (window.BODY3D_MANIFEST||[]).concat(
+  // Sökbart index = Open3DModel-manifestet, HRA:s kvinnliga bäckenorgan PLUS hjärn-/
+  // ryggmärgskategorierna (de två senare ingår inte i BODY3D_MANIFEST). Utan detta hittar
+  // sökrutan aldrig t.ex. "Livmoder", "Cortex" eller "Thalamus" trots att strukturerna går att
+  // ladda och klicka på i 3D-vyn.
+  const fullIndex = (window.BODY3D_MANIFEST||[])
+    .concat(typeof BODY3D_FEMALE_PELVIS_PARTS === "undefined" ? [] : BODY3D_FEMALE_PELVIS_PARTS)
+    .concat(
     BODY3D_BRAIN_CATEGORIES.map(b => ({
       name: b.cat, system: "brain", region: b.region,
       side: b.cat.endsWith("_l") ? "l" : (b.cat.endsWith("_r") ? "r" : "mid")
     }))
-  );
+    );
 
   const systemsHost = document.getElementById("body3dSystems");
   systemsHost.innerHTML = BODY3D_SYSTEMS.map(sys => `
@@ -67,11 +68,11 @@
     const q = searchInput.value.trim().toLowerCase();
     if(q.length < 2){ resultsHost.innerHTML = ""; return; }
     const matches = fullIndex
-      .filter(p => p.name.toLowerCase().replace(/_/g," ").includes(q))
+      .filter(p => `${p.name} ${p.label||""}`.toLowerCase().replace(/_/g," ").includes(q))
       .slice(0, 60);
     resultsHost.innerHTML = matches.map(p => `
       <button class="body3d-result" data-name="${p.name}">
-        ${p.name.replace(/_/g," ")}
+        ${(p.label||p.name).replace(/_/g," ")}
         <span class="body3d-result-tag">${BODY3D_SYSTEM_LABEL[p.system]}</span>
       </button>
     `).join("") || `<div class="body3d-no-results">Inga träffar.</div>`;
@@ -96,7 +97,7 @@
     const meta = fullIndex.find(p=>p.name===name);
     if(!meta){ info.textContent = "Ingen struktur vald."; return; }
     const sideLabel = meta.side==="l" ? "Vänster" : (meta.side==="r" ? "Höger" : "Mittlinje");
-    info.innerHTML = `<strong>${name.replace(/_/g," ")}</strong><br>
+    info.innerHTML = `<strong>${(meta.label||name).replace(/_/g," ")}</strong><br>
       ${BODY3D_SYSTEM_LABEL[meta.system]} · ${BODY3D_REGION_LABEL[meta.region]||meta.region} · ${sideLabel}`;
   }
 
