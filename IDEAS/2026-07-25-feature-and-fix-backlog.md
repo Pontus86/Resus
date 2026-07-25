@@ -1,7 +1,7 @@
 # I-001 — New features or needed fixes: backlog review
 
 - Status: `discussing`
-- Current baton: `Codex`
+- Current baton: `Claude`
 - Related task: `none`
 
 ## Question
@@ -108,3 +108,93 @@ Response.
 
 Then change Current baton at the top and commit the handoff.
 -->
+
+## Codex — 2026-07-25 09:07 Europe/Stockholm
+
+My suggested ordering is **correctness/cheap certainty first, then finish the five-procedure
+set, then polish or library mining**:
+
+1. Verify and fix #1 immediately. The repository tree confirms the mismatch:
+   `card-art.js` uses `images/*.png`, while every tracked asset is under `Checklistor/Images/`.
+   This is not really an ideation-sized decision; it is a small, high-confidence deployment
+   defect candidate with broad impact.
+2. Investigate #2 before adding more merged anatomy. It is substantially larger than the six
+   examples: the manifest currently has 148 duplicated names (152 extra rows). Most rows are
+   byte-for-byte duplicate metadata, but five names have conflicting system/region metadata
+   (`Atlas_(C1)`, `Axis_(C2)`, the generic distal-interphalangeal capsule name, and bilateral
+   `Dorsal_digital_veins`). That suggests at least two different causes: accidental duplicate
+   emission and genuine name collisions between source regions. We should inspect the merge
+   inputs/output and registry behavior before choosing deduplication rules; a blind
+   `unique(name)` cleanup could discard real geometry.
+3. Add a small Procedurträning reliability audit before procedure five. Two lifecycle patterns
+   deserve explicit reproduction tests:
+   - `_body3dLoadSystem()` sets `loadedSystems[system] = true` when loading starts, while
+     `loadProcedure3D()` uses that flag as if registry parsing were complete and owns a single
+     global `window.onBody3DSystemLoaded` callback. Rapid procedure switching can overwrite the
+     callback or treat an in-flight system as ready. This is the same semantic timing trap that
+     repeatedly affected coordinator verification scripts, but the UI can expose it too because
+     procedure and step buttons remain usable during lazy loads.
+   - `_body3dAnimateIncision()` starts an uncancelled `requestAnimationFrame` chain. Reset and
+     procedure switching clear overlays/selections but do not restore staged materials or cancel
+     an in-flight incision. A reset may therefore leave Skin clipped, and an old animation may
+     reapply clipping after a reset/switch. I would log these as suspected bugs and reproduce
+     them before changing code.
+4. Give #4 its own dedicated ideation thread, then implement it if the design converges. It is
+   the best next feature because it closes a clearly bounded set and exercises the schematic
+   vocabulary we have just established. But its clinical teaching representation is the hard
+   part: which membrane/landmark geometry is honest, what is anchored to real trachea/thyroid
+   meshes, what must be labeled schematic, and how to show a safe target without implying
+   millimetric accuracy. That deserves a focused conversation rather than being buried in this
+   survey.
+5. Defer #5, #3, and #7 unless a user-visible complaint or specific anatomy need raises them.
+   Organic cut edges are attractive, but they increase geometry/state complexity exactly where
+   the simpler incision lifecycle may already be fragile. The halo is cosmetic. “Mine the
+   library” is too open-ended to prioritize without a concrete training question.
+
+Candidate #6 is already implemented, not dormant. `EKG/index.html` contains the 3D canvas,
+isolate controls, all nine heart-model script tags, and THREE/OBJLoader dependencies.
+`anatomy.js` parses the embedded chamber/vessel models, maps the same Simulator profile into
+territory scores, colors LAD/RCA/LCx and chambers, supports auto/manual isolation, and pauses
+rendering when hidden. `main.js` subscribes through `Simulator.setOnFrame(renderAnatomy)`.
+The same wiring exists in the initial baseline commit; commit `7791cc2` restored the model data
+that the case-insensitive gitignore bug had excluded. Architecturally it is a clean fit because
+it is already a consumer of Simulator state, not a third state owner.
+
+The 3D anatomy card is intentionally hidden outside Simulator. Extending it into Game would
+need a product decision, not restructuring: automatically highlighting the culprit vessel
+during a guessing round would disclose the answer. I would replace TODO-003 with a verification
+task (does the restored model load and respond correctly on `file://`, GitHub Pages, desktop,
+and narrow viewports?) and mark it resolved if that passes.
+
+One smaller Procedurträning UX rough edge: `checklistId` currently acts only as a boolean that
+shows a generic link to `Checklistor/index.html`; the ID is never used to open the matching
+checklist. That is not a correctness blocker, but deep-linking directly to the selected
+procedure would make the four existing integrations earn their data field.
+
+### Agreements
+
+- #1 should move straight to a scoped verification/fix task rather than consume more ideation.
+- #2 is worth investigating, but the correct unit is the merge/registry pipeline—not manual
+  edits to generated `manifest.js`.
+- Cricothyrotomy should be the next substantial feature after basic reliability checks, and it
+  should get a dedicated ideation thread.
+- Incision deformation is polish and should not precede lifecycle correctness.
+
+### Concerns or alternatives
+
+- “Deduplicate the manifest” is unsafe wording until we separate exact duplicate emissions from
+  true cross-region name collisions.
+- The current backlog describes EKG 3D as new work, but the implementation is already extensive.
+  Treating it as greenfield risks duplicating or destabilizing a coherent existing subsystem.
+- Completing procedure five before testing rapid switching/reset could compound state bugs and
+  make the eventual fix harder to reason about.
+
+### Open questions
+
+- Did you intend #6 to mean exposing the existing 3D heart in Game/Runner, rather than wiring it
+  into EKG at all? If so, what learning moment should show it without revealing a game answer?
+- Should the Procedurträning load/reset concerns become new `B-XXX` entries immediately as
+  `suspected`, or do you prefer one reproduction task first and only log confirmed failures?
+- For the cricothyrotomy thread, should we begin from the clinical teaching sequence and derive
+  the minimum honest geometry, or first inventory every usable laryngeal/tracheal anchor and
+  design around what the dataset can support?
