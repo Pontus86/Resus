@@ -23,6 +23,7 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-007 | in progress | Codex | Canonical-right arm nerve regeneration: `tools/repair_3d_models.js`, `Neuro/models/brain/peripheral_nerves.js`, `BUGS.md`, and task closeout only. Preserve all non-arm nerve geometry. | `codex/work` | User explicitly prioritized this after reviewing the remaining 60-right/48-left source-block asymmetry; plexus brachialis is mandatory. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -64,6 +65,18 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   a no-op since none currently do).
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
+
+### R-007 — Canonical bilateral arm nerves
+
+- Rebuild the upper-limb portion of Neuro's fused peripheral-nerve asset from one deduplicated
+  canonical right side and generate the left side by x-axis mirroring in the established
+  BodyParts3D coordinate space.
+- Include every existing right-sided brachial-plexus trunk, division, cord, and named
+  shoulder/chest branch; fail generation if any required plexus source is absent.
+- Emit exactly matching right/left source sets, reverse mirrored face winding, and validate
+  reflected bounding boxes. Preserve all non-arm nerve blocks byte-equivalently in geometry.
+- Verify reproducible regeneration, source counts, OBJ index validity, bilateral geometry,
+  Neuro whole-body rendering, and a nearby unaffected Neuro interaction.
 
 ## Assignment rules
 
