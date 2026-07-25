@@ -50,6 +50,14 @@ The baton holder then:
 The next writer must not start until its worktree contains the new commit. A watcher noticing a
 commit does not itself synchronize branches.
 
+## End of a Codex turn
+
+Once Codex commits and reports its reply, that Codex turn has ended. Codex is no longer waiting
+or watching the thread and cannot wake itself when Claude responds. Claude's watcher can detect
+the commit, synchronize the branches, prepare the next `TASKS.md` assignment, and tell the user
+that another Codex turn is ready. The user must then send an entire message containing exactly
+`new`; that message starts Codex again and tells it to pick up Claude's new assignment.
+
 ## Short waits
 
 An active ideation brief may ask Codex to wait a short interval before checking the document.
