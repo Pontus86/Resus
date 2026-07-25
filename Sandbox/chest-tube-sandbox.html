@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Thoraxdrän – procedursandbox</title>
+  <style>
+    :root{
+      color-scheme:dark;
+      --bg:#0b1118; --panel:#121c27ee; --line:#26384a; --text:#edf3f7;
+      --muted:#a8b7c4; --teal:#4fc3b4; --gold:#e8c15b; --red:#ef6a62;
+    }
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--text);
+      font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    canvas{display:block;width:100%;height:100%;touch-action:none}
+    .panel{position:fixed;z-index:2;background:var(--panel);border:1px solid var(--line);
+      box-shadow:0 18px 45px #0008;backdrop-filter:blur(10px)}
+    #brief{top:16px;left:16px;width:min(390px,calc(100vw - 32px));padding:17px;border-radius:14px}
+    #brief h1{font-size:19px;margin:0 0 4px}
+    #brief p{color:var(--muted);margin:5px 0 12px}
+    #stepList{display:grid;gap:5px;margin-top:12px}
+    .step{display:flex;gap:9px;align-items:center;color:#8193a3}
+    .step .dot{display:grid;place-items:center;width:22px;height:22px;border:1px solid #496071;
+      border-radius:50%;font-size:12px;flex:none}
+    .step.active{color:var(--gold)} .step.active .dot{border-color:var(--gold)}
+    .step.done{color:#b8e6df}.step.done .dot{background:#27675e;border-color:var(--teal);color:white}
+    #tools{left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:8px;padding:9px;
+      border-radius:14px;max-width:calc(100vw - 32px);overflow:auto}
+    button{appearance:none;border:1px solid #3b5163;background:#172534;color:var(--text);
+      padding:9px 12px;border-radius:9px;font:inherit;white-space:nowrap;cursor:pointer}
+    button:hover{border-color:#6c899e}button.active{background:#23584f;border-color:var(--teal)}
+    button.secondary{background:transparent}
+    #feedback{right:16px;top:16px;width:min(330px,calc(100vw - 32px));padding:15px;border-radius:14px}
+    #feedback strong{display:block;margin-bottom:4px}
+    #message{color:var(--muted)}
+    #message.ok{color:#83dfd1}#message.warn{color:#ffd071}#message.bad{color:#ff8c85}
+    #metrics{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin-top:12px;
+      padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+    #metrics output{color:var(--text);text-align:right}
+    #hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;
+      color:#fff9;text-shadow:0 2px 5px #000;font-size:13px;opacity:0;transition:opacity .2s}
+    #legend{position:fixed;right:16px;bottom:82px;color:#9fb0be;font-size:12px;text-align:right}
+    @media(max-width:760px){
+      #brief{width:calc(100vw - 32px)}#feedback{top:auto;right:16px;bottom:82px;width:270px}
+      #stepList{display:none}#legend{display:none}
+    }
+  </style>
+</head>
+<body>
+  <section id="brief" class="panel">
+    <h1>Thoraxdrän – höger sida</h1>
+    <p>Placera ett drän i säkerhetstriangeln. Modellen bedömer var, hur djupt och i vilken
+      riktning du arbetar. Inga målpunkter visas under försöket.</p>
+    <button id="viewBtn" class="secondary">Visa/dölj genomskärning</button>
+    <button id="resetBtn" class="secondary">Nytt försök</button>
+    <div id="stepList"></div>
+  </section>
+
+  <aside id="feedback" class="panel">
+    <strong id="instruction">Börja med att palpera revbenen.</strong>
+    <div id="message">Välj Palpera och undersök thoraxväggen.</div>
+    <div id="metrics">
+      <span>Vävnadstrauma</span><output id="trauma">0</output>
+      <span>Riskstrukturer</span><output id="injuries">0</output>
+      <span>Tekniskt steg</span><output id="stageMetric">0 / 6</output>
+    </div>
+  </aside>
+
+  <nav id="tools" class="panel" aria-label="Instrument">
+    <button data-tool="palpate" class="active">☝ Palpera</button>
+    <button data-tool="scalpel">⌁ Skalpell</button>
+    <button data-tool="clamp">⌖ Peang</button>
+    <button data-tool="finger">● Finger</button>
+    <button data-tool="drain">↗ Drän</button>
+  </nav>
+
+  <div id="hint">Dra för att arbeta · Shift-dra för att rotera · scrolla för zoom</div>
+  <div id="legend">Säkerhetsprototyp – förenklad anatomi<br>Shift + dra: rotera · Scroll: zoom</div>
+
+  <script src="three.min.js"></script>
+  <script>
+  (() => {
+    "use strict";
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b1118);
+    const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
+    const renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.72;
+    renderer.localClippingEnabled = true;
+    document.body.prepend(renderer.domElement);
+
+    scene.add(new THREE.HemisphereLight(0xdceeff, 0x17202a, 0.7));
+    const key = new THREE.DirectionalLight(0xffffff, 0.8);
+    key.position.set(4, 7, 8);
+    scene.add(key);
+
+    const model = new THREE.Group();
+    model.position.set(0.8, -0.25, 0);
+    scene.add(model);
+
+    const W = 6.2, H = 5.7;
+    const colors = {
+      skin:0xd8a486, fat:0xe2c158, muscle:0xa84f4b, pleura:0x8ec9cf,
+      rib:0xe8dfc5, lung:0xbf6d78, artery:0xc93745, vein:0x426fb2, nerve:0xe0b84c
+    };
+    const layerZ = {skin:1.45, fat:1.12, muscle:0.73, pleura:0.36};
+    const layers = {};
+    const anatomy = [];
+    const incisions = new THREE.Group();
+    model.add(incisions);
+
+    function material(color, opacity=1){
+      return new THREE.MeshStandardMaterial({
+        color, roughness:0.78, metalness:0, transparent:opacity < 1, opacity,
+        side:THREE.DoubleSide, depthWrite:opacity > 0.7
+      });
+    }
+    function box(name, width, height, depth, z, color, opacity=1){
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material(color, opacity));
+      mesh.position.z = z;
+      mesh.userData.kind = name;
+      model.add(mesh);
+      anatomy.push(mesh);
+      return mesh;
+    }
+
+    layers.skin = box("skin", W, H, 0.18, layerZ.skin, colors.skin);
+    layers.fat = box("fat", W, H, 0.28, layerZ.fat, colors.fat);
+    layers.muscle = box("muscle", W, H, 0.26, layerZ.muscle, colors.muscle);
+    layers.pleura = box("pleura", W, H, 0.08, layerZ.pleura, colors.pleura, 0.78);
+
+    const lung = new THREE.Mesh(
+      new THREE.SphereGeometry(2.15, 42, 30),
+      material(colors.lung, 0.93)
+    );
+    lung.scale.set(1.12, 1.34, 0.72);
+    lung.position.set(0.1, -0.15, -0.42);
+    lung.userData.kind = "lung";
+    model.add(lung);
+    anatomy.push(lung);
+
+    function capsuleBetween(a, b, radius, color, kind){
+      const mid = a.clone().add(b).multiplyScalar(0.5);
+      const length = a.distanceTo(b);
+      const geo = new THREE.CylinderGeometry(radius, radius, length, 20, 1);
+      const mesh = new THREE.Mesh(geo, material(color));
+      mesh.position.copy(mid);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), b.clone().sub(a).normalize());
+      mesh.userData.kind = kind;
+      model.add(mesh);
+      anatomy.push(mesh);
+      return mesh;
+    }
+
+    const upperRibY = 0.9, lowerRibY = -1.05;
+    const ribCurve = x => 0.52 + 0.09 * Math.cos(x * 0.8);
+    function makeRib(y){
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-3.2,y,0.56), new THREE.Vector3(-1.6,y+0.08,ribCurve(-1.6)),
+        new THREE.Vector3(0,y+0.13,ribCurve(0)), new THREE.Vector3(1.6,y+0.08,ribCurve(1.6)),
+        new THREE.Vector3(3.2,y,0.56)
+      ]);
+      const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 70, 0.16, 16, false), material(colors.rib));
+      mesh.userData.kind = "rib";
+      model.add(mesh); anatomy.push(mesh); return mesh;
+    }
+    makeRib(upperRibY); makeRib(lowerRibY);
+
+    // Paketet ligger medvetet strax under det övre revbenet: ett högt snitt kan ge en
+    // konkret komplikation, medan korrekt arbete över det nedre revbenets övre kant skonas.
+    capsuleBetween(new THREE.Vector3(-2.8,0.64,0.55), new THREE.Vector3(2.8,0.64,0.55), 0.055, colors.artery, "bundle");
+    capsuleBetween(new THREE.Vector3(-2.8,0.52,0.55), new THREE.Vector3(2.8,0.52,0.55), 0.065, colors.vein, "bundle");
+    capsuleBetween(new THREE.Vector3(-2.8,0.40,0.55), new THREE.Vector3(2.8,0.40,0.55), 0.045, colors.nerve, "bundle");
+
+    const safe = {xMin:-1.55, xMax:1.35, yMin:-0.67, yMax:0.22};
+    const steps = [
+      "Palpera två revben", "Lägg hudincision", "Trubbdissekera",
+      "Öppna pleura", "Fingersvep", "För in drän"
+    ];
+    const state = {
+      tool:"palpate", stage:0, trauma:0, injuries:0, palpated:new Set(),
+      dragStart:null, lastPoint:null, orbiting:false, acting:false, cutCenter:null,
+      opened:new Set(), swept:false, drain:null
+    };
+
+    const instruction = document.getElementById("instruction");
+    const message = document.getElementById("message");
+    function setMessage(text, tone=""){
+      message.textContent = text;
+      message.className = tone;
+    }
+    function renderUI(){
+      document.getElementById("stepList").innerHTML = steps.map((step,i) =>
+        `<div class="step ${i < state.stage ? "done" : i === state.stage ? "active" : ""}">
+          <span class="dot">${i < state.stage ? "✓" : i+1}</span><span>${step}</span>
+        </div>`).join("");
+      instruction.textContent = state.stage >= steps.length
+        ? "Dränet är placerat."
+        : steps[state.stage];
+      document.getElementById("trauma").textContent = state.trauma;
+      document.getElementById("injuries").textContent = state.injuries;
+      document.getElementById("stageMetric").textContent = `${Math.min(state.stage,6)} / 6`;
+    }
+    function advance(text){
+      state.stage++;
+      setMessage(text, "ok");
+      renderUI();
+    }
+    function penalize(text, injury=false){
+      state.trauma += injury ? 3 : 1;
+      if(injury) state.injuries++;
+      setMessage(text, injury ? "bad" : "warn");
+      renderUI();
+    }
+
+    function aperture(layerName, center, width, height){
+      const old = layers[layerName];
+      old.visible = false;
+      const z = layerZ[layerName], depth = old.geometry.parameters.depth;
+      const color = colors[layerName];
+      const left = center.x - width/2, right = center.x + width/2;
+      const bottom = center.y - height/2, top = center.y + height/2;
+      const pieces = [
+        [-W/2, left, -H/2, H/2], [right, W/2, -H/2, H/2],
+        [left, right, -H/2, bottom], [left, right, top, H/2]
+      ];
+      pieces.forEach(([x1,x2,y1,y2])=>{
+        if(x2 <= x1 || y2 <= y1) return;
+        const part = new THREE.Mesh(new THREE.BoxGeometry(x2-x1,y2-y1,depth), material(color, layerName==="pleura"?0.78:1));
+        part.position.set((x1+x2)/2,(y1+y2)/2,z);
+        part.userData.kind = layerName;
+        model.add(part);
+      });
+      state.opened.add(layerName);
+    }
+
+    function line(a,b,color,width=0.045){
+      return capsuleBetween(
+        new THREE.Vector3(a.x,a.y,1.58),
+        new THREE.Vector3(b.x,b.y,1.58),
+        width,color,"mark"
+      );
+    }
+    function inSafe(p){ return p.x>safe.xMin && p.x<safe.xMax && p.y>safe.yMin && p.y<safe.yMax; }
+
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const workPlane = new THREE.Plane(new THREE.Vector3(0,0,1), -layerZ.skin);
+    function pointFromEvent(e){
+      const rect = renderer.domElement.getBoundingClientRect();
+      ndc.set(((e.clientX-rect.left)/rect.width)*2-1, -((e.clientY-rect.top)/rect.height)*2+1);
+      raycaster.setFromCamera(ndc,camera);
+      const hit = new THREE.Vector3();
+      if(!raycaster.ray.intersectPlane(workPlane,hit)) return null;
+      return model.worldToLocal(hit);
+    }
+
+    function actStart(p){
+      state.dragStart = p.clone(); state.lastPoint = p.clone();
+      if(state.tool === "palpate"){
+        const rib = Math.abs(p.y-upperRibY) < 0.28 ? "upper" : Math.abs(p.y-lowerRibY) < 0.28 ? "lower" : null;
+        if(rib){
+          state.palpated.add(rib);
+          line(new THREE.Vector3(p.x-.18,p.y,0),new THREE.Vector3(p.x+.18,p.y,0),0xe8c15b,0.035);
+          if(state.stage===0 && state.palpated.size===2) advance("Du har identifierat interkostalrummet. Välj Skalpell.");
+          else setMessage("Fast struktur palperas: revben.", "ok");
+        } else setMessage("Mjuk thoraxvägg. Fortsätt söka efter revbenskanterna.");
+      }
+      if(state.tool === "clamp" && state.stage===2){
+        if(!inSafe(p)) return penalize("Peangen förs utanför säkerhetsområdet.");
+        aperture("fat",state.cutCenter,2.1,0.7);
+        aperture("muscle",state.cutCenter,1.25,0.48);
+        advance("Trubbig kanal skapad. Klicka kontrollerat med peangen för att öppna pleura.");
+      } else if(state.tool === "clamp" && state.stage===3){
+        if(!inSafe(p)) return penalize("Pleura öppnas på fel nivå.",true);
+        aperture("pleura",state.cutCenter,0.48,0.42);
+        advance("Pleura har öppnats. Byt till Finger och bekräfta intrapleural placering.");
+      }
+      if(state.tool === "finger" && state.stage===4){
+        if(p.distanceTo(state.cutCenter) > 0.7) return penalize("Fingret förs inte genom den skapade kanalen.");
+        state.swept=true;
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42,0.035,10,40),material(0x4fc3b4));
+        ring.position.set(state.cutCenter.x,state.cutCenter.y,0.22);
+        model.add(ring);
+        advance("Fingersvep genomfört utan adherenser. Välj Drän och dra kranialt från öppningen.");
+      }
+    }
+
+    function actMove(p){
+      if(state.tool==="scalpel" && state.stage===1){
+        if(state.lastPoint.distanceTo(p)>0.07){
+          line(state.lastPoint,p,inSafe(p)?0x532b2a:0xef6a62,0.035);
+          state.lastPoint.copy(p);
+        }
+      }
+    }
+
+    function actEnd(p){
+      if(!state.dragStart) return;
+      const delta=p.clone().sub(state.dragStart);
+      if(state.tool==="scalpel" && state.stage===1){
+        const center=state.dragStart.clone().add(p).multiplyScalar(.5);
+        const horizontal=Math.abs(delta.x)>Math.abs(delta.y)*1.7;
+        if(!inSafe(center)) penalize("Snittet ligger utanför säkerhetstriangeln.", Math.abs(center.y-upperRibY)<.45);
+        else if(!horizontal || Math.abs(delta.x)<0.75) penalize("Snittet är för kort eller har olämplig riktning.");
+        else{
+          state.cutCenter=center;
+          aperture("skin",center,Math.min(Math.abs(delta.x),2.2),0.26);
+          advance("Hudincisionen ligger i rätt interkostalrum. Välj Peang för trubbdissektion.");
+        }
+      }
+      if(state.tool==="drain" && state.stage===5){
+        if(state.dragStart.distanceTo(state.cutCenter)>0.75) return penalize("Dränet måste föras in genom den skapade öppningen.");
+        if(delta.length()<0.7) return penalize("Visa dränets riktning genom att dra en längre bana.");
+        const cranial=delta.y>Math.abs(delta.x)*0.25;
+        if(!cranial) return penalize("Dränet riktas medialt/kaudalt. För det kranialt och posteriort.", delta.y<-.4);
+        const start=new THREE.Vector3(state.cutCenter.x,state.cutCenter.y,0.32);
+        const end=new THREE.Vector3(state.cutCenter.x+delta.x*.65,state.cutCenter.y+delta.y*.85,-0.15);
+        const tube=capsuleBetween(start,end,0.11,0x2d8c88,"drain");
+        tube.material.roughness=.35;
+        state.drain=tube;
+        advance(`Godkänd placering. Trauma ${state.trauma}, skadade riskstrukturer ${state.injuries}.`);
+      }
+      state.dragStart=null;
+    }
+
+    document.querySelectorAll("[data-tool]").forEach(btn=>btn.addEventListener("click",()=>{
+      state.tool=btn.dataset.tool;
+      document.querySelectorAll("[data-tool]").forEach(b=>b.classList.toggle("active",b===btn));
+      setMessage({
+        palpate:"Klicka över thoraxväggen för att känna efter revben.",
+        scalpel:"Dra ett horisontellt snitt där du bedömer att säkerhetstriangeln ligger.",
+        clamp:"Klicka i incisionen för trubbdissektion eller pleuraöppning.",
+        finger:"Klicka genom öppningen för en fingersvepning.",
+        drain:"Dra från öppningen i den riktning du vill föra dränet."
+      }[state.tool]);
+    }));
+
+    let rotY=0.08, rotX=-0.05, dist=11.5, lastX=0,lastY=0;
+    function cameraPose(){
+      camera.position.set(dist*Math.sin(rotY)*Math.cos(rotX),dist*Math.sin(rotX),dist*Math.cos(rotY)*Math.cos(rotX));
+      camera.lookAt(model.position);
+    }
+    cameraPose();
+    renderer.domElement.addEventListener("pointerdown",e=>{
+      lastX=e.clientX;lastY=e.clientY;
+      if(e.shiftKey){state.orbiting=true;return;}
+      const p=pointFromEvent(e);if(!p)return;
+      state.acting=true;actStart(p);
+      renderer.domElement.setPointerCapture(e.pointerId);
+    });
+    renderer.domElement.addEventListener("pointermove",e=>{
+      const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
+      if(state.orbiting){rotY+=dx*.007;rotX=Math.max(-1.1,Math.min(1.1,rotX+dy*.007));cameraPose();return;}
+      if(state.acting){const p=pointFromEvent(e);if(p)actMove(p);}
+    });
+    renderer.domElement.addEventListener("pointerup",e=>{
+      if(state.acting){const p=pointFromEvent(e);if(p)actEnd(p);}
+      state.acting=false;state.orbiting=false;
+    });
+    renderer.domElement.addEventListener("wheel",e=>{
+      e.preventDefault();dist=Math.max(7,Math.min(18,dist*(1+e.deltaY*.001)));cameraPose();
+    },{passive:false});
+
+    let cutaway=false;
+    document.getElementById("viewBtn").addEventListener("click",()=>{
+      cutaway=!cutaway;
+      ["skin","fat","muscle"].forEach((name,i)=>{
+        layers[name].material.transparent=cutaway;
+        layers[name].material.opacity=cutaway?[.14,.22,.34][i]:1;
+        layers[name].material.depthWrite=!cutaway;
+      });
+      setMessage(cutaway?"Genomskärning visas endast som studiehjälp.":"Ytvyn är återställd.");
+    });
+    document.getElementById("resetBtn").addEventListener("click",()=>location.reload());
+    addEventListener("resize",()=>{
+      renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+    });
+    document.getElementById("hint").style.opacity="1";
+    setTimeout(()=>document.getElementById("hint").style.opacity="0",3200);
+    renderUI();
+    (function animate(){requestAnimationFrame(animate);renderer.render(scene,camera);})();
+  })();
+  </script>
+</body>
+</html>
