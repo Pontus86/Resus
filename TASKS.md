@@ -23,7 +23,6 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
-| R-012 | in progress | Codex | `Sandbox/chest-tube-sandbox.html`; R-012 closeout in `TASKS.md` only | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -34,14 +33,6 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
-
-### R-012 — Compact mobile overlays in the thoraxdrain sandbox
-
-- Make the sandbox controls leave the anatomical workspace visible on narrow screens without
-  changing the desktop layout or the procedure logic.
-- Keep the current instruction and feedback available, while moving secondary metrics behind
-  an explicit mobile details control.
-- Verify the inline JavaScript, responsive structure, and unchanged tool inventory.
 
 ### R-006 — Fix B-009 (skull region mistag)
 
@@ -109,6 +100,19 @@ don't leave it dangling as still `open`/`suspected` there.
 - 2026-07-25 — Repository coordination established. Added `AGENTS.md`, removed the tracked
   `Blodgas/bloodgas_pkg 7` and `Blodgas/bloodgas_pkg 8` snapshots, and reserved a separate
   Codex worktree. Commits: `a82997e`, `7bb2099`.
+
+### R-012 — Compact mobile overlays in the thoraxdrain sandbox — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: `2983c7a`
+- Changed: Replaced the large narrow-screen panels with a compact top bar, a low instruction
+  strip, and icon-only instrument controls. Secondary metrics remain available through an
+  accessible details toggle. Desktop styling and procedure logic are unchanged.
+- Verified: Extracted inline JavaScript passes `node --check`; structural checks confirm the
+  responsive rules, details toggle, labels, and unchanged seven-tool inventory;
+  `git diff --check` passes.
+- Notes: The in-app browser security policy blocks local `file://` pages, so full visual
+  mobile interaction and console QA could not be completed before deployment.
 
 ### R-011 — Thoraxdrän closure with needle and thread — done
 
