@@ -3,6 +3,13 @@
 This file is the starting point for Codex sessions in this repository. The detailed project
 documentation remains in `CLAUDE.md`; read that file completely before changing code.
 
+## Task shorthand
+
+When the user's entire message is exactly `new` (with no other content), Claude has assigned a
+new task to Codex. Follow the "Start every task" checklist below, read the current Codex
+assignment and brief in `TASKS.md`, and begin that task without waiting for a second prompt. If
+`TASKS.md` has no task assigned to Codex, report that instead of guessing a task.
+
 ## Start every task
 
 1. Read `CLAUDE.md` completely.
