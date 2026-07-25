@@ -22,7 +22,7 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| R-005 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -34,7 +34,7 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-### R-005 — Fix B-008 (skull region mistag)
+### R-006 — Fix B-008 (skull region mistag)
 
 - Fixes `BUGS.md`'s `B-008`. Relates to `IDEAS/2026-07-25-neuro-nerve-skull-repair.md` (I-002)
   — this is likely (not certain) the real explanation behind the "skull looks incomplete"
