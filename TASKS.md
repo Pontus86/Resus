@@ -23,7 +23,6 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
-| R-009 | in progress | Codex | Enrich the BodyParts3D catalogue inventory: `reference/bodyparts3d/`, `tools/audit_bp3d_inventory.js`, `tools/build_bp3d_catalog.js`, and task closeout only. Existing model files are read-only evidence. | `codex/work` | User requested columns showing what Resus already contains and what remains available to download. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -66,20 +65,6 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
 
-### R-009 — Audit BodyParts3D coverage
-
-- Match the official 8,129-record `20181210i412` catalogue against reliable provenance in
-  Resus's currently embedded models without modifying those model files.
-- Mark each catalogue row with whether the BodyParts3D object is already represented, where it
-  is used, the match basis/source version, and whether a download is still needed.
-- Treat exact FMA/BP/file-ID evidence as authoritative. Permit exact normalized name matching
-  only in assets explicitly identified as BodyParts3D; do not equate similarly named
-  Open3DModel geometry with the corresponding BodyParts3D object.
-- Update the searchable HTML view with an availability filter and coverage column. Document
-  the audit's conservative false-negative limitation.
-- Verify inventory counts, CSV/data parity, search/filter logic, JavaScript syntax, and
-  reproducible regeneration.
-
 ## Assignment rules
 
 1. Give every task a stable ID such as `R-001`.
@@ -115,6 +100,24 @@ don't leave it dangling as still `open`/`suspected` there.
 - 2026-07-25 — Repository coordination established. Added `AGENTS.md`, removed the tracked
   `Blodgas/bloodgas_pkg 7` and `Blodgas/bloodgas_pkg 8` snapshots, and reserved a separate
   Codex worktree. Commits: `a82997e`, `7bb2099`.
+
+### R-009 — Audit BodyParts3D coverage — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: `26b75d4`
+- Changed: Added a reproducible inventory audit that resolves retained FMA and FJ/MM/CX
+  source IDs against the official `20181210i412` exports and permits exact-name matching only
+  in explicit BodyParts3D assets. The CSV now records Resus presence, module, source version,
+  match basis, availability, and download need. The HTML catalogue has an availability filter
+  and coverage summary.
+- Verified: Two full audit/build runs produced identical SHA-256 hashes. CSV parsing confirms
+  8,129 rows, 21 columns, unique FMA/BP IDs, 283 present and 7,846 download candidates;
+  JavaScript syntax checks pass; generated browser data has matching counts and classifies
+  the 14 brachial-plexus search hits as 6 present/8 missing; `git diff --check` passes.
+- Notes: This is deliberately conservative and can undercount old merged models whose source
+  IDs were discarded. Current evidence identifies 272 primitive and 11 compound concepts;
+  the missing set contains 4,326 primitive elements and 3,520 compound concepts. Direct
+  `file://` visual QA remains unavailable because the browser blocks local-file navigation.
 
 ### R-008 — BodyParts3D 20181210i412 reference catalogue — done
 
