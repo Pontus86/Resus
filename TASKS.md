@@ -22,7 +22,7 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| — | — | — | No task assigned | — | — |
+| R-002 | ready | Codex | `Procedurtraning/js/procedures-data.js` only — do not edit `procedures3d.js`, `body3d.js`, or `body3d-data.js` this time, all the plumbing you'd need already exists | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -31,7 +31,61 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-_None right now._
+### R-002 — Lumbar puncture procedure (Procedurträning, fourth of five)
+
+This one's split: the coordinator (Claude) already did the infrastructure half in commit
+`fa74e7a` — merged the lumbar discs, wired in spinal cord access, and built the two schematic
+helpers this procedure needs. Your job is narrower than R-001: **only add the `"lumbar-puncture"`
+entry to `PROCEDURE3D_ANATOMY` and `PROCEDURE3D_LIST` in `procedures-data.js`.** Do not touch
+`procedures3d.js` — everything you need there already exists (see below). Read `"chest-tube"`
+in `procedures-data.js` first, it's the closest precedent (real landmarks + a special top-level
+shape field, same idea you'll reuse here).
+
+**Real landmarks — already merged, verify names yourself against
+`Kroppsatlas/models/body/manifest.js` before using them**:
+- `Lumbar_vertebrae_(L1)` through `Lumbar_vertebrae_(L5)` — skeletal, axial, mid — landmark
+  (L3–L4 or L4–L5 is the usual level, below the conus medullaris)
+- `Sacrum` — skeletal, axial, mid — landmark (Tuffier's line / iliac crest level proxy — no
+  separate iliac crest mesh exists, the sacrum's own position is the closest real proxy)
+- `Intervertebral_disc_L3_L4`, `Intervertebral_disc_L4_L5` — connective, axial, mid — landmark
+  or context, your call which 1-2 discs are worth including as landmarks vs just L3/L4/L5
+  vertebrae alone being enough
+
+**Schematic landmarks — already built for you, just reference by name, do not
+reimplement**:
+- `dural_sac_schematic` (no `.l`/`.r` suffix — it's midline) — renders as a simple 2-point tube
+  via the existing generic mechanism, same as `sternocleidomastoid_schematic` did for
+  central-line-ijv. This is the actual target — dura/subarachnoid space, no real mesh exists
+  for it anywhere in the source library.
+- Cauda equina is **not** a landmark-list entry — it's a special top-level field, same pattern
+  as `chest-tube`'s `safetyTriangle`. Add `caudaEquina: {color:"#E8C744"}` (color optional,
+  defaults to that same gold if omitted) to the procedure object. This calls
+  `renderCaudaEquina()` automatically — six fanning tube strands between the same two anchors
+  as the dural sac. Do not add a `points` field to it (unlike `safetyTriangle`, it takes no
+  points — it derives its own anchors internally). `strandCount` is also optional (defaults
+  to 6).
+
+**Region**: use `region: "axial"` — all the real landmarks above are already correctly tagged
+`"axial"` in the manifest (no mismatch to expect this time, unlike chest-tube's muscles or
+central-line's carotid artery), so the region filter should stay usefully narrow, not fall
+back to `"all"`.
+
+**`checklistId`**: `"lumbar-puncture"` — already exists in `Checklistor/`.
+
+**Stages**: your call on count/wording, following the same shape as the other three
+procedures (skin → level identification → dural puncture/CSF return is a reasonable 3-stage
+split, matching central-line-ijv's structure most closely). `focus` on the final stage should
+probably be `"dural_sac_schematic"` so the camera lands on the actual target.
+
+**Verification**: same Playwright pattern as before — serve the repo root, load
+`Procedurtraning/index.html`, wait for `body3d.loaded===true`, select lumbar-puncture, confirm
+`body3d.registry['spinalcord']` and the 5 disc names exist (they will — already merged and
+already script-tagged, this isn't something you need to add), step through every stage,
+confirm the dural sac tube AND the cauda equina fan (6 `TubeGeometry` children in
+`body3d.overlayGroup`, not counting the dural sac's own tube) both render, zero console
+errors. See `AGENTS.md`'s Verification section for the general standard.
+
+At handoff: commit hash on `codex/work`, what you verified, anything to flag.
 
 ## Assignment rules
 
