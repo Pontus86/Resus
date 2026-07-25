@@ -22,7 +22,7 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| — | — | — | No task assigned | — | — |
+| R-005 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -34,7 +34,36 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-_None right now._
+### R-005 — Fix B-008 (skull region mistag)
+
+- Fixes `BUGS.md`'s `B-008`. Relates to `IDEAS/2026-07-25-neuro-nerve-skull-repair.md` (I-002)
+  — this is likely (not certain) the real explanation behind the "skull looks incomplete"
+  report that prompted that thread, at least for the Kropps-atlas side of it. It does not
+  address I-002's nerve-dedup question at all — that's still open and unassigned.
+- Root cause (already diagnosed, verified by the coordinator, do not re-derive): 30 entries in
+  `Kroppsatlas/models/body/manifest.js` — `Frontal_bone`, `Occipital_bone`, `Parietal_bone.l`,
+  `Parietal_bone.r`, `Sphenoid_bone`, `Temporal_bones`, `Zygomatic_bones`, `Vomer`,
+  `Palatine_bone`, `Nasal_bone`, `Maxilla_bone.l`, `Maxilla_bone.r`, `Mandible_bone`,
+  `Ethmoid_Bone`, `Lacrimal_bones`, `Inferior_nasal_concha_bones`, and 14 dental entries
+  (`Upper_`/`Lower_` `_incisors`/`_canines`/`_premolars`/`_molar_teeth` variants) — are tagged
+  `region:"head"`. The valid region vocabulary used by the filter UI/logic elsewhere in the
+  file is `"all"`, `"head_neck"`, `"axial"`, `"upper_limb"`, `"lower_limb"` — `"head"` is not
+  one of them, so `_body3dPassesFilter`'s region check never matches it under any selectable
+  chip except `"all"` (which bypasses the check entirely). These bones have real, correctly
+  proportioned embedded geometry in `skeletal.js` — this is a metadata tagging bug, not a
+  missing-geometry or merge-pipeline bug.
+- Task: change `region:"head"` to `region:"head_neck"` for exactly those 30 entries in
+  `manifest.js`. Then re-scan the whole file for any other `region` value outside the 5 valid
+  ones (the coordinator only checked for `"head"` specifically — confirm nothing else is
+  hiding the same way) and fix any found, noting them in the handoff even if none turn up.
+- Verify: reload Kropps-atlas, select the "Huvud & hals" region filter, confirm all 30 bones
+  (not just the 4 spot-checked ones) render and are clickable/searchable; confirm the default
+  "all" filter view is visually unchanged; zero new console errors; region filter still falls
+  back correctly for anything that depends on these names (check Procedurträning's existing
+  procedures don't reference any of the 30 by name — a quick grep is enough, expected to be
+  a no-op since none currently do).
+- On completion: move B-008 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
+  commit) and update this board.
 
 ## Assignment rules
 
