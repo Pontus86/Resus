@@ -28,7 +28,10 @@ const PARTS = [
   {file:"VH_F_Fallopian_Tube_R.glb", name:"Fallopian_tube.r"},
   {file:"VH_F_Urinary_Bladder.glb", name:"Urinary_bladder"},
   {file:"VH_F_Ureter_L.glb", name:"Ureter.l"},
-  {file:"VH_F_Ureter_R.glb", name:"Ureter.r"}
+  {file:"VH_F_Ureter_R.glb", name:"Ureter.r"},
+  {file:"VH_F_Vagina.glb", name:"Vagina"},
+  {file:"VH_F_Ligaments_Uterus_Ovaries.glb", name:"Ligaments_uterus_ovaries"},
+  {file:"VH_F_Blood_Vasculature_Uterus.glb", name:"Blood_vasculature_uterus"}
 ];
 
 function parseArgs(argv){

@@ -34,7 +34,8 @@ const BODY3D_BRAIN_CATEGORIES = [
   {cat:"medulla_l", region:"head_neck"}, {cat:"medulla_r", region:"head_neck"},
   {cat:"cerebellum_l", region:"head_neck"}, {cat:"cerebellum_r", region:"head_neck"},
   {cat:"cerebellum_vermis", region:"head_neck"},
-  {cat:"spinalcord", region:"axial"}
+  {cat:"spinalcord", region:"axial", label:"Ryggmärg"},
+  {cat:"cauda_equina", region:"axial", label:"Cauda equina"}
 ];
 
 // organ/skin: BodyParts3D 4.0 (samma källa och rymd som brain-kategorierna, alltså RAKT AV
@@ -71,7 +72,7 @@ const BODY3D_BRAIN_COLOR = {
   thalamus:"#B79FDB", basalganglia:"#D4B483", capsule:"#F2ECDD",
   midbrain:"#E8A69A", pons:"#E8A69A", medulla:"#E8A69A", cerebellum:"#9FC1D9",
   corpus_callosum:"#F0DFA8", white_matter:"#F5F1E6", ventricles:"#7FB8E0",
-  cortex:"#EDE0C9", spinalcord:"#E0B37D"
+  cortex:"#EDE0C9", spinalcord:"#E0B37D", cauda_equina:"#E8C744"
 };
 function _body3dBrainColorFor(cat){
   const base = cat.replace(/_l$|_r$/,"").replace(/_vermis$/,"");
@@ -93,7 +94,10 @@ const BODY3D_FEMALE_PELVIS_PARTS = [
   {name:"Fallopian_tube.r", label:"Höger äggledare", system:"female_pelvis", region:"axial", side:"r", color:"#D7839B"},
   {name:"Urinary_bladder", label:"Urinblåsa (kvinnlig)", system:"female_pelvis", region:"axial", side:"mid", color:"#D8B45B"},
   {name:"Ureter.l", label:"Vänster uretär", system:"female_pelvis", region:"axial", side:"l", color:"#E0C979"},
-  {name:"Ureter.r", label:"Höger uretär", system:"female_pelvis", region:"axial", side:"r", color:"#E0C979"}
+  {name:"Ureter.r", label:"Höger uretär", system:"female_pelvis", region:"axial", side:"r", color:"#E0C979"},
+  {name:"Vagina", label:"Vagina", system:"female_pelvis", region:"axial", side:"mid", color:"#C97D99"},
+  {name:"Ligaments_uterus_ovaries", label:"Livmoderns och äggstockarnas ligament", system:"female_pelvis", region:"axial", side:"mid", color:"#E4CDB3"},
+  {name:"Blood_vasculature_uterus", label:"Livmoderns blodkärl", system:"female_pelvis", region:"axial", side:"mid", color:"#C84A55"}
 ];
 
 const BODY3D_REGION_LABEL = {

@@ -727,7 +727,7 @@ BP105935,FMA55107,Cartilage organ,,,,,false,327.7294,-122.279,122.279,-213.216,-
 BP104053,FMA285307,Cartilaginous part proper of left pharyngotympanic tube,,,,,true,0.3905,10.4324,30.5882,-110.728,-91.4504,1484.6801,1503.97,no,,,,available_to_download,yes
 BP104804,FMA285303,Cartilaginous part proper of pharyngotympanic tube,,,,,false,0.7791,-30.5882,30.5882,-110.728,-91.4504,1484.6801,1503.97,no,,,,available_to_download,yes
 BP104052,FMA285305,Cartilaginous part proper of right pharyngotympanic tube,,,,,true,0.3886,-30.5882,-10.4362,-110.728,-91.4504,1484.6801,1503.97,no,,,,available_to_download,yes
-BP105718,FMA52590,Cauda equina,Cauda equina,馬尾,,A14.2.00.036,true,17.2694,-9.6678,8.5129,-80.0668,-0.9695,838.917,1063.75,no,,,,available_to_download,yes
+BP105718,FMA52590,Cauda equina,Cauda equina,馬尾,,A14.2.00.036,true,17.2694,-9.6678,8.5129,-80.0668,-0.9695,838.917,1063.75,yes,Kropps-atlas,20181210i412,FMA-ID i modellkälla;fil-ID i 20181210i412-export,in_resus,no
 BP101320,FMA72426,Caudal central oculomotor nucleus,Nucleus centralis nervi oculomotorii,,Caudal central nucleus;Caudal central nucleus of oculomotor nerve,,false,0.0037,-0.6657,0.6659,-79.0483,-77.6528,1534.98,1536.91,no,,,,available_to_download,yes
 BP98706,FMA14793,Caudal pancreatic artery,Arteria caudae pancreatis,膵尾動脈,Artery to tail of pancreas,A12.2.12.046,true,0.0699,29.3359,58.271,-105.411,-95.4801,1060.33,1072.5601,no,,,,available_to_download,yes
 BP101935,FMA73064,Caudal part of left ventral lateral nucleus,,,,,true,0.6197,8.5147,20.8915,-89.8297,-79.6178,1542.61,1561.14,no,,,,available_to_download,yes

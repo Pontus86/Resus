@@ -2,8 +2,8 @@
   "catalog_version": "20181210i412",
   "audited_at": "2026-07-25",
   "methodology": "Konservativ ID-matchning samt entydig exakt namnmatch i uttryckliga BodyParts3D-filer.",
-  "present": 283,
-  "needs_download": 7846,
+  "present": 284,
+  "needs_download": 7845,
   "entries": [
     {
       "fma_id": "FMA6115",
@@ -969,6 +969,23 @@
       ],
       "evidence_files": [
         "Neuro/models/brain/peripheral_nerves.js"
+      ]
+    },
+    {
+      "fma_id": "FMA52590",
+      "bp_id": "BP105718",
+      "modules": [
+        "Kropps-atlas"
+      ],
+      "versions": [
+        "20181210i412"
+      ],
+      "match_basis": [
+        "FMA-ID i modellkälla",
+        "fil-ID i 20181210i412-export"
+      ],
+      "evidence_files": [
+        "Kroppsatlas/models/body/brain/cauda_equina.js"
       ]
     },
     {

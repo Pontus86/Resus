@@ -8,7 +8,7 @@
     .concat(typeof BODY3D_FEMALE_PELVIS_PARTS === "undefined" ? [] : BODY3D_FEMALE_PELVIS_PARTS)
     .concat(
     BODY3D_BRAIN_CATEGORIES.map(b => ({
-      name: b.cat, system: "brain", region: b.region,
+      name: b.cat, label: b.label, system: "brain", region: b.region,
       side: b.cat.endsWith("_l") ? "l" : (b.cat.endsWith("_r") ? "r" : "mid")
     }))
     );
