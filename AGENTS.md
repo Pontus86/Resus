@@ -112,3 +112,4 @@ change is risky.
 - Project purpose and attribution: `about.html`
 - Module and 3D-specific details: `CLAUDE.md`
 - Shared pre-implementation discussions: `IDEAS/README.md`
+- Known bugs and pending fixes/features, with stable IDs: `BUGS.md`
