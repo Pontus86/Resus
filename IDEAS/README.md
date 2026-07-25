@@ -8,7 +8,7 @@ explicitly scoped assignment in `TASKS.md`.
 
 | Topic | Document | Status | Baton |
 |---|---|---|---|
-| I-001 — Feature/fix backlog review | `2026-07-25-feature-and-fix-backlog.md` | `discussing` | Codex |
+| I-001 — Feature/fix backlog review | `2026-07-25-feature-and-fix-backlog.md` | `decision proposed` | Claude (paused) |
 
 Statuses: `discussing`, `decision proposed`, `approved`, `closed`.
 
