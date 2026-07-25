@@ -35,6 +35,10 @@ delays, use a scheduled task or an external process that starts a new Codex run.
 5. Check the current directory, `git branch --show-current`, and `git status --short`. Preserve
    all pre-existing user changes and stop if the worktree or task ownership is wrong.
 6. Before large downloads, Playwright installation, or 3D-model work, run `df -h /`.
+7. Before editing in `Resus-codex`, check `.agent-state/agent-loop.lock`. If it exists and its
+   PID is active, a headless Claude/Codex controller owns this worktree: do not edit, stage,
+   switch branches, or start another agent here. Never delete a live lock to bypass the
+   controller. See `docs/agent-loop.md`.
 
 If repository behavior conflicts with an assumption in this file, investigate the current code
 and update this guide when appropriate.
@@ -116,3 +120,4 @@ change is risky.
 - Module and 3D-specific details: `CLAUDE.md`
 - Shared pre-implementation discussions: `IDEAS/README.md`
 - Known bugs and pending fixes/features, with stable IDs: `BUGS.md`
+- Bounded headless Claude/Codex controller and operator traffic light: `docs/agent-loop.md`

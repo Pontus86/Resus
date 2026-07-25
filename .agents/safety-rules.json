@@ -1,0 +1,51 @@
+{
+  "expected_workspace_name": "Resus-codex",
+  "expected_branch": "codex/work",
+  "runtime_dir": ".agent-state",
+  "max_changed_files": 20,
+  "max_diff_lines": 5000,
+  "diff_growth_ratio": 1.75,
+  "diff_growth_min_lines": 100,
+  "protected_paths": [
+    ".agents/",
+    ".agent-state/",
+    "scripts/agent_loop.py",
+    "tests/test_agent_loop.py",
+    "docs/agent-loop.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "TASKS.md",
+    "DECISIONS.md",
+    ".gitignore",
+    ".collaboration/"
+  ],
+  "sensitive_path_keywords": [
+    "auth",
+    "authentication",
+    "authorization",
+    "permission",
+    "secret",
+    "credential",
+    "payment",
+    "billing",
+    "migration",
+    "deploy",
+    "release",
+    "crypto",
+    "cipher",
+    "database"
+  ],
+  "sensitive_diff_keywords": [
+    "password",
+    "api_key",
+    "secret",
+    "private_key",
+    "access_token",
+    "refresh_token",
+    "drop table",
+    "delete from",
+    "truncate table",
+    "row level security",
+    "github_token"
+  ]
+}

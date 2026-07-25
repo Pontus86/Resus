@@ -38,3 +38,22 @@ mark old decisions as superseded rather than rewriting their history.
 - Consequences: HRA-scenen kan markera verkliga längdsegment. Tvärsnittsprofiler och
   lesionsmasker kan förbättras oberoende, men får inte beskrivas som HRA-segmentering.
 - Related: HuBMAP CCF 3D Reference Object Library v1.2, `VH_F_Spinal_Cord.glb`.
+
+## D-003 — En enda låst arbetsyta för den avgränsade agentloopen
+
+- Status: accepted
+- Date: 2026-07-25
+- Owner: Pontus
+- Context: En implementerare och en granskare ska kunna köras sekventiellt utan att användaren
+  behöver hålla ett extra worktree eller editorfönster öppet.
+- Decision: Den automatiska loopen återanvänder `Resus-codex` på `codex/work`. En exklusiv
+  runtime-låsfil hindrar två controllerinstanser, och operatören får inte samtidigt låta en
+  interaktiv Claude- eller Codex-session redigera samma arbetsyta. Claude får göra
+  arbetskopieändringar; Codex körs read-only; endast controllern skriver runtime-state.
+- Alternatives: Köra direkt på `main`, skapa ett nytt worktree per körning, eller låta båda
+  agenterna skriva fritt. De alternativen avvisades på grund av högre release-risk, mer
+  handpåläggning respektive otydligt ägarskap.
+- Consequences: Arbetsytan måste vara ren före start och lämnas med en ogranskad diff efter
+  körning. Controllerresultat skapar aldrig commits eller release; en människa granskar,
+  committar och integrerar separat. Ett lås skyddar inte mot en människa som medvetet ignorerar
+  trafikljuset, vilket dokumenteras uttryckligen.

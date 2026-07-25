@@ -24,6 +24,7 @@ current directory, branch, and clean/expected Git status.
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
 | R-011 | done | Codex | `IDEAS/`, `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/room-render.js`, `HLR/js/ultrasound.js`, `HLR/js/main.js` | `codex/work` | this commit |
+| R-014 | done | Codex | `.agents/`, `.gitignore`, `scripts/agent_loop.py`, `tests/test_agent_loop.py`, `docs/agent-loop.md`, `AGENTS.md`, `DECISIONS.md`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -129,6 +130,19 @@ don't leave it dangling as still `open`/`suspected` there.
 - 2026-07-25 — Repository coordination established. Added `AGENTS.md`, removed the tracked
   `Blodgas/bloodgas_pkg 7` and `Blodgas/bloodgas_pkg 8` snapshots, and reserved a separate
   Codex worktree. Commits: `a82997e`, `7bb2099`.
+
+### R-014 — Bounded Claude Code ↔ Codex controller — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Added a standard-library, two-round controller for Claude implementation and
+  read-only Codex review in the existing locked worktree, with structured runtime handoffs,
+  configurable safety rules, schemas/prompts, and a traffic-light operator guide.
+- Verified: Python compilation; 23 unit/fake-executable integration tests with resource
+  warnings promoted to errors; CLI help; `git diff --check`. No real agent loop was launched.
+- Notes: `codex-cli 0.146.0-alpha.3.1` supports the configured adapter. Claude Code was not
+  installed in PATH, so `claude --help` and a first supervised pilot remain prerequisites.
+  R-006 was not touched.
 
 ### R-013 — Collapsible thoraxdrain panels — done
 

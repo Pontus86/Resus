@@ -22,11 +22,17 @@ untitled folder/
 
 # Om ett npm-baserat verktyg (t.ex. Playwright) någonsin installeras lokalt i projektet
 node_modules/
+__pycache__/
+*.py[cod]
 
 # Playwright MCP:s egna sessionsloggar/snapshots (konsolloggar, page.yml) -- skapas i repo-
 # roten varje gång MCP-verktyget körs mot en lokal http.server-sida under verifiering, inte
 # projektinnehåll.
 /.playwright-mcp/
+
+# Den avgränsade Claude/Codex-controllerns körstatus, loggar och lås. Mallar, schema och
+# säkerhetsregler ligger i `.agents/` och versionshanteras; endast flyktig runtime ignoreras.
+/.agent-state/
 
 # Egen, separat git-repo (299 commits, egen historik, redan pushad till github.com/Pontus86/
 # Blodgas.git) -- versionshanteras oberoende där, inte här.
