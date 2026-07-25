@@ -196,33 +196,32 @@ function _procedure3dRegionFilterFor(key){
   return mismatched ? "all" : proc.region;
 }
 
-// Laddar procedurens system (om de inte redan är laddade -- se pending-räknaren, som bara
-// räknar system som genuint saknas, inte sådana som bara behöver visas igen, eftersom
-// setBody3DSystemVisible hanterar det senare fallet synkront utan att trigga
-// window.onBody3DSystemLoaded, se Kroppsatlas/js/body3d.js).
+// Laddar procedurens system. Väntar på RIKTIG färdig-signal per system via
+// _body3dOnSystemReady (Kroppsatlas/js/body3d.js) -- INTE body3d.loadedSystems, som bara
+// betyder "hämtning påbörjad", och INTE en enda delad window.onBody3DSystemLoaded (som en
+// tidigare version av den här funktionen skrev över vid varje anrop, tystnandes en
+// föregående procedurs väntande callback om man hann byta procedur innan den förras system
+// hunnit bli klart -- B-004, se BUGS.md). _body3dOnSystemReady stödjer godtyckligt många
+// samtidiga lyssnare per system utan att de stör varandra.
 function loadProcedure3D(key, onReady){
   const proc = PROCEDURE3D_ANATOMY[key];
   if(!proc || !body3d) return;
   proc3d.key = key;
   proc3d.stageIndex = -1;
+  body3dResetAllCuts();
   body3dClearOverlay();
   body3dClearSelection();
   setBody3DRegionFilter(_procedure3dRegionFilterFor(key));
   setBody3DSideFilter(proc.side || "both");
 
   const systems = [..._procedure3dRequiredSystems(key)];
-  let pending = systems.filter(sys => !body3d.loadedSystems[sys]).length;
-  if(pending === 0){
-    systems.forEach(sys => setBody3DSystemVisible(sys, true));
-    if(onReady) onReady();
-    return;
-  }
-  window.onBody3DSystemLoaded = (sys) => {
-    if(!systems.includes(sys)) return;
-    pending--;
-    if(pending <= 0 && onReady) onReady();
-  };
-  systems.forEach(sys => setBody3DSystemVisible(sys, true));
+  if(systems.length === 0){ if(onReady) onReady(); return; }
+  let pending = systems.length;
+  function oneReady(){ if(--pending <= 0 && onReady) onReady(); }
+  systems.forEach(sys=>{
+    setBody3DSystemVisible(sys, true);
+    _body3dOnSystemReady(sys, oneReady);
+  });
 }
 
 function _procedure3dFrameOnPoint(point, halfExtent){
@@ -295,6 +294,7 @@ function advanceProcedure3DStage(){
 }
 function resetProcedure3DStage(){
   proc3d.stageIndex = -1;
+  body3dResetAllCuts();
   body3dClearOverlay();
   body3dClearSelection();
 }

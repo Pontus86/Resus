@@ -252,16 +252,47 @@ function _body3dLoadSystem(system, done){
   _body3dLoadSystemParsed(system, done);
 }
 
+// body3d.loadedSystems[system] sätts sant redan när en hämtning STARTAR (se _body3dLoadSystem
+// ovan) -- bra som "påbörja inte en andra hämtning"-spärr, men fel att tolka som "klar och
+// sökbar i registryn", vilket Procedurtraning/js/procedures3d.js:s loadProcedure3D() tidigare
+// gjorde (B-004: race mellan flera samtidiga proceduranrop, se BUGS.md). body3d.systemReady
+// är den FAKTISKA signalen -- sätts bara här, vid riktig hämtnings-/parsningsslut, aldrig vid
+// start. _body3dOnSystemReady kan anropas av GODTYCKLIGT många lyssnare oberoende av
+// varandra (till skillnad från window.onBody3DSystemLoaded, som bara rymmer EN global
+// funktion åt gången och tystnar tidigare lyssnare om den skrivs över -- den lämnas orörd här,
+// Kropps-atlas egen "laddar…"-indikator i main.js fortsätter använda den som förut, det här
+// är en tillkommande, separat mekanism, inte en ersättning).
+function _body3dOnSystemReady(system, cb){
+  if(!body3d) return;
+  if(!body3d.systemReady) body3d.systemReady = {};
+  if(body3d.systemReady[system]){ cb(); return; }
+  if(!body3d.systemReadyCallbacks) body3d.systemReadyCallbacks = {};
+  (body3d.systemReadyCallbacks[system] = body3d.systemReadyCallbacks[system] || []).push(cb);
+}
+function _body3dMarkSystemReady(system){
+  if(!body3d) return;
+  if(!body3d.systemReady) body3d.systemReady = {};
+  body3d.systemReady[system] = true;
+  const cbs = (body3d.systemReadyCallbacks && body3d.systemReadyCallbacks[system]) || [];
+  if(body3d.systemReadyCallbacks) body3d.systemReadyCallbacks[system] = [];
+  cbs.forEach(cb=>cb());
+}
+
 function _body3dLoadSystemParsed(system, done){
   const loader = new THREE.OBJLoader();
   const sysGroup = new THREE.Group();
   body3d.groups[system] = sysGroup;
   body3d.group.add(sysGroup);
+  // Markerar redo OCH anropar done() på VARJE utgång nedan (även felvägarna -- loadedSystems
+  // är redan satt sant vid det laget, ett misslyckat försök görs aldrig om, så en lyssnare som
+  // väntar via _body3dOnSystemReady måste ändå få veta att "hämtningen är över", annars hänger
+  // den för evigt).
+  function finish(){ _body3dMarkSystemReady(system); if(done) done(); }
 
   if(system === "brain"){
     let i = 0;
     function nextBrainFile(){
-      if(i >= BODY3D_BRAIN_CATEGORIES.length){ if(done) done(); return; }
+      if(i >= BODY3D_BRAIN_CATEGORIES.length){ finish(); return; }
       const {cat, region} = BODY3D_BRAIN_CATEGORIES[i++];
       const text = window.BRAIN3D_OBJ && window.BRAIN3D_OBJ[cat];
       if(!text){ setTimeout(nextBrainFile,0); return; }
@@ -281,10 +312,10 @@ function _body3dLoadSystemParsed(system, done){
   }
 
   const text = window.BODY3D_OBJ && window.BODY3D_OBJ[system];
-  if(!text){ console.error("body3d: saknar data för", system); if(done) done(); return; }
+  if(!text){ console.error("body3d: saknar data för", system); finish(); return; }
   let obj;
   try{ obj = loader.parse(text); }
-  catch(e){ console.error("body3d: kunde inte tolka OBJ för", system, e); if(done) done(); return; }
+  catch(e){ console.error("body3d: kunde inte tolka OBJ för", system, e); finish(); return; }
 
   const manifestBySystem = (window.BODY3D_MANIFEST||[]).filter(p=>p.system===system);
   const metaByName = {};
@@ -299,7 +330,7 @@ function _body3dLoadSystemParsed(system, done){
     if(system === "vascular") color = /vein/i.test(c.name) ? BODY3D_SYSTEM_COLOR.vascular_vein : BODY3D_SYSTEM_COLOR.vascular_artery;
     _body3dRegister(c, c.name, system, meta.region, meta.side, color);
   });
-  if(done) done();
+  finish();
 }
 
 function setBody3DSystemVisible(system, visible){
@@ -441,26 +472,50 @@ function _body3dIncisionPlanes(center, halfSize){
 // Sätter/återställer klippläge för namngivna registry-strukturer. Varje mesh har sin EGEN
 // materialinstans (se _body3dRegister ovan) -- att ändra en strukturs clippingPlanes påverkar
 // aldrig någon annan, även om flera strukturer råkar vara "aktiva" i olika snitt samtidigt.
+// body3d.cutMeshes håller reda på VILKA som just nu är skurna, oavsett vilken procedur/steg
+// som gjorde det -- annars finns ingen väg tillbaka till "återställ ALLT som skurits" utan
+// att varje anropare själv måste minnas listan (upptäckt som B-005: varken reset eller
+// procedurbyte i Procedurtraning/js/procedures3d.js rörde klipp-state alls, se BUGS.md).
 function body3dStageLayer(meshNames, incisionPlanes, active){
   if(!body3d) return;
+  if(!body3d.cutMeshes) body3d.cutMeshes = new Set();
   meshNames.forEach(name=>{
     const entry = body3d.registry[name];
     if(!entry || !entry.mesh.material) return;
     entry.mesh.material.clippingPlanes = active ? incisionPlanes : body3d.clipPlanes;
     entry.mesh.material.clipIntersection = !!active;
     entry.mesh.material.needsUpdate = true;
+    if(active) body3d.cutMeshes.add(name); else body3d.cutMeshes.delete(name);
   });
 }
 // Animerar snitt-lådan från 0 till targetRadius -- en stegvis "avslöjande" i stället för att
 // bara poppa upp klippt, se Procedurtraning/js/procedures3d.js för hur stegen kedjas.
+// _body3dIncisionGen är en generationsräknare: varje ny animation tar ett eget nummer, och
+// varje frame kollar att numret fortfarande är det AKTUELLA -- om body3dResetAllCuts() (eller
+// en nyare animation) hunnit höja räknaren under tiden avbryts den gamla rAF-kedjan tyst i
+// stället för att fortsätta mutera material efter en reset/procedurbyte (B-005, andra halvan).
+let _body3dIncisionGen = 0;
 function _body3dAnimateIncision(center, targetRadius, meshNames, duration, onDone){
+  const myGen = ++_body3dIncisionGen;
   const t0 = performance.now();
   function step(now){
+    if(myGen !== _body3dIncisionGen) return; // överkörd av reset eller en nyare animation
     const t = Math.min(1, (now - t0) / duration);
     body3dStageLayer(meshNames, _body3dIncisionPlanes(center, targetRadius * t), true);
     if(t < 1) requestAnimationFrame(step); else if(onDone) onDone();
   }
   requestAnimationFrame(step);
+}
+// Återställer ALLA för närvarande skurna strukturer till normalt klippläge och ogiltigförklarar
+// varje pågående snitt-animation (se _body3dIncisionGen ovan). Anropas från
+// Procedurtraning/js/procedures3d.js:s resetProcedure3DStage() OCH loadProcedure3D() -- båda
+// ställena som tidigare glömde städa klipp-state helt (B-005).
+function body3dResetAllCuts(){
+  if(!body3d) return;
+  _body3dIncisionGen++;
+  if(body3d.cutMeshes && body3d.cutMeshes.size){
+    body3dStageLayer([...body3d.cutMeshes], null, false);
+  }
 }
 // Lägger ett schematiskt märke (rör mellan punkter, eller en ensam sfär) i overlayGroup, med
 // ett pickName så klicket i canvasen (se ensureBody3D ovan) hittar det via samma

@@ -1,5 +1,13 @@
 /* ---------- Procedurträning: sidwiring ---------- */
 (() => {
+  // Sant medan loadProcedure3D() väntar på att procedurens system faktiskt ska bli redo
+  // (inte bara påbörjade, se _body3dOnSystemReady i Kroppsatlas/js/body3d.js) -- utan denna
+  // spärr kunde "Nästa steg" klickas innan t.ex. ett nytt landmärkes system hunnit laddas
+  // klart, vilket tyst gav ett uteblivet kamerafokus (B-004, se BUGS.md). renderStageInfo()
+  // körs synkront direkt vid procedurval (för att uppdatera stegvisning/landmärkeslistan) OCH
+  // asynkront igen när systemen väl är redo -- den synkrona första körningen får INTE aktivera
+  // knappen i förtid, därav flaggan i stället för att bara lita på stageIndex.
+  let systemsLoading = false;
   const canvas = document.getElementById("proc3dCanvas");
   const loadingEl = document.getElementById("proc3dLoading");
   const listHost = document.getElementById("proc3dList");
@@ -46,8 +54,8 @@
     });
 
     const atEnd = proc3d.stageIndex >= proc.stages.length-1;
-    nextBtn.disabled = atEnd;
-    nextBtn.textContent = proc3d.stageIndex < 0 ? "Börja" : (atEnd ? "Klar" : "Nästa steg");
+    nextBtn.disabled = atEnd || systemsLoading;
+    nextBtn.textContent = systemsLoading ? "Laddar…" : (proc3d.stageIndex < 0 ? "Börja" : (atEnd ? "Klar" : "Nästa steg"));
 
     if(checklistLink){
       checklistLink.hidden = !proc.checklistId;
@@ -55,7 +63,8 @@
   }
 
   function selectProcedure(key){
-    loadProcedure3D(key, renderStageInfo);
+    systemsLoading = true;
+    loadProcedure3D(key, () => { systemsLoading = false; renderStageInfo(); });
     renderList();
     renderStageInfo();
   }
