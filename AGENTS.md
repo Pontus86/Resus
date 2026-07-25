@@ -6,11 +6,13 @@ documentation remains in `CLAUDE.md`; read that file completely before changing 
 ## Start every task
 
 1. Read `CLAUDE.md` completely.
-2. Read the relevant module's `index.html`, scripts, and styles before editing.
-3. Read `about.html` before describing a module's purpose, changing that purpose, or adding an
+2. Read `TASKS.md` and confirm the assigned owner, branch, worktree, and file scope.
+3. Read the relevant module's `index.html`, scripts, and styles before editing.
+4. Read `about.html` before describing a module's purpose, changing that purpose, or adding an
    external data source.
-4. Check `git status --short` and preserve all pre-existing user changes.
-5. Before large downloads, Playwright installation, or 3D-model work, run `df -h /`.
+5. Check the current directory, `git branch --show-current`, and `git status --short`. Preserve
+   all pre-existing user changes and stop if the worktree or task ownership is wrong.
+6. Before large downloads, Playwright installation, or 3D-model work, run `df -h /`.
 
 If repository behavior conflicts with an assumption in this file, investigate the current code
 and update this guide when appropriate.
@@ -66,13 +68,19 @@ change is risky.
 
 ## Git and scope safety
 
+- Follow `TASKS.md`: work only in the assigned worktree, branch, and file/module scope.
+- Do not edit files assigned to another active task. If an overlap is discovered, stop and
+  report it to the coordinator before continuing.
 - Treat a dirty working tree as user work. Never discard, overwrite, or broadly reformat it.
 - `Models/`, reference PDFs, macOS files, temporary Word files, and the nested legacy Android
   repository are intentionally ignored; consult `.gitignore` before changing ignore rules.
 - Do not add ignored raw models or PDFs to Git.
 - Do not amend, rebase, force-push, or rewrite history.
-- Do not commit or push unless the user asks. Before a user-requested risky reconstruction,
-  recommend creating a known-good commit.
+- Commit completed logical units with descriptive messages so other workers can inspect them.
+  Do not push unless the user asks. Before a user-requested risky reconstruction, recommend
+  creating a known-good commit.
+- At handoff, report commit hashes, verification performed, known limitations, and likely
+  conflict files. The coordinator owns status updates in the canonical `TASKS.md` on `main`.
 - GitHub Pages deploys automatically from `main`; there is no separate deployment command.
 
 ## Useful entry points
