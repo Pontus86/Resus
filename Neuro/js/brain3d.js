@@ -66,7 +66,9 @@ const NEURO_ATLAS_COLORS = {
   brainstem:"#E8A69A", cerebellum:"#9FC1D9", corpus_callosum:"#F0DFA8",
   white_matter:"#F5F1E6",
   ventricles:"#7FB8E0", cortex:"#EDE0C9", spinalcord:"#E0B37D", vertebrae:"#C9C4B8",
-  peripheral_nerves:"#F0DE8F",
+  // Mörkare ockra än övriga vävnader: de tunna distala grenarna blir annars subpixel-bleka
+  // mot diagrammets ljusa bakgrund i Helkropp, även när materialet är helt ogenomskinligt.
+  peripheral_nerves:"#B86A00",
   active:"#D8473D", gray:"#C9C5C2"
 };
 function _brain3dGroupOf(cat){
@@ -652,8 +654,7 @@ function ensureBrain3D(cv, onReady){
     const baseColor = isCtxRegion ? new THREE.Color(NEURO_ATLAS_COLORS.active) : new THREE.Color(NEURO_ATLAS_COLORS[grp]||NEURO_ATLAS_COLORS.gray);
     const isCortex = cat==="cortex";
     const isVertebrae = cat==="vertebrae";
-    const isPeripheralNerves = cat==="peripheral_nerves";
-    const transparent = cat==="ventricles" || isCortex || isVertebrae || isPeripheralNerves;
+    const transparent = cat==="ventricles" || isCortex || isVertebrae;
     // Cortexskalet (och ventriklarna) ska gå att se IGENOM till det som ligger bakom --
     // låg opacitet + depthWrite:false så de inte ockluderar det som ligger bakom dem i
     // djupled (annars hade det bara sett ut som en halvgenomskinlig FRAMSIDA, med allt bakom
@@ -669,7 +670,7 @@ function ensureBrain3D(cv, onReady){
     // laddningen är klar (se _brain3dSetGhostOpaque/setBrain3DCortexVisible/setBrain3DCordVisible).
     const mat = new THREE.MeshToonMaterial({
       color:baseColor, transparent, gradientMap:toonGradientMap,
-      opacity: isCortex?0.16:(isVertebrae?0.35:(isPeripheralNerves?0.45:(transparent?0.55:1))),
+      opacity: isCortex?0.16:(isVertebrae?0.35:(transparent?0.55:1)),
       depthWrite: !transparent,
       clippingPlanes: allClipPlanes,
       side: THREE.DoubleSide   // annars blir insidan av ett snittat skal osynlig (bara ytterytan hade normaler åt rätt håll)
@@ -1466,7 +1467,7 @@ function setBrain3DCordVisible(v){
 function _brain3dNormalOpacity(cat){
   if(cat==="ventricles") return {opacity:0.55, transparent:true, depthWrite:false};
   if(cat==="vertebrae") return {opacity:0.35, transparent:true, depthWrite:false};
-  if(cat==="peripheral_nerves") return {opacity:0.45, transparent:true, depthWrite:false};
+  if(cat==="peripheral_nerves") return {opacity:1, transparent:false, depthWrite:true};
   if(cat==="cortex" || cat==="spinalcord"){
     const opaque = brain3d.ghostState && brain3d.ghostState[cat];
     return opaque ? {opacity:1, transparent:false, depthWrite:true}
