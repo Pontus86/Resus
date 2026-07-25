@@ -22,41 +22,97 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| I-001 | ready | Codex | `IDEAS/2026-07-25-feature-and-fix-backlog.md` only — append a reply per `IDEAS/README.md`'s protocol, do not edit any other file, do not write code | `codex/work` | — |
+| R-003 | in progress | Claude | `Kroppsatlas/js/body3d.js`, `Procedurtraning/js/procedures3d.js` — fixing B-004/B-005 | `main` | — |
+| R-004 | ready | Codex | Investigation/report only for B-006/B-007 — do not edit `Neuro/js/brain3d.js`, `Kroppsatlas/js/body3d.js`, or any other code file. Append findings to the relevant `BUGS.md` rows only. | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
+
+`I-001` (ideation thread) is paused, not an active task right now — see its own header in
+`IDEAS/2026-07-25-feature-and-fix-backlog.md` for status. Removed from this table since nothing
+is currently assigned there; it'll come back if/when the cricothyrotomy thread opens or the
+thread otherwise resumes.
+
+**Why R-003 and R-004 can run concurrently despite both touching body3d.js-adjacent code**:
+R-004 is investigation-and-report only, no code changes — see assignment rule 3, this is the
+"pause one task" alternative (scoping one task to read-only) rather than literally serializing
+them. If R-004's findings later turn into an actual fix, that becomes its own task, assigned
+only after R-003 is integrated, so there's no real overlap.
 
 ## Task briefs
 
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-### I-001 — Feature/fix backlog review (ideation, not implementation)
+### R-003 — Fix B-004 and B-005 (coordinator's own task, not Codex)
 
-This is a discussion task, not a build task — see `IDEAS/README.md` for the full protocol if
-you haven't already internalized it (you wrote it). Required thread-base commit: `ff51382`
-(confirm your `codex/work` checkout actually contains this before reading the thread or
-replying — it should, since I'm handing off immediately after committing it).
+Logged here for traceability even though I'm doing this myself in the main checkout, not
+handing it off — both bugs are fully diagnosed already (see `BUGS.md`), no need to re-derive
+root cause.
 
-Read `IDEAS/2026-07-25-feature-and-fix-backlog.md` (thread `I-001`) in full. It's a survey of
-7 candidate fixes/features across the repo with an honest first-pass value/effort take on
-each, posed as a genuine open prioritization question — not a pitch for a pre-decided answer.
-Three explicit open questions are listed at the bottom of my entry (prioritization, a
-first-look read on whether EKG's dormant 3D heart model looks like a clean fit for that
-module's existing architecture, whether cricothyrotomy deserves its own dedicated thread when
-we get to it, and anything you've noticed working in `Procedurtraning/` twice that isn't on
-the list at all).
+**B-005 fix** (`Kroppsatlas/js/body3d.js`): `resetProcedure3DStage()`/`loadProcedure3D()`
+(in `Procedurtraning/js/procedures3d.js`) never restore clip state on previously-cut meshes.
+Add a `body3d.cutMeshes` Set tracked by `body3dStageLayer()` (add on activate, remove on
+deactivate), plus a new `body3dResetAllCuts()` that restores every tracked mesh to
+`body3d.clipPlanes`/`clipIntersection:false` and clears the set. Also add a generation
+counter to `_body3dAnimateIncision()` so a superseded/stale animation's `requestAnimationFrame`
+loop stops mutating material state once cancelled — bump the counter in
+`body3dResetAllCuts()` too, not just on starting a new animation. Call `body3dResetAllCuts()`
+from both `resetProcedure3DStage()` and the top of `loadProcedure3D()`.
 
-Append a dated reply following the template's reply format (`## Codex — <timestamp>`,
-`### Agreements`, `### Concerns or alternatives`, `### Open questions`). Change `Current baton`
-to `Claude` at the top of the document. Commit with a message like `Reply to I-001 feature/fix
-backlog review`. Report the commit hash — my watcher will pick it up automatically, no need to
-wait for a second prompt from the user beyond what already starts this turn.
+**B-004 fix**: the real bug is `loadProcedure3D()` treating `body3d.loadedSystems[system]`
+(set true when a fetch *starts*, in `_body3dLoadSystem`) as if it meant "fully parsed and in
+the registry." Add a proper per-system ready/callback mechanism to `body3d.js` —
+`_body3dOnSystemReady(system, cb)` (calls immediately if already ready, otherwise queues) plus
+marking `body3d.systemReady[system]=true` and flushing queued callbacks at the actual
+completion point in `_body3dLoadSystemParsed` (both the brain-category branch and the regular
+branch). Rewrite `loadProcedure3D`'s pending-counter to use this instead of the
+`loadedSystems` flag and the single global `window.onBody3DSystemLoaded` (which stays
+untouched for Kropps-atlas's own "laddar…" checkbox indicator — this is an additive, separate
+mechanism, not a replacement for that existing usage).
 
-Do not edit any file other than the thread document itself. In particular: do not start
-implementing any of the ideas discussed, even ones you feel strongly about — an agreed idea
-still needs its own separate `TASKS.md` assignment with explicit file scope before either of
-us writes code, exactly as `IDEAS/README.md`'s safety rules already say.
+Verify via Playwright: re-run the same rapid-switching and reset-mid-animation scenarios that
+originally reproduced these (see `BUGS.md` B-004/B-005 entries for exact repro steps), confirm
+they no longer occur, confirm zero regressions across all 4 existing procedures, zero console
+errors. Move both entries to `BUGS.md`'s Resolved section with this task's commit hash when
+done, per the handoff template below.
+
+### R-004 — Investigate B-006 (Neuro nerve visibility) and B-007 (Kropps-atlas viewport clipping)
+
+Two user-reported issues, explicitly wanted with fresh eyes rather than the coordinator's own
+assumptions (the coordinator did the original Neuro peripheral-nerve merge work earlier this
+session, and built Kropps-atlas's camera-framing code — worth an independent look rather than
+compounding on the same blind spots). See `BUGS.md` for the current (thin) description of each
+— this task is to turn "suspected" into either "confirmed" with a real root cause, or rule it
+out, the same way the coordinator did for B-004/B-005.
+
+**Investigation only — do not edit any code file this round.** Report findings as an update to
+the relevant `BUGS.md` row(s) (or propose the update via your handoff, coordinator will apply
+it) — what you found, how you confirmed it, and a proposed fix approach if you have one, but
+don't implement it yet. This keeps your investigation safe to run alongside `R-003` (which is
+actively editing `Kroppsatlas/js/body3d.js` right now) without any file-scope conflict.
+
+**B-006**: lower-leg peripheral nerves not visible in the Neuro 3D model; arm nerve geometry
+looks incorrect. Start from `Neuro/js/brain3d.js` and whatever peripheral-nerve model file(s)
+it loads (check the actual `<script>` tags in `Neuro/index.html` for the real filename/path,
+don't assume). Per `CLAUDE.md`: peripheral nerves are known to be merged as ONE fused mesh
+(not individually addressable), and source data is often one-sided (`.r`-suffixed or
+unsuffixed-but-actually-one-side-only) — check whether "not visible" means genuinely missing
+from the merged geometry, or a visibility/filter/region-tag issue hiding data that's actually
+there, before assuming which.
+
+**B-007**: Kropps-atlas's 3D viewport clips off the top of the head and the front of the body
+— they render outside the visible viewport/camera frustum. Start from
+`Kroppsatlas/js/body3d.js`'s camera/framing code (`_body3dDefaultFraming`, `_body3dFrameBox`,
+`applyBody3DCamera`) and `Kroppsatlas/css/styles.css`'s canvas sizing rules. Note there's a
+related-but-confirmed-different precedent worth reading first, not assuming is the same root
+cause: `Procedurtraning/css/styles.css` needed its own `#proc3dCanvas{width:100%;height:100%}`
+rule because Kropps-atlas's canvas-sizing CSS was originally scoped to the `#body3dCanvas` ID
+specifically — check whether Kropps-atlas's *own* canvas has since regressed some other way,
+don't assume the fix is "add the same CSS rule again," it's already scoped to the right ID
+there.
+
+At handoff: report your findings as proposed `BUGS.md` text (coordinator will review and
+apply), not as a code diff.
 
 ## Assignment rules
 
