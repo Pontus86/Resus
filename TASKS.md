@@ -23,6 +23,7 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-011 | done | Codex | `IDEAS/`, `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/room-render.js`, `HLR/js/ultrasound.js`, `HLR/js/main.js` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -64,6 +65,34 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   a no-op since none currently do).
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
+
+### R-011 — HLR fixed-camera diorama view
+
+- User-authorized coordinator takeover on 2026-07-25. R-006 remains ready and untouched.
+- Record the agreed visual direction in `IDEAS/`: a fixed, slightly elevated clinical
+  diorama, coherent role/equipment language, physical task communication, and retained 2D
+  monitor/UI.
+- Replace the existing experimental Sprite view with a first coherent diorama iteration.
+  Keep the Classic view as a fallback and preserve the existing room hotspots and simulator
+  state logic.
+- Do not add a build step, runtime dependency, or externally downloaded model pack. The first
+  iteration must remain compatible with direct `file://` use and the `/Resus/` Pages subpath.
+- Acceptance: the new view represents the patient, active team roles, core equipment and
+  state-dependent work visibly; view switching works; room hotspots still act on their
+  original targets; Classic remains operational; test desktop and narrow layouts with no new
+  console errors.
+- Handoff: documented I-003 and replaced the visible Sprite option with a dependency-free
+  Canvas diorama. The first iteration gives the room, patient, all arriving staff roles and
+  core equipment one perspective, light and material language; active work gains rings,
+  directed hands and task labels. Existing internal `sprite` identifiers and `ROOM_LAYOUT`
+  positions remain intact so view switching and derived hotspots keep their established
+  behavior. Classic is unchanged.
+- Verification: syntax checks pass for all three involved scripts; every HTML script/style
+  dependency resolves in the required order; structural checks confirm the Diorama label,
+  state-driven patient/staff/equipment paths, surgeon arrival, preserved Classic route and
+  preserved role-derived hotspot route; `git diff --check` passes. Full visual desktop/narrow
+  and console QA could not run because the in-app browser cannot reach the local server and
+  no local Chrome browser connector is available.
 
 ## Assignment rules
 

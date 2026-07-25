@@ -110,7 +110,7 @@ function boot(){
     { r:[436,22,548,96],   ...A_defib },
     { r:[64,240,128,274],  ...A_us },
   ];
-  // Klickzoner i sprite-vyn härleds ur ROOM_LAYOUT-items (via role) så de
+  // Klickzoner i dioramavyn härleds ur ROOM_LAYOUT-items (via role) så de
   // följer med när objekt flyttas i layout-editorn.
   const roleRect=(role,pad=6)=>{ const it=(ROOM_LAYOUT.items||[]).find(o=>o.role===role); if(!it)return null;
     const img=it.sprite?SPRITES[it.sprite]:null; const w=it.w? it.w : (img&&img.width? it.h*(img.width/img.height):it.h);
@@ -135,7 +135,7 @@ function boot(){
     for(const h of hotspots()){ if(h.show()&&inR(p,h.r)){ cur="pointer"; break; } }
     room.style.cursor=cur;
   });
-  /* Rumsvy-växlare (Klassisk / Sprite) */
+  /* Rumsvy-växlare (Klassisk / Diorama) */
   const rvseg=$("rvseg");
   if(rvseg){ rvseg.querySelectorAll("button").forEach(b=>{
     b.onclick=()=>{ roomView=b.dataset.v;

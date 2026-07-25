@@ -510,11 +510,9 @@ function drawRoomClassic(){
 }
 
 /* =====================================================================
-   SPRITE-VY  —  Akutrum 1 i konceptarkets visuella språk:
-   kraftiga mörka konturer, mättad palett, kaklat golv, yrkesfärgade
-   scrubs. Ritas som vektor (arket är ett stil-/konceptark, inte ett
-   användbart atlas). Speglar exakt samma S.*-tillstånd som klassiska
-   vyn och delar klickzoner via HOT_SPRITE.
+   DIORAMAVY — samma interna id "sprite" behålls så sparade val och
+   klickzoner fortsätter fungera. Vyn ritas som ett sammanhållet 2,5D-
+   akutrum; konceptarkets fristående bitmappar används inte längre.
    ===================================================================== */
 const SPR = {
   OUT:"#22201E", OUT2:"#3A362F", floorA:"#E7EAE6", floorB:"#DCE3DC", floorC:"#CBD8CC",
@@ -552,47 +550,150 @@ function spriteFigure(g,x,y,bodyCol,skin,hair,rx,ry,lean){
 }
 function drawRoomSprite(){
   const g=roomC,W=560,H=330;
-  g.save(); g.clearRect(0,0,W,H);
+  g.save();g.clearRect(0,0,W,H);
   const L=ROOM_LAYOUT;
-
-  /* ===== BAKGRUND / GOLV ===== */
-  if((L.bgMode==="image")&&ROOM_BG_IMG&&ROOM_BG_IMG.complete&&ROOM_BG_IMG.naturalWidth){
-    const iw=ROOM_BG_IMG.naturalWidth, ih=ROOM_BG_IMG.naturalHeight, fit=L.bgFit||"cover";
-    if(fit==="stretch"){ g.drawImage(ROOM_BG_IMG,0,0,W,H); }
-    else { const s=fit==="cover"?Math.max(W/iw,H/ih):Math.min(W/iw,H/ih); const w=iw*s,h=ih*s;
-      if(fit==="contain"){g.fillStyle="#20262b";g.fillRect(0,0,W,H);} g.drawImage(ROOM_BG_IMG,(W-w)/2,(H-h)/2,w,h); }
-  } else if(L.bgMode==="color"){ g.fillStyle=L.bgColor||"#39434c"; g.fillRect(0,0,W,H); }
-  else {
-    const floor=SPRITES[L.floor||"floor_er1"];
-    if((L.floor==null||L.floor!=="none")&&floor&&floor.width){const cell=56;for(let y=0;y<H;y+=cell)for(let x=0;x<W;x+=cell)g.drawImage(floor,x,y,cell,cell);}
-    else{g.fillStyle="#D9DEE3";g.fillRect(0,0,W,H);}
-  }
-  /* ===== AUTO-VÄGGAR ===== */
-  if(L.autoWalls!==false){
-    const wall=SPRITES.wall_plain, wt=26;
-    if(wall&&wall.width){for(let x=0;x<W;x+=wt)g.drawImage(wall,x,0,wt,wt*1.1);}else{g.fillStyle="#E9E7E4";g.fillRect(0,0,W,wt);}
-    g.fillStyle="#9Fc3c2";g.fillRect(0,wt-4,W,3);
-    g.fillStyle="#E4E6E4";g.fillRect(0,0,10,H);g.fillRect(W-10,0,10,H);
-    g.fillStyle="rgba(34,32,30,.15)";g.fillRect(10,0,1,H);g.fillRect(W-11,0,1,H);
-    g.fillStyle="#DfE3E6";g.fillRect(0,H-16,W,16);g.fillStyle="#8FB7C4";g.fillRect(0,H-16,W,3);
-  }
+  drawDioramaRoom(g,W,H);
 
   /* hitta bäddens item för relativa detaljer */
   const bedIt=(L.items||[]).find(it=>it.role==="bed");
   const bcx=bedIt?bedIt.x:272, bcy=bedIt?bedIt.y:176, bH=bedIt?bedIt.h:118;
   const headY=bcy-bH*0.30, footY=bcy+bH*0.30;
 
-  /* ===== rita alla items i z-ordning ===== */
+  /* Gemensamt perspektiv och gemensam ljusriktning gör delarna till en scen. */
   const list=(L.items||[]).slice().map((it,i)=>({it,i})).sort((a,b)=>((a.it.z||0)-(b.it.z||0))||(a.i-b.i));
-  for(const {it} of list){ if(!roleVisible(it))continue; drawItem(g,it,{bcx,bcy,bH,headY,footY}); }
+  for(const {it} of list){if(roleVisible(it))drawDioramaItem(g,it,{bcx,bcy,bH,headY,footY});}
+  if(S.surgeonPresent)drawDioramaStaff(g,{role:"surgeon",x:365,y:112,h:48},{bcx,bcy,bH,headY,footY});
 
-  /* ===== state-overlays som inte är egna items (plattor, LUCAS, luftväg, kablar) ===== */
   drawPatientOverlays(g,{bcx,bcy,bH,headY,footY,bedIt});
 
-  /* ===== BLIXT + ROSC ===== */
   if(S.shockFlash>0){g.fillStyle=`rgba(255,252,245,${S.shockFlash*0.75})`;g.fillRect(0,0,W,H);g.strokeStyle=`rgba(244,67,54,${S.shockFlash})`;g.lineWidth=5;g.strokeRect(8,8,W-16,H-16);}
   if(S.rosc){g.fillStyle="#E9F3EA";g.strokeStyle="#2E7D32";g.lineWidth=1.5;g.beginPath();g.roundRect(W/2-105,H-40,210,24,12);g.fill();g.stroke();g.fillStyle="#2E7D32";g.font="bold 12px Archivo";g.textAlign="center";g.fillText("ROSC, spontan cirkulation",W/2,H-24);g.textAlign="left";}
   g.restore(); drawRoomLabels(g);
+}
+
+const DIORAMA={
+  wall:"#E9EEE9",wallSide:"#D0DBD3",floor:"#D5DDD8",joint:"#C5D0C9",edge:"#5B6962",
+  white:"#F8FAF8",metal:"#AAB6B1",metalDark:"#69756F",screen:"#13211C",
+  active:"#35A46F",urgent:"#E85B4A",skin:"#D9A77F",
+  role:{doctor:"#2D4569",nurse:"#447CAD",assistant:"#77A9C5",ambulance:"#B7C943",anesthesia:"#376B98",surgeon:"#397366"}
+};
+function diaRound(g,x,y,w,h,r,fill,stroke){
+  g.beginPath();g.roundRect(x,y,w,h,r);g.fillStyle=fill;g.fill();
+  if(stroke){g.strokeStyle=stroke;g.lineWidth=1.2;g.stroke();}
+}
+function diaShadow(g,x,y,rx,ry,a){
+  g.fillStyle=`rgba(30,42,36,${a||0.14})`;g.beginPath();g.ellipse(x+5,y+7,rx,ry,-0.08,0,7);g.fill();
+}
+function drawDioramaRoom(g,W,H){
+  const floor=g.createLinearGradient(0,48,0,H);floor.addColorStop(0,"#E1E7E3");floor.addColorStop(1,DIORAMA.floor);
+  g.fillStyle=floor;g.fillRect(0,0,W,H);
+  g.strokeStyle=DIORAMA.joint;g.lineWidth=1;
+  const vanishX=W/2, horizon=50;
+  for(let x=-140;x<W+160;x+=54){g.beginPath();g.moveTo(vanishX+(x-vanishX)*0.2,horizon);g.lineTo(x,H);g.stroke();}
+  for(let y=84;y<H;y+=46){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+  const wall=g.createLinearGradient(0,0,0,54);wall.addColorStop(0,"#F6F8F6");wall.addColorStop(1,DIORAMA.wall);
+  g.fillStyle=wall;g.fillRect(0,0,W,54);
+  g.fillStyle=DIORAMA.wallSide;g.fillRect(0,0,10,H);g.fillRect(W-10,0,10,H);
+  g.fillStyle="#88AAA0";g.fillRect(10,50,W-20,4);
+  g.fillStyle="rgba(31,48,40,.12)";g.fillRect(10,54,W-20,5);
+  const light=g.createRadialGradient(285,145,20,285,145,230);light.addColorStop(0,"rgba(255,255,246,.28)");light.addColorStop(1,"rgba(255,255,255,0)");
+  g.fillStyle=light;g.fillRect(10,54,W-20,H-54);
+}
+function dioramaOwner(it){
+  if(it.role==="doctor")return "lakare";
+  if(it.role==="nurse_ssk")return "ssk";
+  if(it.role==="ambulance")return "ambulans";
+  if(it.role==="narkos_ssk")return "ivassk";
+  if(it.role==="surgeon")return "kirurg";
+  if(it.role==="airway_staff")return available("narkos")?"narkos":"ambulans";
+  if(it.role==="compressor")return compressor()||"usk";
+  return null;
+}
+function drawDioramaItem(g,it,c){
+  if(it.widget){drawWidget(g,it,c);return;}
+  const role=it.role||it.sprite;
+  if(role==="bed"){drawDioramaBed(g,it);return;}
+  if(role==="patient"){drawDioramaPatient(g,it,c);return;}
+  if(["airway_staff","compressor","doctor","nurse_ssk","ambulance","narkos_ssk","surgeon"].includes(role)){
+    drawDioramaStaff(g,it,c);return;
+  }
+  drawDioramaEquipment(g,it,role);
+}
+function drawDioramaBed(g,it){
+  const x=it.x,y=it.y,w=82,h=132;
+  diaShadow(g,x,y,w*0.56,h*0.45,.18);
+  diaRound(g,x-w/2+5,y-h/2+9,w,h,12,"#8B9792",DIORAMA.edge);
+  diaRound(g,x-w/2,y-h/2,w,h,12,DIORAMA.white,DIORAMA.edge);
+  diaRound(g,x-w/2+7,y-h/2+7,w-14,h-14,9,"#E3ECE7","#B8C5BE");
+  diaRound(g,x-24,y-h/2+10,48,23,8,"#F7F8F5","#CDD5D0");
+  g.strokeStyle=DIORAMA.metalDark;g.lineWidth=3;
+  [[x-w/2-3,y-35,x-w/2-3,y+36],[x+w/2+3,y-35,x+w/2+3,y+36]].forEach(p=>{g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(p[2],p[3]);g.stroke();});
+  [[x-31,y-h/2+4],[x+31,y-h/2+4],[x-31,y+h/2+12],[x+31,y+h/2+12]].forEach(p=>{g.fillStyle="#35423C";g.beginPath();g.arc(p[0],p[1],4,0,7);g.fill();});
+}
+function drawDioramaPatient(g,it,c){
+  const x=c.bcx,head=c.headY-3,P=S.patient,skin=P.skin;
+  const pulse=S.comp?Math.sin(compPhase)*1.2:0;
+  diaShadow(g,x,c.bcy,30,54,.11);
+  g.strokeStyle=skin;g.lineWidth=12;g.lineCap="round";
+  g.beginPath();g.moveTo(x-15,head+29);g.lineTo(x-27,head+58);g.moveTo(x+15,head+29);g.lineTo(x+27,head+58);g.stroke();
+  g.beginPath();g.moveTo(x-11,head+70);g.lineTo(x-15,head+101);g.moveTo(x+11,head+70);g.lineTo(x+15,head+101);g.stroke();
+  g.fillStyle="#C9DDD2";g.strokeStyle="#8EB5A1";g.lineWidth=1.2;
+  g.beginPath();g.roundRect(x-24,head+19+pulse,48,63,15);g.fill();g.stroke();
+  g.strokeStyle="rgba(70,117,94,.38)";g.beginPath();g.moveTo(x,head+22);g.lineTo(x,head+78);g.stroke();
+  g.fillStyle=skin;g.beginPath();g.arc(x,head,12,0,7);g.fill();
+  g.fillStyle=P.hair||"#4A352B";g.beginPath();g.arc(x,head-2,10,Math.PI,Math.PI*2);g.fill();
+  if(P.sex==="kvinna"){g.fillStyle=P.hair||"#4A352B";g.beginPath();g.ellipse(x,head+7,12,7,0,0,Math.PI);g.fill();}
+}
+function drawDioramaStaff(g,it,c){
+  const owner=dioramaOwner(it),busy=owner&&roleBusy(owner);
+  const compress=it.role==="compressor"&&S.comp&&!S.lucas;
+  const ventilate=it.role==="airway_staff"&&S.vent;
+  const active=busy||compress||ventilate;
+  const colors={doctor:DIORAMA.role.doctor,nurse_ssk:DIORAMA.role.nurse,compressor:DIORAMA.role.assistant,
+    ambulance:DIORAMA.role.ambulance,airway_staff:available("narkos")?DIORAMA.role.anesthesia:DIORAMA.role.ambulance,
+    narkos_ssk:DIORAMA.role.anesthesia,surgeon:DIORAMA.role.surgeon};
+  const tx=compress?c.bcx:(it.role==="airway_staff"?c.bcx:c.bcx),ty=compress?c.headY+48:(it.role==="airway_staff"?c.headY:c.bcy);
+  const angle=Math.atan2(ty-it.y,tx-it.x),col=colors[it.role]||DIORAMA.role.doctor;
+  diaShadow(g,it.x,it.y,18,9,.18);
+  if(active){g.strokeStyle=compress?DIORAMA.urgent:DIORAMA.active;g.lineWidth=2;g.globalAlpha=.75;g.beginPath();g.ellipse(it.x,it.y+8,22,10,0,0,7);g.stroke();g.globalAlpha=1;}
+  const bx=it.x-Math.cos(angle)*7,by=it.y-Math.sin(angle)*7;
+  g.strokeStyle="#27352F";g.lineWidth=6;g.lineCap="round";
+  g.beginPath();g.moveTo(bx-4,by+6);g.lineTo(bx-9,by+17);g.moveTo(bx+4,by+6);g.lineTo(bx+9,by+17);g.stroke();
+  g.save();g.translate(bx,by);g.rotate(angle+Math.PI/2);
+  const grad=g.createLinearGradient(-15,-12,15,12);grad.addColorStop(0,"rgba(255,255,255,.28)");grad.addColorStop(.35,col);grad.addColorStop(1,"rgba(20,35,31,.25)");
+  diaRound(g,-15,-19,30,38,12,grad,DIORAMA.edge);g.restore();
+  const hx=bx-Math.cos(angle)*10,hy=by-Math.sin(angle)*10;
+  g.fillStyle="#C78F67";g.beginPath();g.arc(hx,hy,9,0,7);g.fill();
+  g.fillStyle=it.role==="narkos_ssk"||it.role==="surgeon"||it.role==="airway_staff"&&available("narkos")?"#DCE8E5":"#40342F";
+  g.beginPath();g.arc(hx,hy-1,8,Math.PI,Math.PI*2);g.fill();
+  if(compress||ventilate||busy){
+    const reach=compress?0.82:ventilate?0.8:0.58;
+    const handX=it.x+(tx-it.x)*reach,handY=it.y+(ty-it.y)*reach;
+    const px=-Math.sin(angle)*6,py=Math.cos(angle)*6;
+    g.strokeStyle=col;g.lineWidth=7;g.lineCap="round";
+    g.beginPath();g.moveTo(bx+px,by+py);g.lineTo(handX+px*.35,handY+py*.35);g.moveTo(bx-px,by-py);g.lineTo(handX-px*.35,handY-py*.35);g.stroke();
+    g.fillStyle="#D5A47E";[1,-1].forEach(s=>{g.beginPath();g.arc(handX+px*.35*s,handY+py*.35*s,3.6,0,7);g.fill();});
+  }
+  if(active){g.fillStyle=compress?DIORAMA.urgent:DIORAMA.active;g.beginPath();g.arc(it.x+15,it.y-19,4,0,7);g.fill();}
+  const lb=roleLabel(it);if(lb)labelUnder(g,it.x,it.y+28,lb);
+  const task=owner&&S.queues[owner]&&S.queues[owner][0];
+  if(task&&task.started)labelUnder(g,it.x,it.y+39,task.label.toUpperCase().slice(0,28));
+}
+function drawDioramaEquipment(g,it,role){
+  const x=it.x,y=it.y;
+  if(role==="ceiling_light"){const glow=g.createRadialGradient(x,y,1,x,y,40);glow.addColorStop(0,"rgba(255,252,218,.32)");glow.addColorStop(1,"rgba(255,255,255,0)");g.fillStyle=glow;g.fillRect(x-42,y-24,84,60);return;}
+  if(role==="door_slide"){g.fillStyle="#A9C6C0";g.fillRect(x-38,286,76,30);g.strokeStyle="#718E88";g.strokeRect(x-38,286,76,30);return;}
+  if(role==="curtain_closed"){g.fillStyle="#C6DAD5";g.fillRect(x-38,282,76,36);g.strokeStyle="#9BB8B1";for(let i=-30;i<38;i+=12){g.beginPath();g.moveTo(x+i,283);g.lineTo(x+i,318);g.stroke();}return;}
+  if(role==="iv_pole"){diaShadow(g,x,y+23,14,5,.14);g.strokeStyle=DIORAMA.metalDark;g.lineWidth=3;g.beginPath();g.moveTo(x,y-31);g.lineTo(x,y+25);g.stroke();g.beginPath();g.moveTo(x-10,y+25);g.lineTo(x+10,y+25);g.stroke();diaRound(g,x-12,y-28,13,24,3,"#B9DFF0","#608FA1");return;}
+  if(role==="o2_cyl"){diaShadow(g,x,y+18,12,5,.16);diaRound(g,x-10,y-24,20,48,9,"#4BA76A","#276742");g.fillStyle="#E7EEE9";g.fillRect(x-6,y-30,12,8);return;}
+  if(role==="defib"){diaShadow(g,x,y+21,28,8,.2);diaRound(g,x-27,y-20,54,43,7,"#E85B4A","#7D3129");diaRound(g,x-19,y-15,38,22,4,DIORAMA.screen,"#0A120F");miniTrace(g,x-16,y-12,32,15,SPR.ecg);g.fillStyle=S.charging?"#FFD25C":"#F1F4F2";g.beginPath();g.arc(x+16,y+14,4,0,7);g.fill();sWheel(g,x-18,y+25);sWheel(g,x+18,y+25);return;}
+  if(role==="ultrasound"){diaShadow(g,x,y+23,25,7,.18);diaRound(g,x-23,y-22,46,48,7,"#DCE5E1",DIORAMA.edge);diaRound(g,x-17,y-17,34,23,3,DIORAMA.screen,"#101814");g.fillStyle="#AFC8BF";g.beginPath();g.ellipse(x,y-6,10,6,-.4,0,7);g.fill();sWheel(g,x-15,y+27);sWheel(g,x+15,y+27);return;}
+  if(role==="crashcart"){diaShadow(g,x,y+20,31,8,.18);diaRound(g,x-30,y-23,60,46,6,"#C95046","#74322D");g.strokeStyle="#F2A59E";for(let yy=-11;yy<17;yy+=13){g.beginPath();g.moveTo(x-24,y+yy);g.lineTo(x+24,y+yy);g.stroke();}sWheel(g,x-20,y+25);sWheel(g,x+20,y+25);return;}
+  if(role==="ventilator"){diaShadow(g,x,y+18,24,7,.15);diaRound(g,x-23,y-23,46,47,7,"#D9E2DE",DIORAMA.edge);diaRound(g,x-15,y-16,30,19,3,DIORAMA.screen,"#111A16");g.fillStyle=SPR.ecg;g.fillRect(x-10,y-7,20,2);return;}
+  if(role==="sink"){diaRound(g,x-25,y-13,50,26,5,"#E5ECE9",DIORAMA.metalDark);g.fillStyle="#9EB7B1";g.beginPath();g.ellipse(x,y,16,8,0,0,7);g.fill();return;}
+  if(role==="computer"){diaRound(g,x-22,y-18,44,35,5,"#D8E0DC",DIORAMA.edge);diaRound(g,x-16,y-13,32,21,3,DIORAMA.screen);return;}
+  if(role==="stool"){diaShadow(g,x,y,17,8,.15);g.fillStyle="#66867E";g.beginPath();g.ellipse(x,y,16,10,0,0,7);g.fill();return;}
+  if(role==="sign"){diaRound(g,x-38,y-9,76,18,4,"#2F6F65");g.fillStyle="#fff";g.font="bold 8px 'IBM Plex Mono'";g.textAlign="center";g.fillText("AKUTRUM 1",x,y+3);g.textAlign="left";}
 }
 
 /* ---- är denna roll synlig i nuvarande läge? ---- */
@@ -647,6 +748,7 @@ function roleLabel(it){ const r=it.role;
   if(r==="nurse_ssk")return roleBusy("ssk")?"SSK •":"SJUKSKÖTERSKA";
   if(r==="ambulance")return "AMBULANS";
   if(r==="narkos_ssk")return "NARKOS-SSK";
+  if(r==="surgeon")return "KIRURG";
   return null;
 }
 

@@ -10,6 +10,7 @@ explicitly scoped assignment in `TASKS.md`.
 |---|---|---|---|
 | I-001 — Feature/fix backlog review | `2026-07-25-feature-and-fix-backlog.md` | `decision proposed` | Claude (paused) |
 | I-002 — Neuro nerve and skull repair request | `2026-07-25-neuro-nerve-skull-repair.md` | `decision proposed` | Claude |
+| I-003 — Fast dioramavy för A-HLR | `2026-07-25-hlr-diorama-view.md` | `approved` | Codex |
 
 Statuses: `discussing`, `decision proposed`, `approved`, `closed`.
 
