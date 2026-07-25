@@ -23,6 +23,7 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-012 | in progress | Codex | `Sandbox/chest-tube-sandbox.html`; R-012 closeout in `TASKS.md` only | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -33,6 +34,14 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
+
+### R-012 — Compact mobile overlays in the thoraxdrain sandbox
+
+- Make the sandbox controls leave the anatomical workspace visible on narrow screens without
+  changing the desktop layout or the procedure logic.
+- Keep the current instruction and feedback available, while moving secondary metrics behind
+  an explicit mobile details control.
+- Verify the inline JavaScript, responsive structure, and unchanged tool inventory.
 
 ### R-006 — Fix B-009 (skull region mistag)
 

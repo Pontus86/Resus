@@ -38,12 +38,38 @@
     #metrics{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin-top:12px;
       padding-top:11px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
     #metrics output{color:var(--text);text-align:right}
+    #mobileDetailsBtn{display:none}
     #hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;
       color:#fff9;text-shadow:0 2px 5px #000;font-size:13px;opacity:0;transition:opacity .2s}
     #legend{position:fixed;right:16px;bottom:82px;color:#9fb0be;font-size:12px;text-align:right}
     @media(max-width:760px){
-      #brief{width:calc(100vw - 32px)}#feedback{top:auto;right:16px;bottom:82px;width:270px}
-      #stepList{display:none}#legend{display:none}
+      #brief{top:8px;left:8px;width:calc(100vw - 16px);padding:8px;border-radius:11px;
+        display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center}
+      #brief h1{font-size:14px;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      #brief p,#stepList,#legend{display:none}
+      #brief button{padding:6px 8px;font-size:0}
+      #brief button::before{font-size:17px;line-height:1}
+      #viewBtn::before{content:"◐"}#resetBtn::before{content:"↻"}
+      #feedback{top:59px;right:8px;left:8px;width:auto;padding:8px 42px 8px 10px;border-radius:11px;
+        min-height:55px}
+      #feedback strong{font-size:13px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      #message{font-size:12px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;
+        -webkit-box-orient:vertical;overflow:hidden}
+      #metrics{display:none}
+      #mobileDetailsBtn{display:block;position:absolute;right:7px;top:7px;width:29px;height:29px;
+        padding:0;font-size:0}
+      #mobileDetailsBtn::before{content:"ⓘ";font-size:17px}
+      body.mobile-details #feedback{padding-right:10px}
+      body.mobile-details #feedback strong,
+      body.mobile-details #message{padding-right:34px}
+      body.mobile-details #metrics{display:grid}
+      #tools{left:8px;right:8px;bottom:8px;transform:none;max-width:none;padding:6px;gap:4px;
+        overflow:visible;justify-content:space-between;border-radius:11px}
+      #tools button{width:40px;height:40px;padding:0;font-size:0;display:grid;place-items:center}
+      #tools button::before{content:attr(data-icon);font-size:18px;line-height:1}
+    }
+    @media(max-width:390px){
+      #tools button{width:36px;height:38px}
     }
   </style>
 </head>
@@ -60,6 +86,7 @@
   <aside id="feedback" class="panel">
     <strong id="instruction">Börja med att palpera revbenen.</strong>
     <div id="message">Välj Palpera och undersök thoraxväggen.</div>
+    <button id="mobileDetailsBtn" class="secondary" aria-label="Visa detaljer" aria-expanded="false"></button>
     <div id="metrics">
       <span>Vävnadstrauma</span><output id="trauma">0</output>
       <span>Riskstrukturer</span><output id="injuries">0</output>
@@ -69,13 +96,13 @@
   </aside>
 
   <nav id="tools" class="panel" aria-label="Instrument">
-    <button data-tool="palpate" class="active">☝ Palpera</button>
-    <button data-tool="prep">✦ Sprita</button>
-    <button data-tool="scalpel">⌁ Skalpell</button>
-    <button data-tool="clamp">⌖ Peang</button>
-    <button data-tool="finger">● Finger</button>
-    <button data-tool="drain">↗ Drän</button>
-    <button data-tool="suture">◡ Nål &amp; tråd</button>
+    <button data-tool="palpate" data-icon="☝" aria-label="Palpera" class="active">☝ Palpera</button>
+    <button data-tool="prep" data-icon="✦" aria-label="Sprita">✦ Sprita</button>
+    <button data-tool="scalpel" data-icon="⌁" aria-label="Skalpell">⌁ Skalpell</button>
+    <button data-tool="clamp" data-icon="⌖" aria-label="Peang">⌖ Peang</button>
+    <button data-tool="finger" data-icon="●" aria-label="Finger">● Finger</button>
+    <button data-tool="drain" data-icon="↗" aria-label="Drän">↗ Drän</button>
+    <button data-tool="suture" data-icon="◡" aria-label="Nål och tråd">◡ Nål &amp; tråd</button>
   </nav>
 
   <div id="hint">Dra för att arbeta · Shift-dra för att rotera · scrolla för zoom</div>
@@ -697,6 +724,11 @@
       setMessage(cutaway?"Genomskärning visas endast som studiehjälp.":"Ytvyn är återställd.");
     });
     document.getElementById("resetBtn").addEventListener("click",()=>location.reload());
+    document.getElementById("mobileDetailsBtn").addEventListener("click",event=>{
+      const expanded=document.body.classList.toggle("mobile-details");
+      event.currentTarget.setAttribute("aria-expanded",String(expanded));
+      event.currentTarget.setAttribute("aria-label",expanded?"Dölj detaljer":"Visa detaljer");
+    });
     addEventListener("resize",()=>{
       renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
     });
