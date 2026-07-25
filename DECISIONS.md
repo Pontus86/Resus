@@ -22,3 +22,19 @@ mark old decisions as superseded rather than rewriting their history.
   reviewed and committed in Resus.
 - Related: Project Collaboration Kit `v0.2.0`; adoption commit to be recorded at handoff.
 
+## D-002 — Hybridmodell för ryggmärgsskador i Neuro
+
+- Status: accepted
+- Date: 2026-07-25
+- Owner: Pontus
+- Context: BodyParts3D ger Neuro ett sammanhängande ryggmärgsskal, medan HRA v1.2 ger
+  verklig 3D-geometri uppdelad i nivåsegment men saknar separata invändiga bansystem.
+- Decision: Visa HRA:s kvinnliga C1–S4-segment i en separat 3D-scen och koppla nivåvalet till
+  kodritade, anatomiskt grundade tvärsnitt för grå substans och centrala bansystem. Märk
+  uttryckligen tvärsnittet som undervisningsmodell och håll det skilt från HRA-geometrin.
+- Alternatives: Försöka tolka HRA-segmenten som invändiga trakter, eller behålla en enda
+  schematisk cirkel utan verkliga nivåer. Det första vore anatomiskt fel och det andra tappar
+  den nivåinformation som HRA faktiskt tillhandahåller.
+- Consequences: HRA-scenen kan markera verkliga längdsegment. Tvärsnittsprofiler och
+  lesionsmasker kan förbättras oberoende, men får inte beskrivas som HRA-segmentering.
+- Related: HuBMAP CCF 3D Reference Object Library v1.2, `VH_F_Spinal_Cord.glb`.

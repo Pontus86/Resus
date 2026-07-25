@@ -12,14 +12,14 @@
   /* ---- Simulator: intern undernavigering (Synfält/Ryggmärg/Nervbanor/Reflexer/Kärnor) ----
      Två av de fem (Nervbanor, Reflexer) delar den vanliga 3D-panelen (brain3d, se
      moveBrain3DPanelTo) med NIHSS; Kärnor har sin egen, helt separata 3D-scen (nuclei3d, se
-     filkommentaren i nuclei3d.js); Synfält/Ryggmärg är rena 2D-SVG-diagram utan 3D alls.
+     filkommentaren i nuclei3d.js); Ryggmärg har en egen HRA-scen som aktiveras separat.
      "panel" här styr vilken av dessa tre lägen ett undertillstånd tillhör, så
      activateSimSubMode förblir en generisk 3-vägs-växel i stället för att specialfalla
      per undertillstånd (gör det till en enda-rads-ändring att lägga till 3D för
      Synfält/Ryggmärg senare, om det någonsin blir aktuellt). */
   const SIM_SUBMODES = {
     pathway: {panel:"none"},
-    spinal:  {panel:"none"},
+    spinal:  {panel:"none", onEnter:()=>setHraSpinal3DActive(true)},
     tracts:  {panel:"shared", slot:"tracts3dSlot", onEnter:()=>{ initTracts(); updateBrain3DForTract(); }},
     reflex:  {panel:"shared", slot:"reflex3dSlot", onEnter:()=>{ initReflex3D(); updateBrain3DForReflex(); }},
     nuclei:  {panel:"nuclei", onEnter:()=>{ initNucleiDiagram(); }}
@@ -42,6 +42,7 @@
     const cfg = SIM_SUBMODES[key];
     setNuclei3DActive(cfg.panel === "nuclei");
     setBrain3DActive(cfg.panel === "shared");
+    setHraSpinal3DActive(key === "spinal");
     if(cfg.panel === "shared") moveBrain3DPanelTo(cfg.slot);
     if(cfg.onEnter) cfg.onEnter();
   }
@@ -61,6 +62,7 @@
     // nollas) när man kommer tillbaka, annars försvinner den man precis räknat ut bara för
     // att man tittat på en bana/reflex.
     if(b.dataset.tab === "nihss"){
+      setHraSpinal3DActive(false);
       moveBrain3DPanelTo("nihss3dCol");
       if(typeof renderBrain3DTracts==="function") renderBrain3DTracts(null);
       if(typeof renderBrain3DReflexArc==="function") renderBrain3DReflexArc(null);
@@ -74,6 +76,7 @@
       // alls. Stäng av den delade panelen så den inte fortsätter rendera i bakgrunden.
       setBrain3DActive(false);
       setNuclei3DActive(false);
+      setHraSpinal3DActive(false);
     }
   }));
 
