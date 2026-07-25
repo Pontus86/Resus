@@ -22,7 +22,6 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| R-003 | in progress | Claude | `Kroppsatlas/js/body3d.js`, `Procedurtraning/js/procedures3d.js` — fixing B-004/B-005 | `main` | — |
 | R-004 | ready | Codex | Investigation/report only for B-006/B-007 — do not edit `Neuro/js/brain3d.js`, `Kroppsatlas/js/body3d.js`, or any other code file. Append findings to the relevant `BUGS.md` rows only. | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
@@ -32,49 +31,13 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 is currently assigned there; it'll come back if/when the cricothyrotomy thread opens or the
 thread otherwise resumes.
 
-**Why R-003 and R-004 can run concurrently despite both touching body3d.js-adjacent code**:
-R-004 is investigation-and-report only, no code changes — see assignment rule 3, this is the
-"pause one task" alternative (scoping one task to read-only) rather than literally serializing
-them. If R-004's findings later turn into an actual fix, that becomes its own task, assigned
-only after R-003 is integrated, so there's no real overlap.
+`R-003` is done — see Handoff history. Its file scope (`Kroppsatlas/js/body3d.js`) no longer
+overlaps with anything active, since `R-004` is investigation-only (no code changes).
 
 ## Task briefs
 
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
-
-### R-003 — Fix B-004 and B-005 (coordinator's own task, not Codex)
-
-Logged here for traceability even though I'm doing this myself in the main checkout, not
-handing it off — both bugs are fully diagnosed already (see `BUGS.md`), no need to re-derive
-root cause.
-
-**B-005 fix** (`Kroppsatlas/js/body3d.js`): `resetProcedure3DStage()`/`loadProcedure3D()`
-(in `Procedurtraning/js/procedures3d.js`) never restore clip state on previously-cut meshes.
-Add a `body3d.cutMeshes` Set tracked by `body3dStageLayer()` (add on activate, remove on
-deactivate), plus a new `body3dResetAllCuts()` that restores every tracked mesh to
-`body3d.clipPlanes`/`clipIntersection:false` and clears the set. Also add a generation
-counter to `_body3dAnimateIncision()` so a superseded/stale animation's `requestAnimationFrame`
-loop stops mutating material state once cancelled — bump the counter in
-`body3dResetAllCuts()` too, not just on starting a new animation. Call `body3dResetAllCuts()`
-from both `resetProcedure3DStage()` and the top of `loadProcedure3D()`.
-
-**B-004 fix**: the real bug is `loadProcedure3D()` treating `body3d.loadedSystems[system]`
-(set true when a fetch *starts*, in `_body3dLoadSystem`) as if it meant "fully parsed and in
-the registry." Add a proper per-system ready/callback mechanism to `body3d.js` —
-`_body3dOnSystemReady(system, cb)` (calls immediately if already ready, otherwise queues) plus
-marking `body3d.systemReady[system]=true` and flushing queued callbacks at the actual
-completion point in `_body3dLoadSystemParsed` (both the brain-category branch and the regular
-branch). Rewrite `loadProcedure3D`'s pending-counter to use this instead of the
-`loadedSystems` flag and the single global `window.onBody3DSystemLoaded` (which stays
-untouched for Kropps-atlas's own "laddar…" checkbox indicator — this is an additive, separate
-mechanism, not a replacement for that existing usage).
-
-Verify via Playwright: re-run the same rapid-switching and reset-mid-animation scenarios that
-originally reproduced these (see `BUGS.md` B-004/B-005 entries for exact repro steps), confirm
-they no longer occur, confirm zero regressions across all 4 existing procedures, zero console
-errors. Move both entries to `BUGS.md`'s Resolved section with this task's commit hash when
-done, per the handoff template below.
 
 ### R-004 — Investigate B-006 (Neuro nerve visibility) and B-007 (Kropps-atlas viewport clipping)
 
@@ -210,3 +173,28 @@ don't leave it dangling as still `open`/`suspected` there.
   free) — cleared 1.7GB by removing the `Blodgas/bloodgas_pkg 7`/`8` leftover `node_modules`
   directories that R-001's cleanup had stopped tracking but never deleted from disk. Unrelated
   to this task's correctness, just a repo-hygiene note for next time this comes up.
+
+### R-003 — Fix B-004 and B-005 — done
+
+- Owner/branch: `Claude`, `main` (solo, no handoff needed)
+- Commit: `c093039`
+- Changed: `Kroppsatlas/js/body3d.js` (`body3d.cutMeshes` tracking, `body3dResetAllCuts()`, a
+  generation counter on `_body3dAnimateIncision` so a superseded animation stops mutating
+  material state, `_body3dOnSystemReady()`/`_body3dMarkSystemReady()` replacing the
+  single-global-callback pattern), `Procedurtraning/js/procedures3d.js` (`loadProcedure3D`
+  rewritten to use the new per-system ready mechanism, calls `body3dResetAllCuts()`),
+  `Procedurtraning/js/main.js` (closed the practical UI gap B-004 caused: "Nästa steg" now
+  disables + shows "Laddar…" until a newly-selected procedure's systems are genuinely ready,
+  not just started).
+- Verified: re-ran both original repro scenarios (reset mid-animation, rapid cross-procedure
+  switching with the old single-callback overwrite) — neither reproduces anymore. Full
+  regression across all 4 existing procedures, zero console errors. B-004/B-005 moved to
+  `BUGS.md`'s Resolved section with this commit hash.
+- Notes: lost significant time to a Playwright/browser HTTP-caching artifact mid-verification —
+  the `<script src="js/main.js">` tag kept serving a stale cached copy across many same-URL
+  navigations in one long browser session, while direct `fetch()` calls correctly got the
+  fresh file, which is what made it confusing (looked like the code wasn't taking effect).
+  Fixed by switching to a fresh local-server port. Not a real bug, just a testing-environment
+  gotcha worth remembering: if a code change mysteriously "isn't taking effect" despite the
+  served file being correct, suspect script-level browser caching, not the code, before
+  spending much time debugging the code itself.
