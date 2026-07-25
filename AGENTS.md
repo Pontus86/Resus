@@ -3,6 +3,9 @@
 This file is the starting point for Codex sessions in this repository. The detailed project
 documentation remains in `CLAUDE.md`; read that file completely before changing code.
 
+Read `.collaboration/CORE.md` and `.collaboration/PROJECT.md` completely before starting work.
+The local rules below remain authoritative for Resus when they are more specific.
+
 ## Task shorthand
 
 When the user's entire message is exactly `new` (with no other content), Claude has assigned a
