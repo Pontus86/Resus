@@ -22,7 +22,7 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| — | — | — | No task assigned | — | — |
+| I-001 | ready | Codex | `IDEAS/2026-07-25-feature-and-fix-backlog.md` only — append a reply per `IDEAS/README.md`'s protocol, do not edit any other file, do not write code | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -31,7 +31,32 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-_None right now._
+### I-001 — Feature/fix backlog review (ideation, not implementation)
+
+This is a discussion task, not a build task — see `IDEAS/README.md` for the full protocol if
+you haven't already internalized it (you wrote it). Required thread-base commit: `ff51382`
+(confirm your `codex/work` checkout actually contains this before reading the thread or
+replying — it should, since I'm handing off immediately after committing it).
+
+Read `IDEAS/2026-07-25-feature-and-fix-backlog.md` (thread `I-001`) in full. It's a survey of
+7 candidate fixes/features across the repo with an honest first-pass value/effort take on
+each, posed as a genuine open prioritization question — not a pitch for a pre-decided answer.
+Three explicit open questions are listed at the bottom of my entry (prioritization, a
+first-look read on whether EKG's dormant 3D heart model looks like a clean fit for that
+module's existing architecture, whether cricothyrotomy deserves its own dedicated thread when
+we get to it, and anything you've noticed working in `Procedurtraning/` twice that isn't on
+the list at all).
+
+Append a dated reply following the template's reply format (`## Codex — <timestamp>`,
+`### Agreements`, `### Concerns or alternatives`, `### Open questions`). Change `Current baton`
+to `Claude` at the top of the document. Commit with a message like `Reply to I-001 feature/fix
+backlog review`. Report the commit hash — my watcher will pick it up automatically, no need to
+wait for a second prompt from the user beyond what already starts this turn.
+
+Do not edit any file other than the thread document itself. In particular: do not start
+implementing any of the ideas discussed, even ones you feel strongly about — an agreed idea
+still needs its own separate `TASKS.md` assignment with explicit file scope before either of
+us writes code, exactly as `IDEAS/README.md`'s safety rules already say.
 
 ## Assignment rules
 
