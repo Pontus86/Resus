@@ -23,6 +23,7 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-010 | in progress | Codex | Thoraxdrän interaction experiment: `Sandbox/chest-tube-sandbox.html` and task closeout only. | `codex/work` | User requested restored progressive tissue excavation plus skin preparation and material-dependent palpation. |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -64,6 +65,19 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   a no-op since none currently do).
 - On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
+
+### R-010 — Thoraxdrän tissue interaction experiment
+
+- Extend the existing sandbox rather than moving behavior into production.
+- Add skin preparation as an explicit tool/step; dragging it over skin must leave a subtle
+  yellow antiseptic field with enough coverage required before incision.
+- Make soft-tissue palpation visibly depress the skin slightly while palpation over a rib
+  remains firm and does not deform the surface.
+- Replace instant blunt dissection with progressive drag-based excavation through fat and
+  muscle using the clamp. Preserve staged scalpel incision, pleural opening, finger sweep,
+  drain placement, trauma scoring, cutaway, reset, and instrument animation.
+- Verify JavaScript syntax, the complete success path, invalid-tool/unsafe-area feedback, reset,
+  cutaway, desktop/narrow layout, and zero console errors.
 
 ## Assignment rules
 

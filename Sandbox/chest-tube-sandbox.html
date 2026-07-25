@@ -63,12 +63,14 @@
     <div id="metrics">
       <span>Vävnadstrauma</span><output id="trauma">0</output>
       <span>Riskstrukturer</span><output id="injuries">0</output>
-      <span>Tekniskt steg</span><output id="stageMetric">0 / 6</output>
+      <span>Tekniskt steg</span><output id="stageMetric">0 / 7</output>
+      <span>Vävnadsdjup</span><output id="depthMetric">0 %</output>
     </div>
   </aside>
 
   <nav id="tools" class="panel" aria-label="Instrument">
     <button data-tool="palpate" class="active">☝ Palpera</button>
+    <button data-tool="prep">✦ Sprita</button>
     <button data-tool="scalpel">⌁ Skalpell</button>
     <button data-tool="clamp">⌖ Peang</button>
     <button data-tool="finger">● Finger</button>
@@ -130,7 +132,17 @@
       return mesh;
     }
 
-    layers.skin = box("skin", W, H, 0.18, layerZ.skin, colors.skin);
+    // Extra segment ger tillräckligt med ytpunkter för en liten lokal inbuktning vid
+    // mjukdelspalpation utan att introducera en tung mjukdelsfysikmotor.
+    layers.skin = new THREE.Mesh(
+      new THREE.BoxGeometry(W, H, 0.18, 42, 38, 1),
+      material(colors.skin)
+    );
+    layers.skin.position.z = layerZ.skin;
+    layers.skin.userData.kind = "skin";
+    layers.skin.userData.restPositions = layers.skin.geometry.attributes.position.array.slice();
+    model.add(layers.skin);
+    anatomy.push(layers.skin);
     layers.fat = box("fat", W, H, 0.28, layerZ.fat, colors.fat);
     layers.muscle = box("muscle", W, H, 0.26, layerZ.muscle, colors.muscle);
     layers.pleura = box("pleura", W, H, 0.08, layerZ.pleura, colors.pleura, 0.78);
@@ -180,6 +192,8 @@
 
     const instruments = new THREE.Group();
     model.add(instruments);
+    const prepMarks = new THREE.Group();
+    model.add(prepMarks);
     const instrumentModels = {};
     const steel = material(0xb8c4cc);
     steel.metalness = 0.72; steel.roughness = 0.25;
@@ -214,6 +228,18 @@
       bladeGeo.computeVertexNormals();
       const blade=new THREE.Mesh(bladeGeo,steel);g.add(blade);
       g.userData.tipOffset=.03;
+      return g;
+    }
+    function makePrep(){
+      const g=new THREE.Group();
+      addCylinder(g,new THREE.Vector3(0,0,.38),new THREE.Vector3(0,0,1.28),.085,darkSteel,16);
+      const padMat=material(0xe5cf72,.92);
+      padMat.roughness=.92;
+      const pad=new THREE.Mesh(new THREE.CylinderGeometry(.28,.31,.12,24),padMat);
+      pad.rotation.x=Math.PI/2;
+      pad.position.z=.18;
+      g.add(pad);
+      g.userData.tipOffset=.02;
       return g;
     }
     function makeClamp(){
@@ -262,6 +288,7 @@
       return g;
     }
     instrumentModels.scalpel=makeScalpel();
+    instrumentModels.prep=makePrep();
     instrumentModels.clamp=makeClamp();
     instrumentModels.finger=makeFinger();
     instrumentModels.palpate=makeFinger();
@@ -270,13 +297,19 @@
 
     const safe = {xMin:-1.55, xMax:1.35, yMin:-0.67, yMax:0.22};
     const steps = [
-      "Palpera två revben", "Lägg hudincision", "Trubbdissekera",
+      "Palpera två revben", "Sprita huden", "Lägg hudincision", "Trubbdissekera",
       "Öppna pleura", "Fingersvep", "För in drän"
     ];
+    const expectedTools = ["palpate","prep","scalpel","clamp","clamp","finger","drain"];
+    const toolLabels = {
+      palpate:"Palpera", prep:"Sprita", scalpel:"Skalpell", clamp:"Peang",
+      finger:"Finger", drain:"Drän"
+    };
     const state = {
       tool:"palpate", stage:0, trauma:0, injuries:0, palpated:new Set(),
       dragStart:null, lastPoint:null, orbiting:false, acting:false, cutCenter:null,
-      opened:new Set(), swept:false, drain:null
+      opened:new Set(), swept:false, drain:null, prepCoverage:new Set(),
+      prepDistance:0, incisionDistance:0, dissectionProgress:0
     };
     let instrumentPoint=new THREE.Vector3(0,0,layerZ.skin+.02);
     function showInstrument(toolName){
@@ -292,7 +325,8 @@
       // Alla modeller har sin arbetsände i gruppens origo. En sned grundvinkel gör både
       // instrumentkropp och vävnadskontakt läsbara i frontvyn utan att flytta spetsen.
       tool.rotation.set(state.tool==="finger"||state.tool==="palpate"?-.48:-.68,.34,0);
-      if(state.tool==="finger"||state.tool==="palpate") tool.scale.z=pressed?.82:1;
+      if(state.tool==="finger") tool.scale.z=pressed?.82:1;
+      if(state.tool==="palpate") tool.scale.z=pressed?.9:1;
       if(state.tool==="clamp"){
         const spread=pressed?.13:.035;
         tool.userData.left.rotation.y=-spread;
@@ -321,7 +355,9 @@
         : steps[state.stage];
       document.getElementById("trauma").textContent = state.trauma;
       document.getElementById("injuries").textContent = state.injuries;
-      document.getElementById("stageMetric").textContent = `${Math.min(state.stage,6)} / 6`;
+      document.getElementById("stageMetric").textContent = `${Math.min(state.stage,7)} / 7`;
+      document.getElementById("depthMetric").textContent =
+        `${Math.min(100,Math.round(state.dissectionProgress/2.15*100))} %`;
     }
     function advance(text){
       state.stage++;
@@ -338,6 +374,14 @@
     function aperture(layerName, center, width, height){
       const old = layers[layerName];
       old.visible = false;
+      if(old.userData.apertureParts){
+        old.userData.apertureParts.forEach(part=>{
+          model.remove(part);
+          part.geometry.dispose();
+          part.material.dispose();
+        });
+      }
+      old.userData.apertureParts = [];
       const z = layerZ[layerName], depth = old.geometry.parameters.depth;
       const color = colors[layerName];
       const left = center.x - width/2, right = center.x + width/2;
@@ -352,8 +396,53 @@
         part.position.set((x1+x2)/2,(y1+y2)/2,z);
         part.userData.kind = layerName;
         model.add(part);
+        old.userData.apertureParts.push(part);
       });
       state.opened.add(layerName);
+    }
+
+    function ribAt(p){
+      if(Math.abs(p.y-upperRibY)<0.28)return "upper";
+      if(Math.abs(p.y-lowerRibY)<0.28)return "lower";
+      return null;
+    }
+
+    function deformSkin(p, depth){
+      if(!layers.skin.visible)return;
+      const position=layers.skin.geometry.attributes.position;
+      const rest=layers.skin.userData.restPositions;
+      const radius=.62;
+      for(let i=0;i<position.count;i++){
+        const offset=i*3;
+        position.array[offset+2]=rest[offset+2];
+        if(rest[offset+2]<0.08)continue;
+        const dx=rest[offset]-p.x,dy=rest[offset+1]-p.y;
+        const distance=Math.hypot(dx,dy);
+        if(distance<radius){
+          const falloff=1-distance/radius;
+          position.array[offset+2]-=depth*falloff*falloff;
+        }
+      }
+      position.needsUpdate=true;
+      layers.skin.geometry.computeVertexNormals();
+    }
+
+    function restoreSkin(){
+      const position=layers.skin.geometry.attributes.position;
+      position.array.set(layers.skin.userData.restPositions);
+      position.needsUpdate=true;
+      layers.skin.geometry.computeVertexNormals();
+    }
+
+    function addPrepMark(p){
+      const cell=`${Math.round(p.x*3)}:${Math.round(p.y*3)}`;
+      if(state.prepCoverage.has(cell))return;
+      state.prepCoverage.add(cell);
+      const stainMat=material(0xd7ad2f,.2);
+      stainMat.depthWrite=false;
+      const stain=new THREE.Mesh(new THREE.CircleGeometry(.43,24),stainMat);
+      stain.position.set(p.x,p.y,layerZ.skin+.101);
+      prepMarks.add(stain);
     }
 
     function line(a,b,color,width=0.045){
@@ -381,25 +470,26 @@
       state.dragStart = p.clone(); state.lastPoint = p.clone();
       moveInstrument(p,true);
       if(state.tool === "palpate"){
-        const rib = Math.abs(p.y-upperRibY) < 0.28 ? "upper" : Math.abs(p.y-lowerRibY) < 0.28 ? "lower" : null;
+        const rib = ribAt(p);
         if(rib){
           state.palpated.add(rib);
           line(new THREE.Vector3(p.x-.18,p.y,0),new THREE.Vector3(p.x+.18,p.y,0),0xe8c15b,0.035);
-          if(state.stage===0 && state.palpated.size===2) advance("Du har identifierat interkostalrummet. Välj Skalpell.");
+          if(state.stage===0 && state.palpated.size===2) advance("Du har identifierat interkostalrummet. Välj Sprita.");
           else setMessage("Fast struktur palperas: revben.", "ok");
-        } else setMessage("Mjuk thoraxvägg. Fortsätt söka efter revbenskanterna.");
+        } else{
+          deformSkin(p,.095);
+          setMessage("Mjukdel: huden sjunker undan lätt under fingret.");
+        }
       }
-      if(state.tool === "clamp" && state.stage===2){
-        if(!inSafe(p)) return penalize("Peangen förs utanför säkerhetsområdet.");
-        aperture("fat",state.cutCenter,2.1,0.7);
-        aperture("muscle",state.cutCenter,1.25,0.48);
-        advance("Trubbig kanal skapad. Klicka kontrollerat med peangen för att öppna pleura.");
-      } else if(state.tool === "clamp" && state.stage===3){
+      if(state.tool==="prep" && state.stage===1)addPrepMark(p);
+      if(state.tool === "clamp" && state.stage===3 && !inSafe(p)){
+        penalize("Peangen förs utanför säkerhetsområdet.");
+      } else if(state.tool === "clamp" && state.stage===4){
         if(!inSafe(p)) return penalize("Pleura öppnas på fel nivå.",true);
         aperture("pleura",state.cutCenter,0.48,0.42);
         advance("Pleura har öppnats. Byt till Finger och bekräfta intrapleural placering.");
       }
-      if(state.tool === "finger" && state.stage===4){
+      if(state.tool === "finger" && state.stage===5){
         if(p.distanceTo(state.cutCenter) > 0.7) return penalize("Fingret förs inte genom den skapade kanalen.");
         state.swept=true;
         const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42,0.035,10,40),material(0x4fc3b4));
@@ -411,10 +501,33 @@
 
     function actMove(p){
       moveInstrument(p,true);
-      if(state.tool==="scalpel" && state.stage===1){
+      if(state.tool==="prep" && state.stage===1){
+        const movement=state.lastPoint.distanceTo(p);
+        if(movement>.035){
+          state.prepDistance+=movement;
+          addPrepMark(p);
+          state.lastPoint.copy(p);
+        }
+      }
+      if(state.tool==="scalpel" && state.stage===2){
         if(state.lastPoint.distanceTo(p)>0.07){
           line(state.lastPoint,p,inSafe(p)?0x532b2a:0xef6a62,0.035);
+          state.incisionDistance+=state.lastPoint.distanceTo(p);
           state.lastPoint.copy(p);
+        }
+      }
+      if(state.tool==="clamp" && state.stage===3 && state.cutCenter){
+        const movement=state.lastPoint.distanceTo(p);
+        if(movement>.025 && p.distanceTo(state.cutCenter)<.9){
+          state.dissectionProgress+=movement;
+          state.lastPoint.copy(p);
+          const progress=Math.min(1,state.dissectionProgress/2.15);
+          aperture("fat",state.cutCenter,.48+progress*1.62,.24+progress*.46);
+          if(progress>.35){
+            aperture("muscle",state.cutCenter,.28+progress*.97,.16+progress*.32);
+          }
+          setMessage(`Trubbdissektion: ${Math.round(progress*100)} % genom mjukvävnaden.`);
+          renderUI();
         }
       }
     }
@@ -422,18 +535,36 @@
     function actEnd(p){
       if(!state.dragStart) return;
       const delta=p.clone().sub(state.dragStart);
-      if(state.tool==="scalpel" && state.stage===1){
+      if(state.tool==="prep" && state.stage===1){
+        if(!inSafe(state.dragStart) || !inSafe(p) || state.prepCoverage.size<8 || state.prepDistance<1.2){
+          penalize("Desinfektera ett bredare sammanhängande hudområde i säkerhetstriangeln.");
+        }else{
+          advance("Huden är desinfekterad med ett sammanhängande antiseptiskt fält. Välj Skalpell.");
+        }
+      }
+      if(state.tool==="scalpel" && state.stage===2){
         const center=state.dragStart.clone().add(p).multiplyScalar(.5);
         const horizontal=Math.abs(delta.x)>Math.abs(delta.y)*1.7;
         if(!inSafe(center)) penalize("Snittet ligger utanför säkerhetstriangeln.", Math.abs(center.y-upperRibY)<.45);
-        else if(!horizontal || Math.abs(delta.x)<0.75) penalize("Snittet är för kort eller har olämplig riktning.");
+        else if(!horizontal || Math.abs(delta.x)<0.75 || state.incisionDistance<.7) penalize("Snittet är för kort eller har olämplig riktning.");
         else{
           state.cutCenter=center;
           aperture("skin",center,Math.min(Math.abs(delta.x),2.2),0.26);
+          prepMarks.children.forEach(mark=>{
+            if(Math.abs(mark.position.x-center.x)<Math.abs(delta.x)/2 &&
+               Math.abs(mark.position.y-center.y)<.22)mark.visible=false;
+          });
           advance("Hudincisionen ligger i rätt interkostalrum. Välj Peang för trubbdissektion.");
         }
       }
-      if(state.tool==="drain" && state.stage===5){
+      if(state.tool==="clamp" && state.stage===3){
+        if(state.dissectionProgress>=2.15){
+          advance("Du har successivt arbetat genom fett och muskel. Klicka kontrollerat med peangen för att öppna pleura.");
+        }else if(inSafe(p)){
+          setMessage("Fortsätt öppna kanalen med små spridande rörelser.", "warn");
+        }
+      }
+      if(state.tool==="drain" && state.stage===6){
         if(state.dragStart.distanceTo(state.cutCenter)>0.75) return penalize("Dränet måste föras in genom den skapade öppningen.");
         if(delta.length()<0.7) return penalize("Visa dränets riktning genom att dra en längre bana.");
         const cranial=delta.y>Math.abs(delta.x)*0.25;
@@ -446,6 +577,7 @@
         advance(`Godkänd placering. Trauma ${state.trauma}, skadade riskstrukturer ${state.injuries}.`);
       }
       state.dragStart=null;
+      restoreSkin();
       moveInstrument(p,false);
     }
 
@@ -453,10 +585,15 @@
       state.tool=btn.dataset.tool;
       document.querySelectorAll("[data-tool]").forEach(b=>b.classList.toggle("active",b===btn));
       showInstrument(state.tool);
+      if(state.stage<steps.length && expectedTools[state.stage]!==state.tool){
+        setMessage(`Det aktuella steget kräver ${toolLabels[expectedTools[state.stage]]}.`, "warn");
+        return;
+      }
       setMessage({
         palpate:"Klicka över thoraxväggen för att känna efter revben.",
+        prep:"Dra över ett brett hudområde tills ett sammanhängande gulaktigt spritfält syns.",
         scalpel:"Dra ett horisontellt snitt där du bedömer att säkerhetstriangeln ligger.",
-        clamp:"Klicka i incisionen för trubbdissektion eller pleuraöppning.",
+        clamp:"Dra peangen fram och tillbaka i incisionen för att arbeta genom vävnaden; klicka sedan för pleura.",
         finger:"Klicka genom öppningen för en fingersvepning.",
         drain:"Dra från öppningen i den riktning du vill föra dränet."
       }[state.tool]);
@@ -493,9 +630,13 @@
     document.getElementById("viewBtn").addEventListener("click",()=>{
       cutaway=!cutaway;
       ["skin","fat","muscle"].forEach((name,i)=>{
-        layers[name].material.transparent=cutaway;
-        layers[name].material.opacity=cutaway?[.14,.22,.34][i]:1;
-        layers[name].material.depthWrite=!cutaway;
+        const layerMeshes=[layers[name],...(layers[name].userData.apertureParts||[])];
+        layerMeshes.forEach(mesh=>{
+          mesh.material.transparent=cutaway;
+          mesh.material.opacity=cutaway?[.14,.22,.34][i]:1;
+          mesh.material.depthWrite=!cutaway;
+          mesh.material.needsUpdate=true;
+        });
       });
       setMessage(cutaway?"Genomskärning visas endast som studiehjälp.":"Ytvyn är återställd.");
     });
