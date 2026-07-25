@@ -22,60 +22,19 @@ current directory, branch, and clean/expected Git status.
 
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
-| R-004 | ready | Codex | Investigation/report only for B-006/B-007 — do not edit `Neuro/js/brain3d.js`, `Kroppsatlas/js/body3d.js`, or any other code file. Append findings to the relevant `BUGS.md` rows only. | `codex/work` | — |
+| — | — | — | No task assigned | — | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
 `I-001` (ideation thread) is paused, not an active task right now — see its own header in
-`IDEAS/2026-07-25-feature-and-fix-backlog.md` for status. Removed from this table since nothing
-is currently assigned there; it'll come back if/when the cricothyrotomy thread opens or the
-thread otherwise resumes.
-
-`R-003` is done — see Handoff history. Its file scope (`Kroppsatlas/js/body3d.js`) no longer
-overlaps with anything active, since `R-004` is investigation-only (no code changes).
+`IDEAS/2026-07-25-feature-and-fix-backlog.md` for status.
 
 ## Task briefs
 
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-### R-004 — Investigate B-006 (Neuro nerve visibility) and B-007 (Kropps-atlas viewport clipping)
-
-Two user-reported issues, explicitly wanted with fresh eyes rather than the coordinator's own
-assumptions (the coordinator did the original Neuro peripheral-nerve merge work earlier this
-session, and built Kropps-atlas's camera-framing code — worth an independent look rather than
-compounding on the same blind spots). See `BUGS.md` for the current (thin) description of each
-— this task is to turn "suspected" into either "confirmed" with a real root cause, or rule it
-out, the same way the coordinator did for B-004/B-005.
-
-**Investigation only — do not edit any code file this round.** Report findings as an update to
-the relevant `BUGS.md` row(s) (or propose the update via your handoff, coordinator will apply
-it) — what you found, how you confirmed it, and a proposed fix approach if you have one, but
-don't implement it yet. This keeps your investigation safe to run alongside `R-003` (which is
-actively editing `Kroppsatlas/js/body3d.js` right now) without any file-scope conflict.
-
-**B-006**: lower-leg peripheral nerves not visible in the Neuro 3D model; arm nerve geometry
-looks incorrect. Start from `Neuro/js/brain3d.js` and whatever peripheral-nerve model file(s)
-it loads (check the actual `<script>` tags in `Neuro/index.html` for the real filename/path,
-don't assume). Per `CLAUDE.md`: peripheral nerves are known to be merged as ONE fused mesh
-(not individually addressable), and source data is often one-sided (`.r`-suffixed or
-unsuffixed-but-actually-one-side-only) — check whether "not visible" means genuinely missing
-from the merged geometry, or a visibility/filter/region-tag issue hiding data that's actually
-there, before assuming which.
-
-**B-007**: Kropps-atlas's 3D viewport clips off the top of the head and the front of the body
-— they render outside the visible viewport/camera frustum. Start from
-`Kroppsatlas/js/body3d.js`'s camera/framing code (`_body3dDefaultFraming`, `_body3dFrameBox`,
-`applyBody3DCamera`) and `Kroppsatlas/css/styles.css`'s canvas sizing rules. Note there's a
-related-but-confirmed-different precedent worth reading first, not assuming is the same root
-cause: `Procedurtraning/css/styles.css` needed its own `#proc3dCanvas{width:100%;height:100%}`
-rule because Kropps-atlas's canvas-sizing CSS was originally scoped to the `#body3dCanvas` ID
-specifically — check whether Kropps-atlas's *own* canvas has since regressed some other way,
-don't assume the fix is "add the same CSS rule again," it's already scoped to the right ID
-there.
-
-At handoff: report your findings as proposed `BUGS.md` text (coordinator will review and
-apply), not as a code diff.
+_None right now._
 
 ## Assignment rules
 
@@ -198,3 +157,32 @@ don't leave it dangling as still `open`/`suspected` there.
   gotcha worth remembering: if a code change mysteriously "isn't taking effect" despite the
   served file being correct, suspect script-level browser caching, not the code, before
   spending much time debugging the code itself.
+
+### R-004 — Investigate B-006/B-007 — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: `1969666` (fast-forwarded into `main`, no conflicts)
+- Changed: `BUGS.md` only, exactly the scope given — no code files touched.
+- Findings:
+  - **B-006 confirmed**, root cause is NOT missing geometry. The lower-leg nerves are all
+    present (94 source blocks, 278,880 vertices, bilateral sciatic/tibial/fibular/sural/
+    plantar) — they're just visually sub-pixel/faint at default whole-body framing (0.45
+    opacity against a similar-toned background). The arm nerves have a genuinely different,
+    more serious cause: the fused mesh contains **overlapping duplicate representations**
+    from two source generations (47 legacy BodyParts3D matches + 108 later Open3DModel
+    blocks + their mirrors) — differently-calibrated surfaces coexisting in the same merged
+    mesh. Proposed fix (not yet built): regenerate from a deduplicated per-region source
+    manifest (one source family per structure, validated against the skeleton), then address
+    legibility separately (opaque/high-contrast material + a limb-region framing option, not
+    thicker geometry). This is a real merge-pipeline task, not a quick fix — needs its own
+    scoped `TASKS.md` assignment when picked up.
+  - **B-007 marked `wontfix`** — not reproducible against the current code. Verified the
+    canvas is correctly sized (458×611px, matches the CSS rule), and projected all 583,430
+    skeletal vertices through the actual camera transform: every one lands inside the -1..1
+    NDC range in both the default view and the "Framifrån" preset — nothing is geometrically
+    clipped. Proposed alternative explanation: ordinary page scrolling, since the 611px-tall
+    canvas can exceed the visible browser viewport at some window sizes, which looks like
+    clipping but isn't a rendering bug. No further action without a screenshot + exact
+    viewport/systems/camera-preset/interaction sequence that reproduces a real cutoff.
+- Notes: none beyond the above — both are logged accurately in `BUGS.md` for whenever they're
+  picked up (or, for B-007, reopened with better repro info).
