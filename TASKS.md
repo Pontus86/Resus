@@ -23,6 +23,7 @@ current directory, branch, and clean/expected Git status.
 | ID | Status | Owner | Scope / files | Branch | Handoff |
 |---|---|---|---|---|---|
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
+| R-013 | in progress | Codex | `Sandbox/chest-tube-sandbox.html`; R-013 closeout in `TASKS.md` only | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -33,6 +34,12 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
+
+### R-013 — Collapsible thoraxdrain panels
+
+- Add independent accessible minimize/expand controls to the brief and feedback panels.
+- Preserve the panel title/current instruction while collapsed and keep the R-012 mobile
+  layout, metrics toggle, desktop layout, and procedure logic intact.
 
 ### R-006 — Fix B-009 (skull region mistag)
 
