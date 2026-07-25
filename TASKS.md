@@ -34,9 +34,9 @@ Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 Full context for tasks in `ready`/`in progress` status, so the worker doesn't have to
 rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 
-### R-006 — Fix B-008 (skull region mistag)
+### R-006 — Fix B-009 (skull region mistag)
 
-- Fixes `BUGS.md`'s `B-008`. Relates to `IDEAS/2026-07-25-neuro-nerve-skull-repair.md` (I-002)
+- Fixes `BUGS.md`'s `B-009`. Relates to `IDEAS/2026-07-25-neuro-nerve-skull-repair.md` (I-002)
   — this is likely (not certain) the real explanation behind the "skull looks incomplete"
   report that prompted that thread, at least for the Kropps-atlas side of it. It does not
   address I-002's nerve-dedup question at all — that's still open and unassigned.
@@ -62,7 +62,7 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   back correctly for anything that depends on these names (check Procedurträning's existing
   procedures don't reference any of the 30 by name — a quick grep is enough, expected to be
   a no-op since none currently do).
-- On completion: move B-008 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
+- On completion: move B-009 to `BUGS.md`'s Resolved table (Found `1812e39`, Fixed = this
   commit) and update this board.
 
 ## Assignment rules
