@@ -75,7 +75,10 @@ us writes code, exactly as `IDEAS/README.md`'s safety rules already say.
 
 ## Handoff template
 
-Add completed handoffs below; retain concise entries so decisions remain discoverable.
+Add completed handoffs below; retain concise entries so decisions remain discoverable. If the
+task fixed or implemented a `B-XXX`/`TODO-XXX` entry from `BUGS.md`, move that entry to
+`BUGS.md`'s Resolved section (date + this commit hash) as part of closing out the handoff —
+don't leave it dangling as still `open`/`suspected` there.
 
 ### R-000 — Example
 
