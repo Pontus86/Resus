@@ -34,6 +34,7 @@ current directory, branch, and clean/expected Git status.
 | R-021 | done | Codex | `Sandbox/README.md`, `Sandbox/agent-edit-lab/`, `TASKS.md` | `codex/work` | this commit |
 | R-022 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/main.js`, `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-023 | done | Codex | `HLR/blender/`, `HLR/js/room3d-staff-rig-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `TASKS.md` | `codex/work` | this commit |
+| R-024 | done | Codex | `HLR/blender/`, `HLR/js/room3d-patient-rig-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -689,3 +690,27 @@ don't leave it dangling as still `open`/`suspected` there.
   deforming human mesh. It removes the runtime mannequin's rebuilt-cylinder posing and provides
   a real editable armature for later proportion, clothing and animation passes. No browser
   backend was available for live WebGL/raycast QA.
+
+### R-024 — Rigged HLR patient and anatomical anchors — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Added `hlr-patient-rig.blend`, an organized supine patient with a named 15-bone
+  armature, 21 rigidly bone-bound low-poly meshes and six clinical anchors. The deterministic
+  exporter embeds the model and its sternum, airway, pad, vascular-access and ultrasound
+  points in a 36 KB ordinary data script. The 3D room now builds the patient from that rig,
+  deforms only the chest hierarchy during compressions and routes staff targets, equipment,
+  pads and cables through the exported anchors. Rig geometry caches are namespaced so staff
+  and patient meshes cannot collide; the old procedural patient remains the fallback.
+- Verified: Blender 4.3 generated, opened, exported and rendered the source; the preview was
+  visually inspected. Two exports had identical SHA-256
+  `e5b7768286b0cc0a059e7b0b010bbc8f71982e5ccb53061203b56cc8287200e1`.
+  A Blender hierarchy test moved the chest mesh 0.100 m and the head 0.000 m. An independent
+  Three.js r149 reconstruction validated 15 bones, 21 meshes, all six anchors and plausible
+  2.313 × 0.698 × 4.180 bounds, then moved the chest 0.100 units with zero head movement.
+  Python and JavaScript syntax, HTML data-before-runtime load order, runtime/fallback routing,
+  default-off post-FX and `git diff --check` passed.
+- Notes: This keeps the established low-poly room style and rigid-bone export rather than
+  introducing a high-resolution deforming skin. The browser-control backend exposed no
+  available browser, so live WebGL, raycast and Classic-neighbour interaction QA could not be
+  run in this session.

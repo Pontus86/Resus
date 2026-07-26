@@ -55,3 +55,18 @@ Efter en avsiktlig modelländring:
 
 Exporten bäddar in restarmatur och lågpolymeshar i
 `HLR/js/room3d-staff-rig-data.js`. Inga Blender-filer laddas av webbsidan.
+
+## Riggad patient och kliniska ankare
+
+`hlr-patient-rig.blend` innehåller den liggande patienten. Samlingen
+`CLINICAL_ANCHORS` äger fästpunkterna för sternum, luftväg, defibrillatorplattor,
+infart och ultraljud. Ändra inte benens eller ankarnas namn.
+
+```sh
+/Applications/Blender.app/Contents/MacOS/Blender --background \
+  HLR/blender/hlr-patient-rig.blend \
+  --python HLR/blender/export_hlr_patient_rig.py
+```
+
+Exporten skriver `HLR/js/room3d-patient-rig-data.js`. Bröstbenets rörelse och all
+ansluten utrustning kan därmed använda samma anatomiska referenspunkter.

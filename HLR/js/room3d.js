@@ -4,7 +4,7 @@ const HLRRoom3D=(()=>{
   const API={ready:false,failed:false};
   const objects={},staff={},materials={},rigGeometries={};
   let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight;
-  let patient,patientTorso,lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
+  let patient,patientTorso,patientAnchors,lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
   let padCable,ivLine,usCable,ventCircuit,monitorTrace,defibTrace;
   let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,lucasLamp;
   let postScene,postCamera,postQuad,sceneTarget,bloomTargetA,bloomTargetB;
@@ -213,32 +213,85 @@ const HLRRoom3D=(()=>{
     place(markPick(g,"bed"),"bed",null,0,0);
   }
 
+  function patientRigMaterial(key){
+    if(key==="gown")return material("gown",C.gown);
+    if(key==="hair")return material("hair",C.hair);
+    if(key==="dark")return material("dark",C.dark);
+    return material("skin",C.skin);
+  }
+  function createRiggedPatientBody(g){
+    const source=HLR_PATIENT_RIG,bones={},pending=Object.keys(source.bones);
+    while(pending.length){
+      let progressed=false;
+      for(let i=pending.length-1;i>=0;i--){
+        const name=pending[i],spec=source.bones[name];
+        if(spec.parent&&!bones[spec.parent])continue;
+        const bone=new THREE.Bone();
+        bone.name=name;bone.position.fromArray(spec.position);
+        bone.quaternion.fromArray(spec.quaternion);bone.scale.fromArray(spec.scale);
+        (spec.parent?bones[spec.parent]:g).add(bone);
+        bones[name]=bone;pending.splice(i,1);progressed=true;
+      }
+      if(!progressed)throw new Error("HLR-patientriggen har en trasig benhierarki");
+    }
+    source.meshes.forEach(spec=>{
+      const mesh=new THREE.Mesh(rigGeometry(spec,"patient"),patientRigMaterial(spec.material));
+      mesh.name=spec.name;mesh.position.fromArray(spec.position);
+      mesh.quaternion.fromArray(spec.quaternion);mesh.scale.fromArray(spec.scale);
+      mesh.castShadow=true;mesh.receiveShadow=true;bones[spec.bone].add(mesh);
+    });
+    patientTorso=bones.chest;
+    patientTorso.userData.restY=patientTorso.position.y;
+    patientTorso.userData.restScaleY=patientTorso.scale.y;
+    patientAnchors={};
+    Object.keys(source.anchors).forEach(name=>{
+      patientAnchors[name]=new THREE.Vector3().fromArray(source.anchors[name]);
+    });
+  }
+  function patientAnchor(name,fallback){
+    return patientAnchors&&patientAnchors[name]?patientAnchors[name].clone():fallback.clone();
+  }
+  function patientWorldAnchor(name,fallback){
+    patient.updateMatrixWorld(true);
+    return patient.localToWorld(patientAnchor(name,fallback));
+  }
+
   function createPatient(){
     const skin=material("skin",C.skin),gown=material("gown",C.gown),hair=material("hair",C.hair);
     const g=new THREE.Group();g.position.set(0,.98,0);
-    patientTorso=box(1.15,.42,1.55,gown);patientTorso.position.set(0,.13,-.18);g.add(patientTorso);
-    const pelvis=box(.94,.36,.75,gown);pelvis.position.set(0,.1,.95);g.add(pelvis);
-    const neck=cylinder(.16,.3,skin,12);neck.rotation.x=Math.PI/2;neck.position.set(0,.1,-1.08);g.add(neck);
-    const head=sphere(.38,skin,18);head.scale.set(.9,.75,1.08);head.position.set(0,.15,-1.48);g.add(head);
-    const hairCap=sphere(.385,hair,16);hairCap.scale.set(.92,.38,1.08);hairCap.position.set(0,.36,-1.51);g.add(hairCap);
-    const limbMat=skin;
-    [[new THREE.Vector3(-.48,.1,-.55),new THREE.Vector3(-1.03,.06,.48)],
-      [new THREE.Vector3(.48,.1,-.55),new THREE.Vector3(1.03,.06,.48)],
-      [new THREE.Vector3(-.28,.08,1.18),new THREE.Vector3(-.38,.06,1.92)],
-      [new THREE.Vector3(.28,.08,1.18),new THREE.Vector3(.38,.06,1.92)]].forEach(pair=>{
-        const part=limb(limbMat,.13);setCylinder(part,pair[0],pair[1],.13);g.add(part);
-      });
+    patientAnchors=null;
+    if(typeof HLR_PATIENT_RIG==="object"&&HLR_PATIENT_RIG.bones&&HLR_PATIENT_RIG.meshes&&HLR_PATIENT_RIG.anchors){
+      createRiggedPatientBody(g);
+    }else{
+      patientTorso=box(1.15,.42,1.55,gown);patientTorso.position.set(0,.13,-.18);g.add(patientTorso);
+      patientTorso.userData.restY=.13;patientTorso.userData.restScaleY=1;
+      const pelvis=box(.94,.36,.75,gown);pelvis.position.set(0,.1,.95);g.add(pelvis);
+      const neck=cylinder(.16,.3,skin,12);neck.rotation.x=Math.PI/2;neck.position.set(0,.1,-1.08);g.add(neck);
+      const head=sphere(.38,skin,18);head.scale.set(.9,.75,1.08);head.position.set(0,.15,-1.48);g.add(head);
+      const hairCap=sphere(.385,hair,16);hairCap.scale.set(.92,.38,1.08);hairCap.position.set(0,.36,-1.51);g.add(hairCap);
+      [[new THREE.Vector3(-.48,.1,-.55),new THREE.Vector3(-1.03,.06,.48)],
+        [new THREE.Vector3(.48,.1,-.55),new THREE.Vector3(1.03,.06,.48)],
+        [new THREE.Vector3(-.28,.08,1.18),new THREE.Vector3(-.38,.06,1.92)],
+        [new THREE.Vector3(.28,.08,1.18),new THREE.Vector3(.38,.06,1.92)]].forEach(pair=>{
+          const part=limb(skin,.13);setCylinder(part,pair[0],pair[1],.13);g.add(part);
+        });
+    }
     pads=new THREE.Group();
     const padMat=material("pad",0xF4EFE4);
-    [[-.34,.38,-.62],[.34,.38,.12]].forEach(p=>{const pad=box(.36,.05,.46,padMat);pad.position.set(p[0],p[1],p[2]);pads.add(pad);});
+    [["pad_left",new THREE.Vector3(-.34,.38,-.62)],["pad_right",new THREE.Vector3(.34,.38,.12)]].forEach(entry=>{
+      const pad=box(.36,.05,.46,padMat);pad.position.copy(patientAnchor(entry[0],entry[1]));pads.add(pad);
+    });
+    pads.userData.restY=0;
     g.add(pads);
+    const airway=patientAnchor("airway",new THREE.Vector3(0,.39,-1.77));
     airwayMask=sphere(.25,material("mask",0x87C8D0,{transparent:true,opacity:.62}),14);
-    airwayMask.scale.set(.8,.45,1.15);airwayMask.position.set(0,.39,-1.77);g.add(airwayMask);
+    airwayMask.scale.set(.8,.45,1.15);airwayMask.position.copy(airway);g.add(airwayMask);
     airwayTube=cylinder(.055,.75,material("tube",0xEDE9D7),10);
-    airwayTube.rotation.x=Math.PI/2;airwayTube.position.set(.03,.39,-1.98);g.add(airwayTube);
+    airwayTube.rotation.x=Math.PI/2;airwayTube.position.copy(airway).add(new THREE.Vector3(.03,0,-.21));g.add(airwayTube);
     ventBag=sphere(.28,material("bag",0x8BC7D5,{transparent:true,opacity:.76}),14);
-    ventBag.scale.set(.7,.8,1.45);ventBag.position.set(.38,.55,-2.16);g.add(ventBag);
-    accessPatch=box(.2,.06,.28,material("access",0xEDE9D7));accessPatch.position.set(1.02,.21,.38);g.add(accessPatch);
+    ventBag.scale.set(.7,.8,1.45);ventBag.position.copy(airway).add(new THREE.Vector3(.38,.16,-.39));g.add(ventBag);
+    accessPatch=box(.2,.06,.28,material("access",0xEDE9D7));
+    accessPatch.position.copy(patientAnchor("access_right",new THREE.Vector3(1.02,.21,.38)));g.add(accessPatch);
     patient=place(g,"patient",null,0,0);
     if(!authoredObject("patient"))patient.position.y=.98;
 
@@ -285,13 +338,14 @@ const HLRRoom3D=(()=>{
     }
     return material("role-"+role,ROLE_COLOR[role]||ROLE_COLOR.doctor);
   }
-  function rigGeometry(spec){
-    if(rigGeometries[spec.name])return rigGeometries[spec.name];
+  function rigGeometry(spec,prefix){
+    const key=(prefix||"rig")+":"+spec.name;
+    if(rigGeometries[key])return rigGeometries[key];
     const geometry=new THREE.BufferGeometry();
     geometry.setAttribute("position",new THREE.Float32BufferAttribute(spec.positions,3));
     geometry.setIndex(spec.indices);
     geometry.computeVertexNormals();
-    rigGeometries[spec.name]=geometry;
+    rigGeometries[key]=geometry;
     return geometry;
   }
   function createRiggedStaff(role){
@@ -312,7 +366,7 @@ const HLRRoom3D=(()=>{
       if(!progressed)throw new Error("HLR-personriggen har en trasig benhierarki");
     }
     source.meshes.forEach(spec=>{
-      const mesh=new THREE.Mesh(rigGeometry(spec),rigMaterial(role,spec.material));
+      const mesh=new THREE.Mesh(rigGeometry(spec,"staff"),rigMaterial(role,spec.material));
       mesh.name=spec.name;mesh.position.fromArray(spec.position);
       mesh.quaternion.fromArray(spec.quaternion);mesh.scale.fromArray(spec.scale);
       mesh.castShadow=true;mesh.receiveShadow=true;bones[spec.bone].add(mesh);
@@ -655,9 +709,8 @@ const HLRRoom3D=(()=>{
     return null;
   }
   function updateStaff(){
-    patient.updateMatrixWorld(true);
-    const chest=patient.localToWorld(new THREE.Vector3(0,.47,-.18));
-    const head=patient.localToWorld(new THREE.Vector3(0,.4,-1.65));
+    const chest=patientWorldAnchor("sternum",new THREE.Vector3(0,.47,-.18));
+    const head=patientWorldAnchor("airway",new THREE.Vector3(0,.4,-1.65));
     Object.keys(staff).forEach(role=>{
       const g=staff[role];
       g.visible=role==="narkos_ssk"?!!S.teamArrived:role==="surgeon"?!!S.surgeonPresent:role==="compressor"?!S.lucas:true;
@@ -677,8 +730,9 @@ const HLRRoom3D=(()=>{
     if(!patient.visible){lucas.visible=false;return;}
     const phase=typeof compPhase==="number"?compPhase:0;
     const press=S.comp?Math.max(0,Math.sin(phase)):0;
-    patientTorso.scale.y=1-press*.22;
-    patientTorso.position.y=.13-press*.04;
+    patientTorso.scale.y=patientTorso.userData.restScaleY*(1-press*.22);
+    patientTorso.position.y=patientTorso.userData.restY-press*.04;
+    pads.position.y=pads.userData.restY-press*.04;
     pads.visible=!!S.pads;
     airwayMask.visible=S.airway==="mask"||S.airway==="igel";
     airwayTube.visible=S.airway==="tub"||S.airway==="koniotomi";
@@ -690,23 +744,23 @@ const HLRRoom3D=(()=>{
 
     if(S.pads){
       const defibPos=objects.defib.localToWorld(new THREE.Vector3(0,1.4,.4));
-      const padPos=patient.localToWorld(new THREE.Vector3(.34,.4,.12));
+      const padPos=patientWorldAnchor("pad_right",new THREE.Vector3(.34,.4,.12));
       setLine(padCable,defibPos,padPos,.45);
     }else padCable.visible=false;
     if(S.access){
       const pole=objects.iv_pole.localToWorld(new THREE.Vector3(-.2,2.05,0));
-      const access=patient.localToWorld(new THREE.Vector3(1.02,.22,.38));
+      const access=patientWorldAnchor("access_right",new THREE.Vector3(1.02,.22,.38));
       setLine(ivLine,pole,access,.65);
     }else ivLine.visible=false;
     if(S.usActive){
       const us=objects.ultrasound.localToWorld(new THREE.Vector3(-.7,1.02,.08));
-      const probe=patient.localToWorld(new THREE.Vector3(.48,.37,.15));
+      const probe=patientWorldAnchor("ultrasound",new THREE.Vector3(.48,.37,.15));
       setLine(usCable,us,probe,.3);
       ultrasoundProbe.visible=true;
     }else{usCable.visible=false;ultrasoundProbe.visible=true;}
     if(S.vent){
       const ventilator=objects.ventilator.localToWorld(new THREE.Vector3(.34,1.02,.36));
-      const airway=patient.localToWorld(new THREE.Vector3(.25,.44,-1.9));
+      const airway=patientWorldAnchor("airway",new THREE.Vector3(0,.4,-1.65)).add(new THREE.Vector3(.25,.05,-.13));
       setLine(ventCircuit,ventilator,airway,.55);
     }else ventCircuit.visible=false;
   }
