@@ -57,3 +57,25 @@ mark old decisions as superseded rather than rewriting their history.
   körning. Controllerresultat skapar aldrig commits eller release; en människa granskar,
   committar och integrerar separat. Ett lås skyddar inte mot en människa som medvetet ignorerar
   trafikljuset, vilket dokumenteras uttryckligen.
+
+## D-004 — Blender som layoutkälla för HLR-rummet
+
+- Status: accepted
+- Date: 2026-07-26
+- Owner: Pontus
+- Context: HLR-rummets procedurbyggda Three.js-modeller är lätta och tillståndsstyrda, men
+  positioner, rotationer och skala är svåra att komponera visuellt direkt i JavaScript.
+- Decision: En versionshanterad Blender-scen äger layouten för namngivna rotobjekt och
+  spotlights. Ett deterministiskt Blender-skript exporterar endast deras transformdata till en
+  vanlig global JavaScript-fil som laddas före `room3d.js`. Geometri, animation, raycasting,
+  spelregler och efterbehandling förblir i webbimplementeringen.
+- Alternatives: Ladda en extern GLB vid körning, bädda in en hel GLB som base64, eller fortsätta
+  handredigera alla koordinater i JavaScript. Extern GLB bryter direkt `file://`; inbäddad GLB
+  försvårar tillståndsstyrda delobjekt och ökar runtime-data; handkoordinater saknar den
+  visuella redigering användaren efterfrågar.
+- Consequences: Användaren kan ordna hela scenen med Blenders G/R/S-verktyg och exportera en
+  liten diff. Blender-proxyerna beskriver kompositionen men är inte själva runtime-geometrin;
+  modellform och animation förbättras fortfarande i `room3d.js`. Rotobjektens stabila namn och
+  exportkontrakt får inte ändras utan motsvarande runtime-migrering.
+- Related: R-019, `HLR/blender/hlr-room.blend`,
+  `HLR/blender/export_hlr_layout.py`, `HLR/js/room3d-layout-data.js`.

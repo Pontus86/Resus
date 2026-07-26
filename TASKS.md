@@ -29,6 +29,7 @@ current directory, branch, and clean/expected Git status.
 | R-016 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-017 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-018 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
+| R-019 | done | Codex | `HLR/blender/`, `HLR/js/room3d-layout-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `DECISIONS.md`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -133,6 +134,21 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   screens/status lights gain subtle bloom without washing out anatomy; post-processing adds
   modest contrast, saturation and vignette; resize and narrow layouts remain bounded; raycast
   actions, state rendering, Classic fallback and direct `file://` compatibility remain intact.
+
+### R-019 — Blender-authored HLR room layout
+
+- User-authorized continuation of the HLR visual work. Create a tracked Blender source scene
+  where the user can move, rotate and scale named room actors, equipment and lights.
+- Add a deterministic Blender exporter that writes only transforms and light settings to an
+  ordinary global data script. The runtime must consume that script without `fetch()`, modules,
+  GLTF loading or a build step for ordinary site use.
+- Improve the live procedural staff from stacked primitives toward more human proportions and
+  recognizable anatomy while preserving task poses, raycasts and state logic.
+- Acceptance: the `.blend` opens with organized editable controllers and representative
+  low-poly models; a background Blender export round-trip is deterministic; exported changes
+  affect live 3D position/rotation/scale and spotlights; the generated script loads before
+  `room3d.js`; Classic fallback and direct `file://` compatibility remain intact; document the
+  exact safe edit/export workflow.
 
 ## Assignment rules
 
@@ -506,3 +522,26 @@ don't leave it dangling as still `open`/`suspected` there.
   asset had used cropped coloured-skull-base variants whose superior extent stopped below the
   cortex. Regeneration requires the ignored raw model library at `Models/` in the coordinator's
   checkout, supplied via `--source-root`; no new external source or licence was introduced.
+
+### R-019 — Blender-authored HLR room layout — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Added the organized, editable `HLR/blender/hlr-room.blend` source scene, its
+  reproducible scene generator, a deterministic transform/light exporter and a Swedish editing
+  guide. `room3d-layout-data.js` now supplies ordinary embedded data before `room3d.js`.
+  Runtime actors, equipment, wall fixtures, camera and spotlights consume the exported Blender
+  transforms while stateful geometry, animation, raycasts, game logic and post-processing stay
+  in Three.js. Staff gained articulated upper/lower limbs, pelvis, shoulders, neck, jaw, nose,
+  ears, eyes and better head proportions.
+- Verified: Blender 4.3 generated, opened and exported the tracked scene; two consecutive source
+  exports had identical SHA-256 hashes. In an isolated copy, moving only `doctor` by +0.25 on
+  Blender X changed only its exported runtime X by +0.25. The Blender preview was rendered and
+  visually inspected after correcting the proxy-parenting transform. Python compilation,
+  JavaScript syntax checks, the 24-role/3-spotlight export contract, HTML load order, embedded
+  `file://` data path, dynamic cable endpoint transforms and `git diff --check` passed.
+- Notes: The Blender objects are composition proxies, not the runtime meshes. During active
+  tasks, staff still turn toward their task target dynamically; their Blender rotation is the
+  idle/base orientation. A fresh browser/WebGL interaction test could not be run because the
+  browser-control backend was unavailable, so the existing raycast and Classic-fallback paths
+  were preserved and checked statically rather than exercised live.

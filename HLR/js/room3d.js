@@ -65,6 +65,18 @@ const HLRRoom3D=(()=>{
     if(typeof ROOM_LAYOUT!=="object")return null;
     return (ROOM_LAYOUT.items||[]).find(it=>it.role===role||(sprite&&it.sprite===sprite));
   }
+  function authoredObject(role){
+    if(typeof HLR_ROOM3D_LAYOUT!=="object"||!HLR_ROOM3D_LAYOUT.objects)return null;
+    return HLR_ROOM3D_LAYOUT.objects[role]||null;
+  }
+  function applyAuthoredTransform(group,role,baseScale){
+    const data=authoredObject(role),scale=baseScale===undefined?1:baseScale;
+    if(!data){group.scale.multiplyScalar(scale);return false;}
+    group.position.fromArray(data.position);
+    group.quaternion.fromArray(data.quaternion);
+    group.scale.fromArray(data.scale);
+    return true;
+  }
   function layoutPosition(role,sprite,fallbackX,fallbackZ){
     const item=layoutItem(role,sprite);
     const x=item?(item.x-272)/31:(fallbackX||0);
@@ -73,7 +85,7 @@ const HLRRoom3D=(()=>{
   }
   function place(group,role,sprite,x,z){
     group.position.copy(layoutPosition(role,sprite,x,z));
-    group.scale.multiplyScalar(MODEL_SCALE);
+    applyAuthoredTransform(group,role||sprite,MODEL_SCALE);
     scene.add(group);objects[role||sprite]=group;return group;
   }
   function line(color){
@@ -158,26 +170,30 @@ const HLRRoom3D=(()=>{
     const back=box(17.4,4.2,.18,wallMat);back.position.set(0,2.1,-5.3);scene.add(back);
     const left=box(.18,4.2,10.6,wallMat);left.position.set(-8.7,2.1,0);scene.add(left);
     const rail=box(17.1,.12,.14,edgeMat);rail.position.set(0,1.15,-5.17);scene.add(rail);
-    const gas=box(2,.65,.18,material("gasPanel",C.white));gas.position.set(-3.4,2.1,-5.06);scene.add(gas);
-    [-3.85,-3.3,-2.75].forEach((x,i)=>{
+    const gasGroup=new THREE.Group();
+    const gas=box(2,.65,.18,material("gasPanel",C.white));gasGroup.add(gas);
+    [-.45,.1,.65].forEach((x,i)=>{
       const port=cylinder(.13,.12,material(i===0?"oxygen":i===1?"air":"vacuum",i===0?0x3C9B5F:i===1?0xD6D9D7:0xE0C14F),14);
-      port.rotation.x=Math.PI/2;port.position.set(x,2.1,-4.94);scene.add(port);
+      port.rotation.x=Math.PI/2;port.position.set(x,0,.12);gasGroup.add(port);
     });
+    gasGroup.position.set(-3.4,2.1,-5.06);applyAuthoredTransform(gasGroup,"gas_panel");scene.add(gasGroup);
 
     const monitor=new THREE.Group();
-    const frame=box(2.3,1.25,.25,material("dark",C.dark));frame.position.y=2.7;monitor.add(frame);
+    const frame=box(2.3,1.25,.25,material("dark",C.dark));monitor.add(frame);
     const screen=box(1.95,.92,.08,material("screen",C.screen,{emissive:0x071A12,emissiveIntensity:.8}));
-    screen.position.set(0,2.7,.17);monitor.add(screen);
-    monitor.position.set(2.3,0,-5.0);scene.add(monitor);
-    const points=[];for(let i=0;i<48;i++)points.push(new THREE.Vector3(-.88+i*.037,2.7,-4.78));
+    screen.position.set(0,0,.17);monitor.add(screen);
+    monitor.position.set(2.3,2.7,-5.0);applyAuthoredTransform(monitor,"monitor_wall");scene.add(monitor);
+    const points=[];for(let i=0;i<48;i++)points.push(new THREE.Vector3(-.88+i*.037,0,.22));
     monitorTrace=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),
-      new THREE.LineBasicMaterial({color:0x35E08E}));scene.add(monitorTrace);
+      new THREE.LineBasicMaterial({color:0x35E08E}));monitor.add(monitorTrace);
 
-    const sign=box(1.9,.5,.12,material("sign",0x2F6F65));sign.position.set(-6.2,3.15,-5.08);scene.add(sign);
+    const sign=box(1.9,.5,.12,material("sign",0x2F6F65));sign.position.set(-6.2,3.15,-5.08);
+    applyAuthoredTransform(sign,"sign");scene.add(sign);
     const lightMat=material("lightPanel",0xFFFBE8,{emissive:0xFFF3B0,emissiveIntensity:.45});
-    // Lamporna ligger på rummets bortre sida så de inte skymmer teamet i den fasta kameran.
-    [[-3.3,4.15,-3.0],[2.6,4.15,-3.4]].forEach(p=>{
-      const light=box(2.4,.08,.8,lightMat);light.position.set(p[0],p[1],p[2]);scene.add(light);
+    // Lamporna har egna Blender-kontroller eftersom deras projektion lätt kan skymma teamet.
+    [[-3.3,4.15,-3.0,"ceiling_light_left"],[2.6,4.15,-3.4,"ceiling_light_right"]].forEach(p=>{
+      const light=box(2.4,.08,.8,lightMat);light.position.set(p[0],p[1],p[2]);
+      applyAuthoredTransform(light,p[3]);scene.add(light);
     });
   }
 
@@ -222,7 +238,8 @@ const HLRRoom3D=(()=>{
     ventBag=sphere(.28,material("bag",0x8BC7D5,{transparent:true,opacity:.76}),14);
     ventBag.scale.set(.7,.8,1.45);ventBag.position.set(.38,.55,-2.16);g.add(ventBag);
     accessPatch=box(.2,.06,.28,material("access",0xEDE9D7));accessPatch.position.set(1.02,.21,.38);g.add(accessPatch);
-    patient=place(g,"patient",null,0,0);patient.position.y=.98;
+    patient=place(g,"patient",null,0,0);
+    if(!authoredObject("patient"))patient.position.y=.98;
 
     lucas=new THREE.Group();
     const lucasWhite=material("lucasWhite",0xE8ECE8,{roughness:.38});
@@ -253,7 +270,7 @@ const HLRRoom3D=(()=>{
     const cupLip=new THREE.Mesh(new THREE.TorusGeometry(.26,.045,8,20),lucasDark);
     cupLip.rotation.x=Math.PI/2;cupLip.position.y=-.57;cupLip.castShadow=true;piston.add(cupLip);
     piston.position.set(0,1.61,-.18);lucas.add(piston);
-    lucas.scale.setScalar(MODEL_SCALE);
+    applyAuthoredTransform(lucas,"lucas",MODEL_SCALE);
     scene.add(markPick(lucas,"bed"));
   }
 
@@ -261,31 +278,48 @@ const HLRRoom3D=(()=>{
     const col=ROLE_COLOR[role]||ROLE_COLOR.doctor;
     const cloth=material("role-"+role,col),skin=material("skin",C.skin),dark=material("dark",C.dark);
     const g=new THREE.Group();
-    const torso=new THREE.Mesh(new THREE.CylinderGeometry(.34,.46,1.05,10),cloth);
-    torso.position.y=1.35;torso.castShadow=true;g.add(torso);
-    const head=sphere(.28,skin,14);head.position.y=2.08;g.add(head);
-    const cap=sphere(.285,role==="airway_staff"||role==="narkos_ssk"||role==="surgeon"?material("cap-"+role,col):material("hair",C.hair),14);
-    cap.scale.y=.42;cap.position.y=2.23;g.add(cap);
-    [-.18,.18].forEach(x=>{
-      const leg=limb(dark,.1);setCylinder(leg,new THREE.Vector3(x,.85,0),new THREE.Vector3(x,.1,0),.1);g.add(leg);
-      const shoe=box(.22,.12,.38,dark);shoe.position.set(x,.08,.1);g.add(shoe);
+    const pelvis=sphere(.37,cloth,14);pelvis.scale.set(1,.72,.72);pelvis.position.y=1.12;g.add(pelvis);
+    const torso=new THREE.Mesh(new THREE.CylinderGeometry(.32,.45,.72,14),cloth);
+    torso.position.y=1.52;torso.castShadow=true;g.add(torso);
+    const shoulders=sphere(.46,cloth,14);shoulders.scale.set(1,.6,.68);shoulders.position.y=1.7;g.add(shoulders);
+    const collar=new THREE.Mesh(new THREE.TorusGeometry(.13,.026,8,18),dark);
+    collar.rotation.x=Math.PI/2;collar.position.set(0,1.84,.02);g.add(collar);
+    const neck=cylinder(.115,.18,skin,12);neck.position.y=1.94;g.add(neck);
+    const head=sphere(.29,skin,18);head.scale.set(.9,1.08,.9);head.position.y=2.17;g.add(head);
+    const jaw=sphere(.22,skin,14);jaw.scale.set(.9,.78,.88);jaw.position.set(0,2.06,.035);g.add(jaw);
+    const nose=sphere(.05,skin,10);nose.scale.set(.75,1,1.25);nose.position.set(0,2.18,.275);g.add(nose);
+    [-.1,.1].forEach(x=>{
+      const eye=sphere(.024,dark,8);eye.scale.set(1,.72,.45);eye.position.set(x,2.22,.266);g.add(eye);
+      const ear=sphere(.05,skin,8);ear.scale.set(.45,1,.7);ear.position.set(x<0?-.27:.27,2.18,0);g.add(ear);
     });
-    const armL=limb(cloth,.085),armR=limb(cloth,.085);g.add(armL,armR);
+    const cap=sphere(.295,role==="airway_staff"||role==="narkos_ssk"||role==="surgeon"?material("cap-"+role,col):material("hair",C.hair),16);
+    cap.scale.set(1,.48,1);cap.position.y=2.36;g.add(cap);
+    [-.18,.18].forEach(x=>{
+      const thigh=limb(cloth,.135);setCylinder(thigh,new THREE.Vector3(x,1.15,0),new THREE.Vector3(x,.74,0),.135);g.add(thigh);
+      const knee=sphere(.13,cloth,10);knee.position.set(x,.71,0);g.add(knee);
+      const shin=limb(cloth,.105);setCylinder(shin,new THREE.Vector3(x,.68,0),new THREE.Vector3(x,.14,0),.105);g.add(shin);
+      const shoe=box(.23,.13,.4,dark);shoe.position.set(x,.08,.1);g.add(shoe);
+    });
+    const upperArmL=limb(cloth,.115),upperArmR=limb(cloth,.115);
+    const foreArmL=limb(skin,.09),foreArmR=limb(skin,.09);
+    g.add(upperArmL,upperArmR,foreArmL,foreArmR);
     const handL=sphere(.105,skin,10),handR=sphere(.105,skin,10);g.add(handL,handR);
+    handL.scale.set(.82,1.12,.78);handR.scale.copy(handL.scale);
     const ring=new THREE.Mesh(new THREE.RingGeometry(.52,.62,28),
       new THREE.MeshBasicMaterial({color:C.green,transparent:true,opacity:0,side:THREE.DoubleSide}));
     ring.rotation.x=-Math.PI/2;ring.position.y=.025;g.add(ring);
-    g.userData={role,torso,armL,armR,handL,handR,ring,baseY:0};
+    g.userData={role,torso,upperArmL,upperArmR,foreArmL,foreArmR,handL,handR,ring,baseY:0};
     markPick(g,role);staff[role]=g;
     const pos=layoutPosition(role,null,0,0);g.position.copy(pos);
-    g.scale.setScalar(MODEL_SCALE);
+    applyAuthoredTransform(g,role,MODEL_SCALE);
+    g.userData.layoutYaw=g.rotation.y;
     scene.add(g);return g;
   }
   function poseStaff(g,target,active,compressing){
     if(!g)return;
     const data=g.userData;
     const dx=target.x-g.position.x,dz=target.z-g.position.z;
-    g.rotation.y=Math.atan2(dx,dz);
+    g.rotation.y=active?Math.atan2(dx,dz):data.layoutYaw;
     g.updateMatrixWorld(true);
     const localTarget=g.worldToLocal(target.clone());
     const shoulderL=new THREE.Vector3(-.34,1.63,0),shoulderR=new THREE.Vector3(.34,1.63,0);
@@ -296,7 +330,10 @@ const HLRRoom3D=(()=>{
     }else{
       handL=new THREE.Vector3(-.48,.98,.08);handR=new THREE.Vector3(.48,.98,.08);
     }
-    setCylinder(data.armL,shoulderL,handL,.085);setCylinder(data.armR,shoulderR,handR,.085);
+    const elbowL=shoulderL.clone().lerp(handL,.52).add(new THREE.Vector3(-.1,.02,.04));
+    const elbowR=shoulderR.clone().lerp(handR,.52).add(new THREE.Vector3(.1,.02,.04));
+    setCylinder(data.upperArmL,shoulderL,elbowL,.115);setCylinder(data.upperArmR,shoulderR,elbowR,.115);
+    setCylinder(data.foreArmL,elbowL,handL,.09);setCylinder(data.foreArmR,elbowR,handR,.09);
     data.handL.position.copy(handL);data.handR.position.copy(handR);
     data.ring.material.opacity=active ? .78 : 0;
     data.ring.material.color.setHex(compressing?C.red:C.green);
@@ -452,12 +489,16 @@ const HLRRoom3D=(()=>{
     const key=new THREE.DirectionalLight(0xFFF7DF,.72);key.position.set(-5,11,5);
     key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-10;key.shadow.camera.right=10;
     key.shadow.camera.top=8;key.shadow.camera.bottom=-8;scene.add(key);
-    [
-      {color:0xFFF3D8,intensity:1.2,position:[.2,6.8,.8],target:[0,1,-.1],angle:.43,shadow:true},
-      {color:0xDCEFFF,intensity:.78,position:[-2.8,5.7,-2.6],target:[0,1,-1.55],angle:.36},
-      {color:0xFFE6C4,intensity:.7,position:[4.8,5.5,-2.2],target:[4.2,.9,-1.2],angle:.5}
-    ].forEach(spec=>{
-      const spot=new THREE.SpotLight(spec.color,spec.intensity,15,spec.angle,.72,1.35);
+    const defaultSpots={
+      bed:{color:0xFFF3D8,intensity:1.2,position:[.2,6.8,.8],target:[0,1,-.1],angle:.43,penumbra:.72,distance:15,decay:1.35,shadow:true},
+      airway:{color:0xDCEFFF,intensity:.78,position:[-2.8,5.7,-2.6],target:[0,1,-1.55],angle:.36,penumbra:.72,distance:15,decay:1.35},
+      equipment:{color:0xFFE6C4,intensity:.7,position:[4.8,5.5,-2.2],target:[4.2,.9,-1.2],angle:.5,penumbra:.72,distance:15,decay:1.35}
+    };
+    const authoredSpots=typeof HLR_ROOM3D_LAYOUT==="object"&&HLR_ROOM3D_LAYOUT.lights||{};
+    Object.keys(defaultSpots).forEach(role=>{
+      const spec=Object.assign({},defaultSpots[role],authoredSpots[role]||{});
+      const color=Array.isArray(spec.color)?new THREE.Color().fromArray(spec.color):spec.color;
+      const spot=new THREE.SpotLight(color,spec.intensity,spec.distance,spec.angle,spec.penumbra,spec.decay);
       spot.position.fromArray(spec.position);spot.target.position.fromArray(spec.target);
       if(spec.shadow){
         spot.castShadow=true;spot.shadow.mapSize.set(512,512);spot.shadow.bias=-.0004;
@@ -481,7 +522,10 @@ const HLRRoom3D=(()=>{
       renderer.setClearColor(C.floor,1);
       scene=new THREE.Scene();scene.fog=new THREE.Fog(0xE3E9E5,18,30);
       camera=new THREE.OrthographicCamera(-10.2,10.2,6,-6,.1,60);
-      camera.position.set(10.5,14.5,12.5);camera.lookAt(0,.8,0);
+      const cameraData=typeof HLR_ROOM3D_LAYOUT==="object"&&HLR_ROOM3D_LAYOUT.camera;
+      if(cameraData){
+        camera.position.fromArray(cameraData.position);camera.lookAt(new THREE.Vector3().fromArray(cameraData.target));
+      }else{camera.position.set(10.5,14.5,12.5);camera.lookAt(0,.8,0);}
       raycaster=new THREE.Raycaster();pointer=new THREE.Vector2();
       createRoom();createBed();createPatient();createEquipment();
       ["airway_staff","compressor","doctor","nurse_ssk","ambulance","narkos_ssk","surgeon"].forEach(createStaff);
@@ -500,7 +544,8 @@ const HLRRoom3D=(()=>{
     const height=Math.max(1,Math.round(canvas.clientHeight||330));
     if(width===lastWidth&&height===lastHeight)return;
     lastWidth=width;lastHeight=height;renderer.setSize(width,height,false);
-    const aspect=width/height,frustum=11.2;
+    const aspect=width/height;
+    const frustum=typeof HLR_ROOM3D_LAYOUT==="object"&&HLR_ROOM3D_LAYOUT.camera?HLR_ROOM3D_LAYOUT.camera.frustum:11.2;
     camera.left=-frustum*aspect/2;camera.right=frustum*aspect/2;
     camera.top=frustum/2;camera.bottom=-frustum/2;camera.updateProjectionMatrix();
     if(postFXReady){
@@ -526,7 +571,9 @@ const HLRRoom3D=(()=>{
     return null;
   }
   function updateStaff(){
-    const chest=new THREE.Vector3(0,1.45,-.18),head=new THREE.Vector3(0,1.38,-1.65);
+    patient.updateMatrixWorld(true);
+    const chest=patient.localToWorld(new THREE.Vector3(0,.47,-.18));
+    const head=patient.localToWorld(new THREE.Vector3(0,.4,-1.65));
     Object.keys(staff).forEach(role=>{
       const g=staff[role];
       g.visible=role==="narkos_ssk"?!!S.teamArrived:role==="surgeon"?!!S.surgeonPresent:role==="compressor"?!S.lucas:true;
@@ -558,21 +605,25 @@ const HLRRoom3D=(()=>{
     if(lucas.visible)piston.position.y=1.61-press*.22;
 
     if(S.pads){
-      const defibPos=objects.defib.position.clone().add(new THREE.Vector3(0,1.4,.4).multiplyScalar(MODEL_SCALE));
-      setLine(padCable,defibPos,new THREE.Vector3(.34,1.38,.12),.45);
+      const defibPos=objects.defib.localToWorld(new THREE.Vector3(0,1.4,.4));
+      const padPos=patient.localToWorld(new THREE.Vector3(.34,.4,.12));
+      setLine(padCable,defibPos,padPos,.45);
     }else padCable.visible=false;
     if(S.access){
-      const pole=objects.iv_pole.position.clone().add(new THREE.Vector3(-.2,2.05,0).multiplyScalar(MODEL_SCALE));
-      setLine(ivLine,pole,new THREE.Vector3(1.02,1.2,.38),.65);
+      const pole=objects.iv_pole.localToWorld(new THREE.Vector3(-.2,2.05,0));
+      const access=patient.localToWorld(new THREE.Vector3(1.02,.22,.38));
+      setLine(ivLine,pole,access,.65);
     }else ivLine.visible=false;
     if(S.usActive){
-      const us=objects.ultrasound.position.clone().add(new THREE.Vector3(-.7,1.02,.08).multiplyScalar(MODEL_SCALE));
-      setLine(usCable,us,new THREE.Vector3(.48,1.35,.15),.3);
+      const us=objects.ultrasound.localToWorld(new THREE.Vector3(-.7,1.02,.08));
+      const probe=patient.localToWorld(new THREE.Vector3(.48,.37,.15));
+      setLine(usCable,us,probe,.3);
       ultrasoundProbe.visible=true;
     }else{usCable.visible=false;ultrasoundProbe.visible=true;}
     if(S.vent){
-      const ventilator=objects.ventilator.position.clone().add(new THREE.Vector3(.34,1.02,.36).multiplyScalar(MODEL_SCALE));
-      setLine(ventCircuit,ventilator,new THREE.Vector3(.25,1.42,-1.9),.55);
+      const ventilator=objects.ventilator.localToWorld(new THREE.Vector3(.34,1.02,.36));
+      const airway=patient.localToWorld(new THREE.Vector3(.25,.44,-1.9));
+      setLine(ventCircuit,ventilator,airway,.55);
     }else ventCircuit.visible=false;
   }
   function updateEquipment(){
@@ -597,7 +648,7 @@ const HLRRoom3D=(()=>{
         else if(rhythm==="asystoli")value=Math.sin(t*.8)*.015;
         else{const p=((t%3)+3)%3;value=p<.18?Math.sin(p/.18*Math.PI)*.25:Math.sin(t)*.025;}
       }
-      position.setXYZ(i,x,2.7+value,-4.78);
+      position.setXYZ(i,x,value,.22);
     }
     position.needsUpdate=true;monitorTrace.material.opacity=active?1:.28;monitorTrace.material.transparent=true;
     if(defibTrace){
