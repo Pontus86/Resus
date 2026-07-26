@@ -3,11 +3,11 @@
 const HLRRoom3D=(()=>{
   const API={ready:false,failed:false};
   const objects={},staff={},materials={},rigGeometries={},equipmentDetailParts={};
-  let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight;
+  let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight,roomClockSecond,roomClockMinute;
   let patient,patientTorso,patientAnchors,patientSkinMaterial,patientLipMaterial,patientSweat;
   let lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
   let padCable,ivLine,usCable,ventCircuit,ventCircuitReturn,monitorTrace,defibTrace;
-  let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,lucasLamp;
+  let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,ultrasoundScanFan,lucasLamp,ivBag,ivDrip;
   let postScene,postCamera,postQuad,sceneTarget,bloomTargetA,bloomTargetB;
   let brightMaterial,blurMaterial,compositeMaterial,postFXReady=false;
   let postFXEnabled=false;
@@ -191,6 +191,17 @@ const HLRRoom3D=(()=>{
 
     const sign=box(1.9,.5,.12,material("sign",0x2F6F65));sign.position.set(-6.2,3.15,-5.08);
     applyAuthoredTransform(sign,"sign");scene.add(sign);
+    const roomClock=new THREE.Group();
+    const clockFace=cylinder(.34,.055,material("roomClockFace",0xF2F1E9,{roughness:.44}),28);
+    clockFace.rotation.x=Math.PI/2;roomClock.add(clockFace);
+    const clockRim=new THREE.Mesh(new THREE.TorusGeometry(.34,.035,8,32),material("roomClockRim",C.metalDark));
+    clockRim.position.z=.04;clockRim.castShadow=true;roomClock.add(clockRim);
+    roomClockMinute=new THREE.Group();
+    const minuteHand=box(.025,.22,.025,material("roomClockHand",C.dark));minuteHand.position.set(0,.1,.065);roomClockMinute.add(minuteHand);
+    roomClockSecond=new THREE.Group();
+    const secondHand=box(.014,.29,.014,material("roomClockSecond",C.red));secondHand.position.set(0,.13,.082);roomClockSecond.add(secondHand);
+    roomClock.add(roomClockMinute,roomClockSecond);
+    roomClock.position.set(5.8,3.25,-5.13);applyAuthoredTransform(roomClock,"wall_clock");scene.add(roomClock);
     const lightMat=material("lightPanel",0xFFFBE8,{emissive:0xFFF3B0,emissiveIntensity:.45});
     // Lamporna har egna Blender-kontroller eftersom deras projektion lätt kan skymma teamet.
     [[-3.3,4.15,-3.0,"ceiling_light_left"],[2.6,4.15,-3.4,"ceiling_light_right"]].forEach(p=>{
@@ -386,11 +397,15 @@ const HLRRoom3D=(()=>{
     const source=typeof HLR_EQUIPMENT_DETAILS==="object"&&HLR_EQUIPMENT_DETAILS.roles;
     if(!source||!source[role])return false;
     source[role].forEach(spec=>{
-      const mesh=new THREE.Mesh(rigGeometry(spec,"equipment"),equipmentDetailMaterial(spec.material));
+      const dynamic=["ultrasound_trackball","ventilator_pressure_needle","ventilator_alarm_beacon",
+        "ventilator_water_level","defib_paper"].includes(spec.name);
+      const detailMaterial=equipmentDetailMaterial(spec.material);
+      const mesh=new THREE.Mesh(rigGeometry(spec,"equipment"),dynamic?detailMaterial.clone():detailMaterial);
       mesh.name=spec.name;mesh.position.fromArray(spec.position);
       mesh.quaternion.fromArray(spec.quaternion);mesh.scale.fromArray(spec.scale);
       mesh.castShadow=true;mesh.receiveShadow=true;
       mesh.userData.restQuaternion=mesh.quaternion.clone();
+      mesh.userData.restPosition=mesh.position.clone();mesh.userData.restScale=mesh.scale.clone();
       equipmentDetailParts[spec.name]=mesh;group.add(mesh);
     });
     return true;
@@ -407,6 +422,7 @@ const HLRRoom3D=(()=>{
         bone.name=name;bone.position.fromArray(spec.position);
         bone.quaternion.fromArray(spec.quaternion);bone.scale.fromArray(spec.scale);
         bone.userData.restQuaternion=bone.quaternion.clone();
+        bone.userData.restPosition=bone.position.clone();
         (spec.parent?bones[spec.parent]:g).add(bone);
         bones[name]=bone;pending.splice(i,1);progressed=true;
       }
@@ -425,7 +441,7 @@ const HLRRoom3D=(()=>{
     markPick(g,role);staff[role]=g;
     g.position.copy(layoutPosition(role,null,0,0));
     applyAuthoredTransform(g,role,MODEL_SCALE);
-    g.userData.layoutYaw=g.rotation.y;g.userData.baseY=g.position.y;
+    g.userData.layoutYaw=g.rotation.y;g.userData.baseY=g.position.y;g.userData.basePosition=g.position.clone();
     scene.add(g);return g;
   }
   function createStaff(role){
@@ -469,7 +485,7 @@ const HLRRoom3D=(()=>{
     markPick(g,role);staff[role]=g;
     const pos=layoutPosition(role,null,0,0);g.position.copy(pos);
     applyAuthoredTransform(g,role,MODEL_SCALE);
-    g.userData.layoutYaw=g.rotation.y;g.userData.baseY=g.position.y;
+    g.userData.layoutYaw=g.rotation.y;g.userData.baseY=g.position.y;g.userData.basePosition=g.position.clone();
     scene.add(g);return g;
   }
   function sampleRigClip(name,phase){
@@ -529,13 +545,17 @@ const HLRRoom3D=(()=>{
     const data=g.userData,bones=data.bones;
     const dx=target.x-g.position.x,dz=target.z-g.position.z;
     g.rotation.y=active?Math.atan2(dx,dz):data.layoutYaw;
-    Object.values(bones).forEach(bone=>bone.quaternion.copy(bone.userData.restQuaternion));
+    Object.values(bones).forEach(bone=>{
+      bone.quaternion.copy(bone.userData.restQuaternion);
+      bone.position.copy(bone.userData.restPosition);
+    });
     const pose=(name,x,z)=>{
       const bone=bones[name];
       if(!bone)return;
       bone.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(x||0,0,z||0)));
     };
     if(active){
+      bones.spine.position.z+=clip&&clip.reach||0;
       pose("spine",clip&&clip.torso_lean!==undefined?clip.torso_lean:(compressing?-.18:-.1),0);
       pose("head",.06,0);
       if(contacts){
@@ -657,9 +677,9 @@ const HLRRoom3D=(()=>{
     const usArm=tube(new THREE.Vector3(0,1.16,-.03),new THREE.Vector3(0,1.55,.02),.055,usMetal,12);us.add(usArm);
     const usShell=box(1.05,.72,.16,usDark);usShell.position.set(0,1.72,.08);usShell.rotation.x=-.1;us.add(usShell);
     const usScreen=box(.86,.54,.035,screen);usScreen.position.set(0,1.73,.177);usScreen.rotation.x=-.1;us.add(usScreen);
-    const scanFan=new THREE.Mesh(new THREE.RingGeometry(.04,.3,24,1,-2.2,1.25),
+    ultrasoundScanFan=new THREE.Mesh(new THREE.RingGeometry(.04,.3,24,1,-2.2,1.25),
       new THREE.MeshBasicMaterial({color:0xB9D0C7,transparent:true,opacity:.58,side:THREE.DoubleSide}));
-    scanFan.scale.set(.9,.7,1);scanFan.position.set(0,1.7,.202);scanFan.rotation.z=.48;us.add(scanFan);
+    ultrasoundScanFan.scale.set(.9,.7,1);ultrasoundScanFan.position.set(0,1.7,.202);ultrasoundScanFan.rotation.z=.48;us.add(ultrasoundScanFan);
     const probeHolder=new THREE.Mesh(new THREE.TorusGeometry(.14,.035,8,18),usDark);
     probeHolder.rotation.y=Math.PI/2;probeHolder.position.set(-.65,1.03,.1);probeHolder.castShadow=true;us.add(probeHolder);
     ultrasoundProbe=cylinder(.075,.48,material("probe",0x52615A),12);
@@ -701,7 +721,8 @@ const HLRRoom3D=(()=>{
     const pole=new THREE.Group();
     const stem=cylinder(.045,2.4,material("metal",C.metal),10);stem.position.y=1.3;pole.add(stem);
     const hook=box(.7,.05,.05,material("metal",C.metal));hook.position.y=2.48;pole.add(hook);
-    const bag=box(.42,.65,.12,material("fluid",0xA5D5E8,{transparent:true,opacity:.72}));bag.position.set(-.22,2.06,0);pole.add(bag);
+    ivBag=box(.42,.65,.12,material("fluid",0xA5D5E8,{transparent:true,opacity:.72}));ivBag.position.set(-.22,2.06,0);pole.add(ivBag);
+    ivDrip=sphere(.035,material("ivDrip",0xC7EDF4,{transparent:true,opacity:.78}),8);ivDrip.position.set(-.22,1.66,0);pole.add(ivDrip);
     place(pole,"iv_pole",null,-3,-.9);
 
     const oxygen=new THREE.Group();
@@ -837,6 +858,7 @@ const HLRRoom3D=(()=>{
         left:patientWorldAnchor("mask_seal",new THREE.Vector3(-.1,.43,-1.7)),
         right:patientWorldAnchor("bag_grip",new THREE.Vector3(.38,.55,-2.1))
       }:null;
+      g.position.copy(g.userData.basePosition);
       g.position.y=g.userData.baseY-(clip.contact_depth||0)*.08;
       poseStaff(g,target,active,compressing,ventilating,contacts,clip);
       if(!g.userData.rigged)g.userData.torso.rotation.x=active ? .08 : 0;
@@ -927,6 +949,10 @@ const HLRRoom3D=(()=>{
     lucasLamp.material.emissive.setHex(S.comp?0x174F30:0x6E4B08);
     const trackball=equipmentDetailParts.ultrasound_trackball;
     if(trackball&&S.usActive)trackball.rotation.y=(S.t||0)*1.4;
+    if(ultrasoundScanFan){
+      ultrasoundScanFan.material.opacity=S.usActive?.5+.18*Math.sin((S.t||0)*4):.22;
+      ultrasoundScanFan.rotation.z=.48+(S.usActive?Math.sin((S.t||0)*1.8)*.08:0);
+    }
     const needle=equipmentDetailParts.ventilator_pressure_needle;
     if(needle){
       const swing=S.vent?.38*Math.sin((S.t||0)*Math.PI/3):-.15;
@@ -935,6 +961,21 @@ const HLRRoom3D=(()=>{
     }
     const beacon=equipmentDetailParts.ventilator_alarm_beacon;
     if(beacon)beacon.material.emissiveIntensity=S.vent?.5:.12;
+    const water=equipmentDetailParts.ventilator_water_level;
+    if(water){
+      water.scale.copy(water.userData.restScale);
+      water.scale.y*=S.vent?1+.035*Math.sin((S.t||0)*Math.PI/3):1;
+    }
+    const paper=equipmentDetailParts.defib_paper;
+    if(paper){
+      paper.position.copy(paper.userData.restPosition);
+      if(S.lastAnalysis!==null&&S.t-S.lastAnalysis<5)paper.position.y-=Math.min(.09,(S.t-S.lastAnalysis)*.018);
+    }
+    const dripPhase=((S.t||0)*.82)%1;
+    ivDrip.visible=!!S.access;
+    ivDrip.position.y=1.69-dripPhase*.34;
+    ivDrip.scale.setScalar(.65+.35*(1-dripPhase));
+    ivBag.material.opacity=.65+(S.access?.08*Math.sin((S.t||0)*1.6):0);
   }
   function updateMonitor(){
     if(!monitorTrace)return;
@@ -991,7 +1032,9 @@ const HLRRoom3D=(()=>{
     const flash=Math.max(0,S.shockFlash||0);
     shockLight.intensity=flash*8;
     clockLight.color.setHex(S.rosc?0x82E39D:0xCDEDDD);
-    clockLight.intensity=S.rosc?1.2:.35;
+    clockLight.intensity=(S.rosc?1.2:.35)*(1+.04*Math.sin((S.t||0)*2));
+    roomClockSecond.rotation.z=-((S.t||0)%60)/60*Math.PI*2;
+    roomClockMinute.rotation.z=-((S.t||0)%3600)/3600*Math.PI*2;
     renderWithPostFX();return true;
   }
   function pick(event){

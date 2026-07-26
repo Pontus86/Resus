@@ -14,6 +14,7 @@ ROOM_PROP_ROLES = {
     "monitor_wall",
     "gas_panel",
     "sign",
+    "wall_clock",
     "ceiling_light_left",
     "ceiling_light_right",
 }
@@ -287,6 +288,10 @@ def add_room_props(room, controls, proxies, mats):
 
     sign = root("sign", (-6.2, 5.08, 3.15), controls)
     cube(sign, "room_sign", (0, 0, 0), (1.9, 0.12, 0.5), mats["sign"], proxies)
+
+    wall_clock = root("wall_clock", (5.8, 5.13, 3.25), controls)
+    cylinder(wall_clock, "wall_clock_face", (0, -0.028, 0), (0, 0.028, 0), 0.34, mats["white"], proxies, 28)
+    torus(wall_clock, "wall_clock_rim", (0, -0.058, 0), 0.34, 0.035, mats["dark"], proxies, rotation=(radians(90), 0, 0))
 
     for role, location in (
         ("ceiling_light_left", (-3.3, 3.0, 4.15)),

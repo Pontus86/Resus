@@ -242,18 +242,21 @@ def create_actions(armature):
     armature["hlr_torso_lean"] = 0.0
     armature["hlr_contact_depth"] = 0.0
     armature["hlr_bag_squeeze"] = 0.0
+    armature["hlr_reach"] = 0.0
     clips = {
         "compression": {
             "frames": (1, 5, 9, 17),
             "hlr_torso_lean": (0.0, -0.24, 0.0, 0.0),
             "hlr_contact_depth": (0.0, 1.0, 0.0, 0.0),
             "hlr_bag_squeeze": (0.0, 0.0, 0.0, 0.0),
+            "hlr_reach": (0.46, 0.52, 0.46, 0.46),
         },
         "ventilation": {
             "frames": (1, 15, 30),
             "hlr_torso_lean": (-0.08, -0.12, -0.08),
             "hlr_contact_depth": (0.0, 0.0, 0.0),
             "hlr_bag_squeeze": (0.0, 1.0, 0.0),
+            "hlr_reach": (0.10, 0.14, 0.10),
         },
     }
     for clip_name, clip in clips.items():

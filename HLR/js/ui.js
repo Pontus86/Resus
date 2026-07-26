@@ -236,7 +236,7 @@ function beginArrest(){
 }
 /* ---------- Ljud (Web Audio) ---------- */
 const Sound={
-  ctx:null, enabled:true, nextClick:0, nextBeep:0, master:null,
+  ctx:null, enabled:true, nextClick:0, nextBeep:0, nextBreath:0, nextDrip:0, master:null,
   init(){ if(!this.ctx){ try{ const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return; this.ctx=new AC();
       this.master=this.ctx.createGain(); this.master.gain.value=0.5; this.master.connect(this.ctx.destination);
     }catch(e){ this.ctx=null; } }
@@ -247,6 +247,15 @@ const Sound={
     o.connect(g).connect(this.master); o.start(t); o.stop(t+dur+0.02); },
   click(){ this.blip(1600,0.035,"square",0.09); },       // metronomklick
   beep(){ this.blip(920,0.09,"sine",0.07); },            // monitor-pip (ROSC)
+  noise(dur,vol,frequency){ if(!this.enabled||!this.ctx)return; const t=this.ctx.currentTime;
+    const len=Math.floor(this.ctx.sampleRate*dur),buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate),d=buf.getChannelData(0);
+    for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.sin(Math.PI*i/len);
+    const src=this.ctx.createBufferSource(),filter=this.ctx.createBiquadFilter(),gain=this.ctx.createGain();
+    src.buffer=buf;filter.type="lowpass";filter.frequency.value=frequency||900;gain.gain.value=vol||.025;
+    src.connect(filter).connect(gain).connect(this.master);src.start(t); },
+  breath(){ this.noise(.24,.032,720);this.blip(185,.18,"sine",.018); },
+  lucasThump(){ this.blip(82,.075,"sine",.055);this.noise(.055,.018,320); },
+  drip(){ this.blip(1280,.028,"sine",.022); },
   charge(){ if(!this.enabled||!this.ctx)return; const t=this.ctx.currentTime;
     const o=this.ctx.createOscillator(),g=this.ctx.createGain(); o.type="sawtooth";
     o.frequency.setValueAtTime(280,t); o.frequency.exponentialRampToValueAtTime(1500,t+2.4);
@@ -261,10 +270,17 @@ const Sound={
   alarm(){ this.blip(440,0.12,"square",0.06); setTimeout(()=>this.blip(330,0.12,"square",0.06),140); },
   toggle(){ this.enabled=!this.enabled; const b=$("btnSound"); if(b)b.textContent=this.enabled?"🔊":"🔇"; if(this.enabled)this.init(); return this.enabled; },
   tick(now){ if(!this.enabled||!this.ctx||!S)return;
-    if(S.running&&S.comp&&!S.rosc&&S.speed>0){ if(now>=this.nextClick){ this.click(); this.nextClick=now+(60000/110)/Math.max(1,S.speed); } }
+    if(S.running&&S.comp&&!S.rosc&&S.speed>0){ if(now>=this.nextClick){
+      if(S.lucas)this.lucasThump();else this.click();
+      this.nextClick=now+(60000/110)/Math.max(1,S.speed); } }
     else this.nextClick=now;
     if(S.running&&S.rosc){ if(now>=this.nextBeep){ this.beep(); this.nextBeep=now+(60000/95); } }
     else this.nextBeep=now;
+    if(S.running&&S.vent&&!S.rosc&&S.speed>0){if(now>=this.nextBreath){
+      this.breath();this.nextBreath=now+6000/Math.max(1,S.speed);}}
+    else this.nextBreath=now;
+    if(S.running&&S.infusions&&S.infusions.length&&S.speed>0){if(now>=this.nextDrip){
+      this.drip();this.nextDrip=now+2200/Math.max(1,S.speed);}}
+    else this.nextDrip=now;
   }
 };
-

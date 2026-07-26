@@ -35,7 +35,7 @@ current directory, branch, and clean/expected Git status.
 | R-022 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/main.js`, `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-023 | done | Codex | `HLR/blender/`, `HLR/js/room3d-staff-rig-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `TASKS.md` | `codex/work` | this commit |
 | R-024 | done | Codex | `HLR/blender/`, `HLR/js/room3d-patient-rig-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `TASKS.md` | `codex/work` | this commit |
-| R-025 | in progress | Codex | `HLR/blender/`, `HLR/js/room3d*.js`, `HLR/js/ui.js`, `TASKS.md` | `codex/work` | — |
+| R-025 | done | Codex | `HLR/blender/`, `HLR/ahlr.html`, `HLR/js/room3d*.js`, `HLR/js/ui.js`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -215,21 +215,6 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   Blender export round-trip succeeds; a bone-pose test moves only the expected hierarchy; live
   data loads before `room3d.js`; syntax/file/load-order contracts pass; post-FX remains off by
   default and Classic/Canvas behavior is unchanged.
-
-### R-025 — Five-stage HLR 3D clinical refinement
-
-- User-authorized continuation of the HLR 3D work, completed strictly in this order:
-  patient reactions; Blender-authored staff actions and hand contacts; core equipment detail;
-  faces and clothing; sound and small environment animation.
-- Keep all production assets embedded and deterministic. Preserve direct `file://` use, the
-  Classic/Canvas fallback, state and raycast behavior, optional/default-off post-processing and
-  the editable Blender sources.
-- Use the existing gameplay state rather than inventing a parallel simulation. Clinical visual
-  changes must remain legible but restrained, and sounds must obey the existing sound toggle.
-- Acceptance: each stage is a separate logical commit and is verified before the next starts;
-  Blender exports remain deterministic; compression/ventilation contact targets resolve;
-  equipment and character meshes remain within plausible bounds; the final page has no new
-  syntax, dependency, load-order or fallback regressions.
 
 ## Assignment rules
 
@@ -730,3 +715,25 @@ don't leave it dangling as still `open`/`suspected` there.
   introducing a high-resolution deforming skin. The browser-control backend exposed no
   available browser, so live WebGL, raycast and Classic-neighbour interaction QA could not be
   run in this session.
+
+### R-025 — Five-stage HLR 3D clinical refinement — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commits: `7c623f2` patient reactions; `4751ce3` actions/hands; `3dce7e5` equipment;
+  `10c87de` faces/clothing; this commit sound/environment.
+- Changed: Added ventilation/ROSC thorax rise, perfusion-dependent skin/lip colour and sweat;
+  two Blender-authored action clips, finger geometry, palm contacts and runtime two-bone IK;
+  a separate Blender source/export for 35 details across defibrillator, ultrasound, ventilator
+  and LUCAS; improved patient/staff faces and clinical clothing; state-driven probe, circuits,
+  pressure gauge, paper, IV drip, ultrasound, wall clock and equipment sound cues. Existing
+  game state, sound toggle, raycast roles, procedural fallbacks and default-off post-FX remain.
+- Verified: Blender 4.3 generated, opened, rendered and deterministically re-exported all four
+  tracked source scenes. Independent Three.js reconstruction validated rig bounds, 52 staff
+  meshes, 34 patient meshes, ten clinical anchors and all equipment groups. IK tests resolved
+  all four compression/ventilation contacts with at most `0.001434` endpoint error.
+  Python/JavaScript syntax, HTML path/load
+  order, muted-audio gating, five state-driven sound events, Classic/fallback routing and
+  `git diff --check` passed.
+- Notes: No external model or audio source, dependency, build step or runtime fetch was added.
+  The browser-control backend remained unavailable, so live WebGL/raycast and responsive
+  browser QA could not be repeated in this session.

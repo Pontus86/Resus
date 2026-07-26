@@ -203,8 +203,8 @@ def organize_preview(armature):
 
     anchors = {
         "sternum": (0, 0.18, 0.39),
-        "compression_hand_left": (-0.055, 0.18, 0.42),
-        "compression_hand_right": (0.055, 0.18, 0.445),
+        "compression_hand_left": (0, 0.18, 0.42),
+        "compression_hand_right": (0, 0.18, 0.445),
         "airway": (0, 1.41, 0.49),
         "mask_seal": (0, 1.41, 0.49),
         "bag_grip": (0.38, 1.82, 0.58),

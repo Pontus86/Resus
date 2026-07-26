@@ -36,6 +36,7 @@ REQUIRED_ROLES = {
     "monitor_wall",
     "gas_panel",
     "sign",
+    "wall_clock",
     "ceiling_light_left",
     "ceiling_light_right",
 }
