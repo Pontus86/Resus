@@ -5,8 +5,8 @@ const HLRRoom3D=(()=>{
   const objects={},staff={},materials={};
   let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight;
   let patient,patientTorso,lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
-  let padCable,ivLine,usCable,monitorTrace;
-  let defibScreen,defibLamp,ultrasoundProbe;
+  let padCable,ivLine,usCable,monitorTrace,defibTrace;
+  let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,lucasLamp;
   let lastWidth=0,lastHeight=0;
 
   const C={
@@ -48,6 +48,11 @@ const HLRRoom3D=(()=>{
   function limb(mat,radius){
     const m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1,10),mat);
     m.castShadow=true;m.receiveShadow=true;m.userData.radius=radius;return m;
+  }
+  function tube(a,b,radius,mat,segments){
+    const result=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1,segments||12),mat);
+    result.castShadow=true;result.receiveShadow=true;
+    setCylinder(result,a,b,radius);return result;
   }
   function markPick(group,role){
     group.traverse(o=>{if(o.isMesh&&!o.userData.pickRole)o.userData.pickRole=role;});
@@ -158,11 +163,34 @@ const HLRRoom3D=(()=>{
     patient=place(g,"patient",null,0,0);patient.position.y=.98;
 
     lucas=new THREE.Group();
-    const lucasWhite=material("lucasWhite",0xF4F5F2),lucasDark=material("lucasDark",0x373A38);
-    [-.82,.82].forEach(x=>{const post=box(.15,1.35,.18,lucasWhite);post.position.set(x,1.42,-.18);lucas.add(post);});
-    const bridge=box(1.8,.18,.25,lucasWhite);bridge.position.set(0,2.05,-.18);lucas.add(bridge);
-    piston=cylinder(.16,.78,lucasDark,14);piston.position.set(0,1.56,-.18);lucas.add(piston);
-    const cup=cylinder(.31,.12,lucasDark,16);cup.position.set(0,1.14,-.18);lucas.add(cup);
+    const lucasWhite=material("lucasWhite",0xE8ECE8,{roughness:.38});
+    const lucasDark=material("lucasDark",0x252A28,{roughness:.55});
+    const lucasMetal=material("lucasMetal",0x87938E,{roughness:.32,metalness:.62});
+    const lucasBlue=material("lucasBlue",0x307AA3,{roughness:.42});
+    const backplate=box(1.72,.09,1.08,lucasDark);backplate.position.set(0,1.01,-.18);lucas.add(backplate);
+    [-1,1].forEach(side=>{
+      const lowerA=new THREE.Vector3(side*.73,1.04,-.18),lowerB=new THREE.Vector3(side*.99,1.47,-.18);
+      const upperB=new THREE.Vector3(side*.76,1.96,-.18);
+      lucas.add(tube(lowerA,lowerB,.085,lucasWhite,14),tube(lowerB,upperB,.085,lucasWhite,14));
+      const lock=cylinder(.13,.18,lucasBlue,14);lock.rotation.z=Math.PI/2;
+      lock.position.set(side*.93,1.5,-.18);lucas.add(lock);
+      const strap=box(.11,.035,.92,material("lucasStrap",0x1D2321));strap.position.set(side*.56,1.08,-.18);
+      lucas.add(strap);
+    });
+    const topHousing=box(1.48,.3,.48,lucasWhite);topHousing.position.set(0,1.97,-.18);lucas.add(topHousing);
+    const topInset=box(.72,.17,.5,lucasDark);topInset.position.set(0,1.95,-.18);lucas.add(topInset);
+    const battery=box(.38,.34,.36,lucasBlue);battery.position.set(.51,2.16,-.18);lucas.add(battery);
+    const control=box(.42,.18,.035,lucasDark);control.position.set(-.45,2.08,.079);lucas.add(control);
+    lucasLamp=sphere(.045,material("lucasLamp",0x5CC98A,{emissive:0x174F30,emissiveIntensity:.9}),10);
+    lucasLamp.position.set(-.53,2.1,.105);lucas.add(lucasLamp);
+    const motor=cylinder(.23,.38,lucasMetal,18);motor.position.set(0,1.73,-.18);lucas.add(motor);
+    piston=new THREE.Group();
+    const bellows=cylinder(.18,.42,lucasDark,18);bellows.position.y=.04;piston.add(bellows);
+    const shaft=cylinder(.07,.35,lucasMetal,14);shaft.position.y=-.29;piston.add(shaft);
+    const cup=cylinder(.3,.13,lucasDark,20);cup.position.y=-.5;piston.add(cup);
+    const cupLip=new THREE.Mesh(new THREE.TorusGeometry(.26,.045,8,20),lucasDark);
+    cupLip.rotation.x=Math.PI/2;cupLip.position.y=-.57;cupLip.castShadow=true;piston.add(cupLip);
+    piston.position.set(0,1.61,-.18);lucas.add(piston);
     scene.add(markPick(lucas,"bed"));
   }
 
@@ -224,12 +252,49 @@ const HLRRoom3D=(()=>{
     for(let y=.55;y<1.45;y+=.3){const seam=box(1.15,.035,.85,material("cartSeam",0xE8958E));seam.position.y=y;cart.add(seam);}
     place(markPick(cart,"crash_cart"),"crash_cart","crashcart",-6,-3);
 
-    const defib=equipmentFrame(C.red,1.25,1.15,.82);
-    defibScreen=box(.82,.5,.05,material("defibScreen",C.screen,{emissive:0x061B13,emissiveIntensity:.8}));
-    defibScreen.position.set(0,1.05,-.44);defibScreen.rotation.x=-.12;defib.add(defibScreen);
-    defibLamp=sphere(.09,material("defibLamp",0xEEE9D7,{emissive:0x000000}),10);defibLamp.position.set(.42,.76,-.45);defib.add(defibLamp);
-    const charge=box(.42,.12,.12,material("charge",C.red,{emissive:0x5A0804,emissiveIntensity:.5}));
-    charge.position.set(0,.69,-.48);charge.userData.pickRole="ladda_button";defib.add(charge);
+    const defib=new THREE.Group();
+    const defibRed=material("defibRed",0xB93631,{roughness:.42});
+    const defibPlastic=material("defibPlastic",0xDDE2DF,{roughness:.38});
+    const defibDark=material("defibDark",0x202724,{roughness:.5});
+    const defibMetal=material("defibMetal",0x8D9994,{roughness:.28,metalness:.65});
+    const base=box(1.3,.16,.82,defibDark);base.position.y=.25;defib.add(base);
+    const cabinet=box(1.08,.72,.68,defibRed);cabinet.position.y=.68;defib.add(cabinet);
+    [.48,.69,.9].forEach(y=>{
+      const seam=box(.93,.025,.015,material("defibSeam",0x7D211E));seam.position.set(0,y,.351);defib.add(seam);
+    });
+    [[-.5,.22],[.5,.22],[-.5,-.22],[.5,-.22]].forEach(p=>{
+      const yoke=box(.1,.2,.1,defibMetal);yoke.position.set(p[0],.14,p[1]);defib.add(yoke);
+      const wheel=cylinder(.11,.08,material("wheel",C.dark),14);wheel.rotation.z=Math.PI/2;
+      wheel.position.set(p[0],.07,p[1]);defib.add(wheel);
+    });
+    const mast=box(.16,.47,.18,defibMetal);mast.position.set(0,1.18,0);defib.add(mast);
+    const shelf=box(1.3,.1,.78,defibDark);shelf.position.y=1.38;defib.add(shelf);
+    const monitorShell=box(1.2,.84,.58,defibPlastic);monitorShell.position.set(0,1.74,.02);
+    monitorShell.rotation.x=-.08;defib.add(monitorShell);
+    const hood=box(1.08,.68,.08,defibDark);hood.position.set(0,1.78,.33);hood.rotation.x=-.08;defib.add(hood);
+    defibScreen=box(.82,.47,.035,material("defibScreen",C.screen,{
+      emissive:0x061B13,emissiveIntensity:.8,roughness:.18,metalness:.08
+    }));
+    defibScreen.position.set(-.09,1.82,.381);defibScreen.rotation.x=-.08;defib.add(defibScreen);
+    const tracePoints=[];for(let i=0;i<36;i++)tracePoints.push(new THREE.Vector3(-.46+i*.021,1.82,.405));
+    defibTrace=new THREE.Line(new THREE.BufferGeometry().setFromPoints(tracePoints),
+      new THREE.LineBasicMaterial({color:0x52E49B,transparent:true,opacity:.28}));defib.add(defibTrace);
+    const dial=cylinder(.1,.06,defibDark,18);dial.rotation.x=Math.PI/2;dial.position.set(.48,1.89,.383);defib.add(dial);
+    [[.4,1.69,0xE6B53B],[.54,1.69,0x4FAE78]].forEach(p=>{
+      const button=cylinder(.055,.035,material("defibButton-"+p[2],p[2],{roughness:.36}),14);
+      button.rotation.x=Math.PI/2;button.position.set(p[0],p[1],.388);defib.add(button);
+    });
+    defibChargeButton=box(.35,.12,.06,material("charge",0xD9473E,{emissive:0x5A0804,emissiveIntensity:.5}));
+    defibChargeButton.position.set(.38,1.53,.4);defibChargeButton.userData.pickRole="ladda_button";defib.add(defibChargeButton);
+    defibLamp=sphere(.065,material("defibLamp",0xEEE9D7,{emissive:0x000000}),12);
+    defibLamp.position.set(.55,1.53,.44);defib.add(defibLamp);
+    const handle=box(1.48,.09,.1,defibDark);handle.position.set(0,2.25,-.14);defib.add(handle);
+    [-.64,.64].forEach(x=>{
+      const grip=box(.16,.19,.3,defibDark);grip.position.set(x,1.43,.04);defib.add(grip);
+      const paddle=box(.22,.13,.38,defibPlastic);paddle.position.set(x,1.51,.09);defib.add(paddle);
+      const socket=cylinder(.055,.035,defibDark,12);socket.rotation.x=Math.PI/2;
+      socket.position.set(x*.67,1.4,.4);defib.add(socket);
+    });
     place(markPick(defib,"defib"),"defib",null,6.4,-3);
 
     const us=equipmentFrame(0xD9E2DE,1.2,1.5,.82);
@@ -358,10 +423,10 @@ const HLRRoom3D=(()=>{
     ventBag.scale.y=.8*(S.vent?1-.16*Math.max(0,Math.sin(phase/5)):1);
     accessPatch.visible=!!S.access;
     lucas.visible=!!S.lucas&&!S.rosc;
-    if(lucas.visible)piston.position.y=1.56-press*.22;
+    if(lucas.visible)piston.position.y=1.61-press*.22;
 
     if(S.pads){
-      const defibPos=objects.defib.position.clone().add(new THREE.Vector3(0,1,-.45));
+      const defibPos=objects.defib.position.clone().add(new THREE.Vector3(0,1.4,.4));
       setLine(padCable,defibPos,new THREE.Vector3(.34,1.38,.12),.45);
     }else padCable.visible=false;
     if(S.access){
@@ -380,6 +445,9 @@ const HLRRoom3D=(()=>{
     defibLamp.material.color.setHex(S.charged?0xFFE168:S.charging?0xFF7A70:0xEEE9D7);
     defibLamp.material.emissive.setHex(S.charged?0xB98700:S.charging?0x8E120A:0);
     defibScreen.material.emissiveIntensity=S.pads?1.35:.35;
+    defibChargeButton.material.emissiveIntensity=S.charged?1.8:S.charging?1.15:.35;
+    lucasLamp.material.color.setHex(S.comp?0x5CC98A:0xE5B94B);
+    lucasLamp.material.emissive.setHex(S.comp?0x174F30:0x6E4B08);
   }
   function updateMonitor(){
     if(!monitorTrace)return;
@@ -396,6 +464,20 @@ const HLRRoom3D=(()=>{
       position.setXYZ(i,x,2.7+value,-4.78);
     }
     position.needsUpdate=true;monitorTrace.material.opacity=active?1:.28;monitorTrace.material.transparent=true;
+    if(defibTrace){
+      const defibPosition=defibTrace.geometry.attributes.position;
+      for(let i=0;i<defibPosition.count;i++){
+        const x=-.46+i*.021,t=(S.t||0)*2+i*.13;
+        let value=0;
+        if(active){
+          if(rhythm==="VF")value=Math.sin(t*2.7)*.065+Math.sin(t*5.1)*.045;
+          else if(rhythm==="asystoli")value=Math.sin(t*.8)*.007;
+          else{const p=((t%3)+3)%3;value=p<.18?Math.sin(p/.18*Math.PI)*.12:Math.sin(t)*.01;}
+        }
+        defibPosition.setXYZ(i,x,1.82+value,.405);
+      }
+      defibPosition.needsUpdate=true;defibTrace.material.opacity=active?1:.28;
+    }
   }
   function render(){
     if(!init())return false;

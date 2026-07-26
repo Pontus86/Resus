@@ -26,6 +26,7 @@ current directory, branch, and clean/expected Git status.
 | R-011 | done | Codex | `IDEAS/`, `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/room-render.js`, `HLR/js/ultrasound.js`, `HLR/js/main.js` | `codex/work` | this commit |
 | R-014 | done | Codex | `.agents/`, `.gitignore`, `scripts/agent_loop.py`, `tests/test_agent_loop.py`, `docs/agent-loop.md`, `AGENTS.md`, `DECISIONS.md`, `TASKS.md` | `codex/work` | this commit |
 | R-015 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/room3d.js`, `HLR/js/room-render.js`, `HLR/js/main.js`, `IDEAS/README.md`, `IDEAS/2026-07-25-hlr-diorama-view.md`, `TASKS.md` | `codex/work` | this commit |
+| R-016 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -96,6 +97,18 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   and console QA could not run because the in-app browser cannot reach the local server and
   no local Chrome browser connector is available.
 
+### R-016 — Refine core HLR equipment
+
+- User-authorized continuation of R-015. Keep the procedural, embedded Three.js approach and
+  improve the two highest-value devices first: the defibrillator and LUCAS.
+- Make both devices clinically recognizable through silhouette, material separation and
+  functional details. Preserve existing state animations and raycast actions; do not change
+  simulator rules, add downloads, or introduce runtime/build dependencies.
+- Acceptance: defibrillator screen/controls/cables still reflect pads, charging and charged
+  states; LUCAS installation and piston motion still reflect simulator state; both devices and
+  their actions work in the live 3D room; Classic fallback is unaffected; verify desktop and
+  narrow layouts with no new console errors.
+
 ## Assignment rules
 
 1. Give every task a stable ID such as `R-001`.
@@ -149,6 +162,24 @@ don't leave it dangling as still `open`/`suspected` there.
   `git diff --check`.
 - Notes: No external models, new data source, build step or download. The low-poly mesh
   builders are intentionally local and can be refined later. R-006 was not touched.
+
+### R-016 — Refined HLR defibrillator and LUCAS — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Rebuilt the procedural defibrillator as a wheeled monitor cart with cabinet,
+  casters, mast, shelf, hooded live screen, ECG trace, controls, status light, handle,
+  paddles and sockets. Rebuilt LUCAS with a backplate, straps, shaped support frame, locks,
+  top housing, battery, control panel, status light, motor, bellows, piston and suction cup.
+  Existing raycast roles and simulator-driven pad, cable, charging, compression and pause
+  states remain unchanged.
+- Verified: `node --check` for the changed renderer and nearby `main.js`; static assertions for
+  Three.js/script load order, relative asset existence, raycast roles, LUCAS piston motion,
+  live defibrillator trace and status-light state contracts; confirmed no runtime `fetch()`;
+  `git diff --check`.
+- Notes: The available browser runtime reported no browser backends in this session, so fresh
+  visual desktop/narrow and live interaction QA could not be completed. No external model,
+  source, dependency or licence was added. R-006 remains untouched.
 
 ### R-014 — Bounded Claude Code ↔ Codex controller — done
 
