@@ -28,6 +28,7 @@ current directory, branch, and clean/expected Git status.
 | R-015 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/room3d.js`, `HLR/js/room-render.js`, `HLR/js/main.js`, `IDEAS/README.md`, `IDEAS/2026-07-25-hlr-diorama-view.md`, `TASKS.md` | `codex/work` | this commit |
 | R-016 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-017 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
+| R-018 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -121,6 +122,18 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   ultrasound and ventilator have distinct clinical silhouettes and functional details; existing
   state animations, raycast actions, Classic fallback and file compatibility remain intact.
 
+### R-018 — Clinical spotlights and lightweight post-processing
+
+- User-authorized continuation of the HLR visual pass. Add several focused clinical
+  spotlights and a restrained bloom/color-finishing pipeline to the live 3D room.
+- Keep the effect self-contained in the existing renderer with no downloaded examples,
+  dependencies, modules or build step. Use reduced-resolution bloom buffers and retain a
+  direct-render fallback if post-processing cannot initialize.
+- Acceptance: the bed, airway and equipment receive distinct focused lighting; emissive
+  screens/status lights gain subtle bloom without washing out anatomy; post-processing adds
+  modest contrast, saturation and vignette; resize and narrow layouts remain bounded; raycast
+  actions, state rendering, Classic fallback and direct `file://` compatibility remain intact.
+
 ## Assignment rules
 
 1. Give every task a stable ID such as `R-001`.
@@ -212,6 +225,26 @@ don't leave it dangling as still `open`/`suspected` there.
 - Notes: No browser backend was available for fresh live visual, desktop/narrow or interaction
   QA in this session. No external model, dependency or licence was added. R-006 remains
   untouched.
+
+### R-018 — Clinical spotlights and lightweight post-processing — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Rebalanced the broad room illumination and added three soft spotlights aimed at the
+  bed, airway and right-side equipment, with only the central spotlight casting a small shadow
+  map. Added a self-contained post stack: full-resolution scene target, half-resolution
+  thresholded bloom, horizontal/vertical Gaussian blur, and a restrained final composite with
+  bloom, saturation, contrast and vignette. Direct rendering remains the fallback when setup
+  fails.
+- Verified: `node --check` for `room3d.js` and nearby `main.js`; static assertions cover three
+  configured spotlights, render targets, half-resolution resize, both blur axes, restrained
+  threshold/strength, final composite and direct-render fallback; confirmed the Three r149
+  bundle contains the referenced tone-mapping/encoding shader chunks; confirmed no runtime
+  `fetch()`; `git diff --check`.
+- Notes: No browser backend or standalone GLSL validator was available, so fresh WebGL shader
+  compilation, visual tuning, desktop/narrow and interaction QA could not be completed in this
+  session. The bloom buffers add only a few megabytes at the current capped pixel ratio. No
+  dependency, external source or licence was added. R-006 remains untouched.
 
 ### R-014 — Bounded Claude Code ↔ Codex controller — done
 

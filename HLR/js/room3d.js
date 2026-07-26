@@ -7,6 +7,8 @@ const HLRRoom3D=(()=>{
   let patient,patientTorso,lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
   let padCable,ivLine,usCable,ventCircuit,monitorTrace,defibTrace;
   let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,lucasLamp;
+  let postScene,postCamera,postQuad,sceneTarget,bloomTargetA,bloomTargetB;
+  let brightMaterial,blurMaterial,compositeMaterial,postFXReady=false;
   let lastWidth=0,lastHeight=0;
 
   const C={
@@ -85,6 +87,62 @@ const HLRRoom3D=(()=>{
     const middle=a.clone().lerp(b,.5);middle.y+=lift||.25;
     target.geometry.setFromPoints([a,middle,b]);
     target.visible=true;
+  }
+
+  function initPostFX(){
+    try{
+      const targetOptions={minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat};
+      sceneTarget=new THREE.WebGLRenderTarget(1,1,Object.assign({depthBuffer:true},targetOptions));
+      bloomTargetA=new THREE.WebGLRenderTarget(1,1,Object.assign({depthBuffer:false},targetOptions));
+      bloomTargetB=new THREE.WebGLRenderTarget(1,1,Object.assign({depthBuffer:false},targetOptions));
+      const vertexShader="varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position,1.0);}";
+      brightMaterial=new THREE.ShaderMaterial({
+        uniforms:{tInput:{value:null}},
+        vertexShader,
+        fragmentShader:[
+          "uniform sampler2D tInput;varying vec2 vUv;",
+          "void main(){vec3 c=texture2D(tInput,vUv).rgb;",
+          "float b=max(max(c.r,c.g),c.b);float glow=smoothstep(.72,.98,b);",
+          "gl_FragColor=vec4(c*glow,1.0);}"
+        ].join("\n"),
+        depthTest:false,depthWrite:false,toneMapped:false
+      });
+      blurMaterial=new THREE.ShaderMaterial({
+        uniforms:{tInput:{value:null},texel:{value:new THREE.Vector2(1,1)},direction:{value:new THREE.Vector2(1,0)}},
+        vertexShader,
+        fragmentShader:[
+          "uniform sampler2D tInput;uniform vec2 texel;uniform vec2 direction;varying vec2 vUv;",
+          "void main(){vec2 o=texel*direction;vec3 c=texture2D(tInput,vUv).rgb*.227027;",
+          "c+=(texture2D(tInput,vUv+o*1.384615).rgb+texture2D(tInput,vUv-o*1.384615).rgb)*.316216;",
+          "c+=(texture2D(tInput,vUv+o*3.230769).rgb+texture2D(tInput,vUv-o*3.230769).rgb)*.070270;",
+          "gl_FragColor=vec4(c,1.0);}"
+        ].join("\n"),
+        depthTest:false,depthWrite:false,toneMapped:false
+      });
+      compositeMaterial=new THREE.ShaderMaterial({
+        uniforms:{tScene:{value:null},tBloom:{value:null},bloomStrength:{value:.28}},
+        vertexShader,
+        fragmentShader:[
+          "uniform sampler2D tScene;uniform sampler2D tBloom;uniform float bloomStrength;varying vec2 vUv;",
+          "void main(){vec3 base=texture2D(tScene,vUv).rgb;vec3 bloom=texture2D(tBloom,vUv).rgb;",
+          "float l=dot(base,vec3(.2126,.7152,.0722));base=mix(vec3(l),base,1.055);",
+          "base=(base-.5)*1.035+.5;float d=distance(vUv,vec2(.5));",
+          "float vignette=1.0-smoothstep(.28,.74,d);base*=mix(.88,1.015,vignette);",
+          "gl_FragColor=vec4(base+bloom*bloomStrength,1.0);",
+          "#include <tonemapping_fragment>",
+          "#include <encodings_fragment>",
+          "}"
+        ].join("\n"),
+        depthTest:false,depthWrite:false
+      });
+      postScene=new THREE.Scene();postCamera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+      postQuad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),brightMaterial);
+      postQuad.frustumCulled=false;postScene.add(postQuad);
+      postFXReady=true;
+    }catch(error){
+      console.warn("HLR 3D efterbehandling kunde inte starta, använder direkt rendering.",error);
+      postFXReady=false;
+    }
   }
 
   function createRoom(){
@@ -390,10 +448,23 @@ const HLRRoom3D=(()=>{
     padCable.visible=ivLine.visible=usCable.visible=ventCircuit.visible=false;
   }
   function createLights(){
-    scene.add(new THREE.HemisphereLight(0xFFFDF4,0x63736A,.82));
-    const key=new THREE.DirectionalLight(0xFFF7DF,1.28);key.position.set(-5,11,5);
+    scene.add(new THREE.HemisphereLight(0xFFFDF4,0x63736A,.68));
+    const key=new THREE.DirectionalLight(0xFFF7DF,.72);key.position.set(-5,11,5);
     key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-10;key.shadow.camera.right=10;
     key.shadow.camera.top=8;key.shadow.camera.bottom=-8;scene.add(key);
+    [
+      {color:0xFFF3D8,intensity:1.2,position:[.2,6.8,.8],target:[0,1,-.1],angle:.43,shadow:true},
+      {color:0xDCEFFF,intensity:.78,position:[-2.8,5.7,-2.6],target:[0,1,-1.55],angle:.36},
+      {color:0xFFE6C4,intensity:.7,position:[4.8,5.5,-2.2],target:[4.2,.9,-1.2],angle:.5}
+    ].forEach(spec=>{
+      const spot=new THREE.SpotLight(spec.color,spec.intensity,15,spec.angle,.72,1.35);
+      spot.position.fromArray(spec.position);spot.target.position.fromArray(spec.target);
+      if(spec.shadow){
+        spot.castShadow=true;spot.shadow.mapSize.set(512,512);spot.shadow.bias=-.0004;
+        spot.shadow.camera.near=.5;spot.shadow.camera.far=16;
+      }
+      scene.add(spot,spot.target);
+    });
     clockLight=new THREE.PointLight(0xCDEDDD,.35,8);clockLight.position.set(0,3.5,-1);scene.add(clockLight);
     shockLight=new THREE.PointLight(0xFFF2D0,0,16);shockLight.position.set(0,5,0);scene.add(shockLight);
   }
@@ -414,7 +485,7 @@ const HLRRoom3D=(()=>{
       raycaster=new THREE.Raycaster();pointer=new THREE.Vector2();
       createRoom();createBed();createPatient();createEquipment();
       ["airway_staff","compressor","doctor","nurse_ssk","ambulance","narkos_ssk","surgeon"].forEach(createStaff);
-      createDynamicLines();createLights();
+      createDynamicLines();createLights();initPostFX();
       canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();API.failed=true;API.ready=false;});
       window.addEventListener("resize",resize);
       API.ready=true;resize();return true;
@@ -432,6 +503,14 @@ const HLRRoom3D=(()=>{
     const aspect=width/height,frustum=11.2;
     camera.left=-frustum*aspect/2;camera.right=frustum*aspect/2;
     camera.top=frustum/2;camera.bottom=-frustum/2;camera.updateProjectionMatrix();
+    if(postFXReady){
+      const drawingSize=renderer.getDrawingBufferSize(new THREE.Vector2());
+      const bloomWidth=Math.max(1,Math.round(drawingSize.x*.5));
+      const bloomHeight=Math.max(1,Math.round(drawingSize.y*.5));
+      sceneTarget.setSize(drawingSize.x,drawingSize.y);
+      bloomTargetA.setSize(bloomWidth,bloomHeight);bloomTargetB.setSize(bloomWidth,bloomHeight);
+      blurMaterial.uniforms.texel.value.set(1/bloomWidth,1/bloomHeight);
+    }
   }
   function queueBusy(role){
     return typeof roleBusy==="function"&&roleBusy(role);
@@ -536,6 +615,24 @@ const HLRRoom3D=(()=>{
       defibPosition.needsUpdate=true;defibTrace.material.opacity=active?1:.28;
     }
   }
+  function renderWithPostFX(){
+    if(!postFXReady){renderer.setRenderTarget(null);renderer.render(scene,camera);return;}
+    renderer.setRenderTarget(sceneTarget);renderer.clear();renderer.render(scene,camera);
+
+    postQuad.material=brightMaterial;brightMaterial.uniforms.tInput.value=sceneTarget.texture;
+    renderer.setRenderTarget(bloomTargetA);renderer.clear();renderer.render(postScene,postCamera);
+
+    postQuad.material=blurMaterial;blurMaterial.uniforms.tInput.value=bloomTargetA.texture;
+    blurMaterial.uniforms.direction.value.set(1,0);
+    renderer.setRenderTarget(bloomTargetB);renderer.clear();renderer.render(postScene,postCamera);
+
+    blurMaterial.uniforms.tInput.value=bloomTargetB.texture;blurMaterial.uniforms.direction.value.set(0,1);
+    renderer.setRenderTarget(bloomTargetA);renderer.clear();renderer.render(postScene,postCamera);
+
+    postQuad.material=compositeMaterial;compositeMaterial.uniforms.tScene.value=sceneTarget.texture;
+    compositeMaterial.uniforms.tBloom.value=bloomTargetA.texture;
+    renderer.setRenderTarget(null);renderer.render(postScene,postCamera);
+  }
   function render(){
     if(!init())return false;
     if(API.failed)return false;
@@ -544,7 +641,7 @@ const HLRRoom3D=(()=>{
     shockLight.intensity=flash*8;
     clockLight.color.setHex(S.rosc?0x82E39D:0xCDEDDD);
     clockLight.intensity=S.rosc?1.2:.35;
-    renderer.render(scene,camera);return true;
+    renderWithPostFX();return true;
   }
   function pick(event){
     if(!API.ready||API.failed||!canvas)return null;
