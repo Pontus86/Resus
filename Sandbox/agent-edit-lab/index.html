@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Resus förbättringslabb</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="lab-header">
+    <div>
+      <span class="eyebrow">Sandbox · lokalt experiment</span>
+      <h1>Förbättra sidan tillsammans med agenten</h1>
+      <p>Klicka på något i förhandsvisningen och beskriv hur du vill ändra det.</p>
+    </div>
+    <div class="prototype-badge"><span></span>Endast lokal förhandsvisning</div>
+  </header>
+
+  <main class="lab-shell">
+    <section class="preview-panel" aria-label="Redigerbar förhandsvisning">
+      <div class="preview-toolbar">
+        <div>
+          <b>A-HLR Simulator</b>
+          <span id="previewMode">Redigerad version</span>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" id="compareBtn" class="quiet">Håll för original</button>
+          <button type="button" id="resetBtn" class="quiet">Återställ allt</button>
+        </div>
+      </div>
+
+      <div id="preview" class="preview">
+        <header class="mock-top" data-edit-id="topbar" data-name="sidhuvudet">
+          <div class="mock-brand"><span class="brand-mark">R</span><b>Resus</b></div>
+          <div class="mock-title">
+            <span>A-HLR Simulator</span>
+            <small>ERC 2025 · Akutrum 1</small>
+          </div>
+          <button type="button">Avbryt</button>
+        </header>
+
+        <section class="mock-status" data-edit-id="statusbar" data-name="statusraden">
+          <div><small>HJÄRTSTOPP</small><strong>03:42</strong></div>
+          <div><small>NÄSTA RYTMKONTROLL</small><strong>00:18</strong></div>
+          <div><small>ADRENALIN</small><strong>01:06</strong></div>
+          <span class="live-pill">HLR pågår</span>
+        </section>
+
+        <div class="mock-grid" data-edit-id="pagegrid" data-name="sidans kolumner">
+          <article class="mock-card room-card" data-edit-id="roomcard" data-name="akutrummet">
+            <div class="card-heading">
+              <div><span class="section-kicker">LIVE</span><h2>Akutrum 1</h2></div>
+              <span class="view-switch"><b>3D</b><i>Klassisk</i></span>
+            </div>
+            <div class="room" data-edit-id="room" data-name="rummets bakgrund">
+              <div class="wall-monitor" data-edit-id="monitor" data-name="väggmonitorn">
+                <span class="trace">⌁⌁⌁</span><small>EtCO₂ 4.8</small>
+              </div>
+              <div class="gas-panel"><i></i><i></i><i></i></div>
+              <div class="bed" data-edit-id="bed" data-name="britsen">
+                <div class="mattress"></div>
+                <div class="patient" data-edit-id="patient" data-name="patienten">
+                  <i class="patient-head"></i><i class="patient-body"></i>
+                  <i class="patient-arm left"></i><i class="patient-arm right"></i>
+                  <i class="patient-leg left"></i><i class="patient-leg right"></i>
+                </div>
+                <div class="lucas" data-edit-id="lucas" data-name="LUCAS">
+                  <i></i><b></b><i></i>
+                </div>
+              </div>
+              <div class="person doctor" data-edit-id="doctor" data-name="läkaren">
+                <i></i><b></b><span>Läkare</span>
+              </div>
+              <div class="person nurse" data-edit-id="nurse" data-name="sjuksköterskan">
+                <i></i><b></b><span>SSK</span>
+              </div>
+              <div class="person airway" data-edit-id="airway" data-name="luftvägspersonalen">
+                <i></i><b></b><span>Luftväg</span>
+              </div>
+              <div class="device defib" data-edit-id="defib" data-name="defibrillatorn">
+                <i class="device-screen">⌁</i><b></b><span>DEFIB</span>
+              </div>
+              <div class="device ventilator" data-edit-id="ventilator" data-name="ventilatorn">
+                <i class="device-screen">12</i><b></b><span>VENT</span>
+              </div>
+              <div class="device cart" data-edit-id="cart" data-name="akutvagnen">
+                <i></i><b></b><span>VAGN</span>
+              </div>
+              <div class="floor-shadow"></div>
+            </div>
+            <div class="monitor-strip" data-edit-id="ecgstrip" data-name="EKG-monitorn">
+              <div class="ecg-line">⌁╱╲⌁╱╲⌁╱╲⌁</div>
+              <div><small>HF</small><b>102</b></div>
+              <div><small>EtCO₂</small><b>4.8</b></div>
+              <div><small>SpO₂</small><b>97</b></div>
+            </div>
+          </article>
+
+          <aside class="side-column" data-edit-id="sidecolumn" data-name="högerspalten">
+            <section class="mock-card team-card" data-edit-id="teamcard" data-name="teamstatus">
+              <div class="card-heading"><div><span class="section-kicker">TEAM</span><h2>Pågående arbete</h2></div></div>
+              <div class="team-row"><span class="avatar blue">L</span><div><b>Läkare</b><small>Bedömer reversibla orsaker</small></div><i>ARBETAR</i></div>
+              <div class="team-row"><span class="avatar teal">S</span><div><b>Sjuksköterska</b><small>Förbereder adrenalin</small></div><i>00:08</i></div>
+              <div class="team-row"><span class="avatar gold">A</span><div><b>Ambulans</b><small>Ventilerar</small></div><i>AKTIV</i></div>
+            </section>
+            <section class="mock-card action-card" data-edit-id="actions" data-name="åtgärdsknapparna">
+              <div class="card-heading"><div><span class="section-kicker">ÅTGÄRDER</span><h2>Nästa steg</h2></div></div>
+              <button type="button" class="primary-action">Gör rytmkontroll <small>18 s kvar</small></button>
+              <button type="button">Ge adrenalin</button>
+              <button type="button">Byt kompressör</button>
+            </section>
+          </aside>
+        </div>
+      </div>
+      <p class="preview-help">Markerade element är redigerbara. Ändringarna finns bara i din webbläsare.</p>
+    </section>
+
+    <aside class="agent-panel" aria-label="Chatt med förbättringsagenten">
+      <div class="agent-head">
+        <div class="agent-avatar">A</div>
+        <div><b>Förbättringsagent</b><span>Begränsad prototyp · inga produktionsrättigheter</span></div>
+        <button type="button" id="undoBtn" class="icon-btn" title="Ångra senaste ändringen" aria-label="Ångra">↶</button>
+      </div>
+
+      <div id="conversation" class="conversation" aria-live="polite"></div>
+
+      <section class="selection-tools" aria-label="Direktredigering">
+        <div class="selection-line">
+          <span>Markerat:</span><b id="selectedName">ingenting</b>
+          <button type="button" id="hideBtn" class="text-btn" disabled>Dölj</button>
+        </div>
+        <div class="nudge-grid">
+          <button type="button" data-nudge="up" title="Flytta upp">↑</button>
+          <button type="button" data-nudge="bigger" title="Gör större">＋</button>
+          <button type="button" data-nudge="left" title="Flytta vänster">←</button>
+          <button type="button" data-nudge="down" title="Flytta ned">↓</button>
+          <button type="button" data-nudge="right" title="Flytta höger">→</button>
+          <button type="button" data-nudge="smaller" title="Gör mindre">−</button>
+        </div>
+      </section>
+
+      <div class="suggestions" id="suggestions">
+        <button type="button">Gör patienten större</button>
+        <button type="button">Flytta utrustningen närmare britsen</button>
+        <button type="button">Gör rummet mörkare</button>
+      </div>
+
+      <form id="chatForm" class="chat-form">
+        <label for="prompt">Beskriv ändringen</label>
+        <div>
+          <textarea id="prompt" rows="2" placeholder="Exempel: Flytta läkaren lite åt vänster"></textarea>
+          <button type="submit" aria-label="Skicka">↑</button>
+        </div>
+      </form>
+
+      <div class="review-actions">
+        <div><b id="changeCount">0 ändringar</b><span>Redo att paketeras för granskning</span></div>
+        <button type="button" id="reviewBtn">Skapa granskningspaket</button>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="reviewDialog">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-head">
+        <div><span class="eyebrow">Förslag · inte implementerat</span><h2>Granskningspaket</h2></div>
+        <button value="close" class="icon-btn" aria-label="Stäng">×</button>
+      </div>
+      <p>Det här är vad du skulle skicka till projektägaren. Paketet kan granskas och återskapas utan att agenten får skriva till produktion.</p>
+      <textarea id="packagePreview" readonly></textarea>
+      <div class="dialog-actions">
+        <button type="button" id="copyBtn" class="quiet">Kopiera</button>
+        <button type="button" id="downloadBtn">Ladda ner JSON</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

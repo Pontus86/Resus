@@ -31,6 +31,7 @@ current directory, branch, and clean/expected Git status.
 | R-018 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-019 | done | Codex | `HLR/blender/`, `HLR/js/room3d-layout-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `DECISIONS.md`, `TASKS.md` | `codex/work` | this commit |
 | R-020 | done | Codex | `HLR/js/complications.js`, `HLR/js/state.js`, `TASKS.md` | `codex/work` | this commit |
+| R-021 | done | Codex | `Sandbox/README.md`, `Sandbox/agent-edit-lab/`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -165,6 +166,21 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 - Acceptance: high-performance state has materially higher probability than poor-performance
   state; safety errors reduce it; Oskar's existing reduction remains; guided mode never fires;
   existing complication resolution and scoring paths remain unchanged.
+
+### R-021 — In-browser agent edit lab
+
+- User-authorized sandbox experiment for the proposed user-feedback workflow. Build a polished,
+  standalone Resus-like preview with a chat beside it. The local prototype agent may make only
+  allowlisted visual edits to selected elements and must never edit repository files.
+- Support natural Swedish and English commands for selection, position, size, visibility,
+  colour and density; direct manipulation controls; undo, reset, before/after comparison and
+  draft persistence. Clearly distinguish the constrained local prototype from a future LLM
+  backend.
+- Export a human-review package containing the conversation, structured edits and generated CSS
+  overrides. Do not add an API key, remote call, production integration or automatic Git action.
+- Acceptance: works directly through `file://`; user can iteratively change the mock HLR view,
+  undo it, compare with the original and download/copy a deterministic review package; narrow
+  layout remains usable; experiment limitations and promotion criteria are documented.
 
 ## Assignment rules
 
@@ -580,3 +596,25 @@ don't leave it dangling as still `open`/`suspected` there.
   a live accelerated scenario could not be exercised in this session. The change is isolated
   to probability selection; complication effects and their existing resolution paths were not
   modified.
+
+### R-021 — In-browser agent edit lab — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Added a standalone, polished HLR-like feedback lab with 19 selectable targets. A
+  constrained local chat agent understands common Swedish and English requests for selection,
+  movement, size, colour, brightness, rounding and visibility; a grouped command tightens the
+  equipment cluster. Direct nudge controls, undo, reset, hold-for-original, local draft
+  persistence and responsive layout support iteration. The review dialog exports the
+  conversation, structured edit log, generated CSS and explicit safety/limitation metadata as
+  copyable or downloadable JSON.
+- Verified: `node --check` passed. HTML parsing confirmed unique IDs, unique editable IDs and
+  valid local script/style paths. CSS braces and the narrow breakpoint were checked. Static
+  safety assertions confirmed there is no `fetch`, XHR, WebSocket, dynamic code execution,
+  credential or remote-agent path. `file://` dependencies are ordinary relative files and
+  `git diff --check` passed.
+- Notes: This deliberately uses a local allowlisted rule engine and representative HLR mock,
+  not an LLM or the production HLR DOM. It cannot modify source or production. No browser
+  backend or installed Playwright runtime was available, so live click/visual QA remains for
+  the user's trial; promotion requires separate decisions about backend access, privacy,
+  authentication, cost and real-page isolation.

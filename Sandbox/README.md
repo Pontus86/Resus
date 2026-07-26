@@ -13,3 +13,8 @@ Each experiment should state:
 A successful experiment must still produce a recorded decision and scoped task before its code
 is moved into production.
 
+## Experiments
+
+- `chest-tube-sandbox.html` — interactive thorax-drain procedure prototype.
+- `agent-edit-lab/index.html` — constrained in-browser feedback agent. It edits a temporary
+  Resus-like preview and exports a review package; it cannot change production files.
