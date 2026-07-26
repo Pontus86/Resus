@@ -1,6 +1,7 @@
 """Bygg en liggande, riggad patient från Kropps-atlasens anatomiska hudyta."""
 
 import json
+import os
 from pathlib import Path
 
 import bpy
@@ -12,6 +13,15 @@ OUTPUT = HERE / "hlr-patient-rig.blend"
 ATLAS_SKIN = HERE.parent.parent / "Kroppsatlas" / "models" / "body" / "skin.js"
 ATLAS_SCALE = 0.0023
 ATLAS_CENTER = Vector((-0.647, -100.7677, 781.6244))
+ATLAS_FACE_PARTS = {
+    "atlas_sclera_left": ("FMA59713", "eye_white", 0.025),
+    "atlas_sclera_right": ("FMA59712", "eye_white", 0.025),
+    "atlas_iris_left": ("FMA58237", "iris", 0.018),
+    "atlas_iris_right": ("FMA58236", "iris", 0.018),
+    "atlas_cornea_left": ("FMA58240", "cornea", 0.08),
+    "atlas_cornea_right": ("FMA58239", "cornea", 0.08),
+    "atlas_eyebrows": ("FMA54237", "eyebrow", 0.04),
+}
 
 
 def clear_scene():
@@ -26,13 +36,16 @@ def clear_scene():
             datablocks.remove(block)
 
 
-def material(name, color, roughness=0.65):
+def material(name, color, roughness=0.65, alpha=1.0):
     result = bpy.data.materials.new(name)
-    result.diffuse_color = (*color, 1)
+    result.diffuse_color = (*color, alpha)
     result.use_nodes = True
     bsdf = result.node_tree.nodes.get("Principled BSDF")
-    bsdf.inputs["Base Color"].default_value = (*color, 1)
+    bsdf.inputs["Base Color"].default_value = (*color, alpha)
     bsdf.inputs["Roughness"].default_value = roughness
+    bsdf.inputs["Alpha"].default_value = alpha
+    if alpha < 1 and hasattr(result, "surface_render_method"):
+        result.surface_render_method = "DITHERED"
     return result
 
 
@@ -85,6 +98,75 @@ def load_atlas_skin():
     return vertices, faces
 
 
+def transform_atlas_vertex(raw):
+    return (
+        (raw.x - ATLAS_CENTER.x) * ATLAS_SCALE,
+        (raw.z - ATLAS_CENTER.z) * ATLAS_SCALE - 0.12,
+        (45.2476 - raw.y) * ATLAS_SCALE,
+    )
+
+
+def atlas_source_root():
+    configured = os.environ.get("RESUS_BODY_PARTS_ROOT")
+    candidates = [
+        Path(configured).expanduser() if configured else None,
+        HERE.parent.parent / "Models" / "BodyParts3D_20181210i412_full",
+        HERE.parent.parent.parent / "Resus" / "Models" / "BodyParts3D_20181210i412_full",
+    ]
+    for candidate in candidates:
+        if candidate and candidate.is_dir():
+            return candidate
+    raise RuntimeError(
+        "Saknar uppackad BodyParts3D 20181210i412-källa. "
+        "Sätt RESUS_BODY_PARTS_ROOT till BodyParts3D_20181210i412_full."
+    )
+
+
+def find_atlas_part(root, fma_id):
+    matches = sorted(root.rglob(f"*_{fma_id}_*.obj"))
+    if len(matches) != 1:
+        raise RuntimeError(f"Förväntade exakt en {fma_id}-modell, hittade {len(matches)}")
+    return matches[0]
+
+
+def load_obj(path):
+    vertices = []
+    faces = []
+    for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        if line.startswith("v "):
+            raw = Vector(tuple(float(value) for value in line.split()[1:4]))
+            vertices.append(transform_atlas_vertex(raw))
+        elif line.startswith("f "):
+            faces.append(tuple(int(part.split("/")[0]) - 1 for part in line.split()[1:]))
+    if not vertices or not faces:
+        raise RuntimeError(f"Tom Atlas-modell: {path}")
+    return vertices, faces
+
+
+def decimate(obj, ratio):
+    modifier = obj.modifiers.new("Webboptimerad yta", "DECIMATE")
+    modifier.ratio = ratio
+    modifier.use_collapse_triangulate = True
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+    bpy.ops.object.modifier_apply(modifier=modifier.name)
+    obj.select_set(False)
+    source = obj.data
+    used = sorted({index for polygon in source.polygons for index in polygon.vertices})
+    if len(used) == len(source.vertices):
+        return
+    remap = {old: new for new, old in enumerate(used)}
+    vertices = [source.vertices[index].co.copy() for index in used]
+    faces = [tuple(remap[index] for index in polygon.vertices) for polygon in source.polygons]
+    compact = bpy.data.meshes.new(source.name + "_Compact")
+    compact.from_pydata(vertices, [], faces)
+    for assigned_material in source.materials:
+        compact.materials.append(assigned_material)
+    compact.update()
+    obj.data = compact
+    bpy.data.meshes.remove(source)
+
+
 def create_atlas_body(mat):
     vertices, faces = load_atlas_skin()
     mesh = bpy.data.meshes.new("AtlasPatientSkin")
@@ -95,13 +177,7 @@ def create_atlas_body(mat):
     assign(obj, mat)
     obj["hlr_material"] = "skin"
     obj["hlr_skinned"] = True
-    modifier = obj.modifiers.new("Webboptimerad yta", "DECIMATE")
-    modifier.ratio = 0.07
-    modifier.use_collapse_triangulate = True
-    bpy.context.view_layer.objects.active = obj
-    obj.select_set(True)
-    bpy.ops.object.modifier_apply(modifier=modifier.name)
-    obj.select_set(False)
+    decimate(obj, 0.07)
     return obj
 
 
@@ -131,6 +207,53 @@ def create_gown_shell(body, mat):
     obj["hlr_material"] = "gown"
     obj["hlr_skinned"] = True
     return obj
+
+
+def create_hair_shell(body, mat):
+    source = body.data
+    selected = []
+    used = set()
+    for polygon in source.polygons:
+        center = sum((source.vertices[index].co for index in polygon.vertices), Vector()) / len(polygon.vertices)
+        # Atlasen saknar frisyr; ett skal av bakre/övre skalpen ger en redigerbar lågpolybas.
+        if center.y >= 1.48 and (center.z <= 0.44 or center.y >= 1.72):
+            face = tuple(polygon.vertices)
+            selected.append(face)
+            used.update(face)
+    remap = {old: new for new, old in enumerate(sorted(used))}
+    vertices = [source.vertices[old].co.copy() for old in sorted(used)]
+    faces = [tuple(remap[index] for index in face) for face in selected]
+    mesh = bpy.data.meshes.new("AtlasPatientHair")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    for vertex in mesh.vertices:
+        vertex.co += vertex.normal * 0.018
+    mesh.update()
+    obj = bpy.data.objects.new("atlas_hair_shell", mesh)
+    bpy.context.collection.objects.link(obj)
+    assign(obj, mat)
+    obj["hlr_material"] = "hair"
+    obj["hlr_skinned"] = True
+    return obj
+
+
+def create_atlas_face_parts(armature, materials):
+    root = atlas_source_root()
+    result = []
+    for name, (fma_id, material_role, ratio) in ATLAS_FACE_PARTS.items():
+        vertices, faces = load_obj(find_atlas_part(root, fma_id))
+        mesh = bpy.data.meshes.new(name)
+        mesh.from_pydata(vertices, [], faces)
+        mesh.update()
+        obj = bpy.data.objects.new(name, mesh)
+        bpy.context.collection.objects.link(obj)
+        assign(obj, materials[material_role])
+        obj["hlr_material"] = material_role
+        obj["hlr_skinned"] = True
+        decimate(obj, ratio)
+        assign_rigid_skin(obj, armature, "head")
+        result.append(obj)
+    return result
 
 
 def distance_to_segment(point, start, end):
@@ -168,6 +291,13 @@ def assign_skin_weights(obj, armature):
         total = sum(weight for weight, _name in raw_weights)
         for weight, name in raw_weights:
             groups[name].add((vertex.index,), weight / total, "REPLACE")
+    obj.parent = armature
+    obj["hlr_armature"] = armature.name
+
+
+def assign_rigid_skin(obj, armature, bone_name):
+    group = obj.vertex_groups.new(name=bone_name)
+    group.add(tuple(vertex.index for vertex in obj.data.vertices), 1.0, "REPLACE")
     obj.parent = armature
     obj["hlr_armature"] = armature.name
 
@@ -260,21 +390,20 @@ def create_meshes(armature):
         "dark": material("Eyes", (0.025, 0.035, 0.03)),
         "lips": material("Lips", (0.38, 0.16, 0.18)),
         "eye_white": material("Eye whites", (0.86, 0.84, 0.78)),
+        "iris": material("Iris", (0.24, 0.36, 0.28), roughness=0.35),
+        "cornea": material("Cornea", (0.64, 0.82, 0.86), roughness=0.12, alpha=0.22),
+        "eyebrow": material("Eyebrows", (0.07, 0.048, 0.035)),
         "gown_dark": material("Gown seams", (0.24, 0.48, 0.40)),
         "gown_light": material("Gown folds", (0.58, 0.76, 0.67)),
         "wristband": material("Patient wristband", (0.84, 0.88, 0.82)),
     }
     body = create_atlas_body(mats["skin"])
     gown = create_gown_shell(body, mats["gown"])
+    hair = create_hair_shell(body, mats["hair"])
     assign_skin_weights(body, armature)
     assign_skin_weights(gown, armature)
-    sphere("hair_mesh", (0, 1.61, 0.47), (0.30, 0.27, 0.10), mats["hair"], armature, "head", "hair", 2)
-    sphere("lips_mesh", (0, 1.48, 0.65), (0.065, 0.020, 0.014), mats["lips"], armature, "head", "lips", 1)
-    for side, sign in (("L", -1), ("R", 1)):
-        sphere(f"eye_white_{side}", (sign * 0.095, 1.62, 0.625), (0.044, 0.026, 0.015),
-               mats["eye_white"], armature, "head", "eye_white", 1)
-        cylinder_between(f"eyebrow_{side}", (sign * 0.15, 1.68, 0.647), (sign * 0.05, 1.69, 0.65),
-                         0.012, mats["hair"], armature, "head", "hair", 7)
+    assign_rigid_skin(hair, armature, "head")
+    create_atlas_face_parts(armature, mats)
     cube("gown_center_seam", (0, 0.02, 0.605), (0.026, 1.14, 0.020),
          mats["gown_dark"], armature, "chest", "gown_dark", bevel=0.006)
     for side, sign in (("L", -1), ("R", 1)):
@@ -282,8 +411,6 @@ def create_meshes(armature):
              mats["gown_dark"], armature, "chest", "gown_dark", rotation_z=sign * 0.55, bevel=0.01)
         cube(f"gown_fold_{side}", (sign * 0.28, 0.02, 0.600), (0.018, 0.88, 0.018),
              mats["gown_light"], armature, "chest", "gown_light", rotation_z=sign * 0.06, bevel=0.004)
-    for side, sign in (("L", -1), ("R", 1)):
-        sphere(f"eye_{side}", (sign * 0.095, 1.62, 0.641), (0.017, 0.014, 0.009), mats["dark"], armature, "head", "dark", 1)
     cylinder_between("patient_wristband", (0.65, -0.36, 0.16), (0.67, -0.44, 0.15), 0.102,
                      mats["wristband"], armature, "forearm.R", "wristband", 14)
 

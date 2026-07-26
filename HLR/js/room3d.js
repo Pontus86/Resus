@@ -231,6 +231,9 @@ const HLRRoom3D=(()=>{
     if(key==="gown_light")return material("gownLight",new THREE.Color(C.gown).lerp(new THREE.Color(0xFFFFFF),.24).getHex());
     if(key==="wristband")return material("patientWristband",0xE5EEE8,{roughness:.44});
     if(key==="eye_white")return material("patientEyeWhite",0xE8E5DC,{roughness:.42});
+    if(key==="iris")return material("patientIris",0x3F6552,{roughness:.32});
+    if(key==="cornea")return material("patientCornea",0xB8E3E8,{transparent:true,opacity:.24,roughness:.08});
+    if(key==="eyebrow")return material("patientEyebrow",C.hair,{roughness:.72});
     if(key==="hair")return material("hair",C.hair);
     if(key==="dark")return material("dark",C.dark);
     if(key==="lips"){

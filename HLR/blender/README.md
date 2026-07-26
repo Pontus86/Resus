@@ -71,8 +71,12 @@ eller ankarnas namn.
 
 Kroppsformen kommer från Kropps-atlasens BodyParts3D-hud. Generatorn läser den
 spårade `Kroppsatlas/models/body/skin.js`, lägger modellen i ryggläge, reducerar
-den till en webbanpassad yta och skapar riggvikter samt en separat patientskjorta.
-Den tunga Atlas-ytan exporteras alltså aldrig oförändrad till HLR-sidan.
+den till en webbanpassad yta och skapar riggvikter samt en separat patientskjorta
+och ett redigerbart hårskal. Sclera, iris, cornea och ögonbryn hämtas vid
+återskapande från den ignorerade, uppackade 2018-samlingen. Om den inte finns i
+projektets `Models/` kan `RESUS_BODY_PARTS_ROOT` peka på mappen
+`BodyParts3D_20181210i412_full`. De tunga Atlas-ytorna exporteras alltså aldrig
+oförändrade till HLR-sidan.
 
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender --background \
