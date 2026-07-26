@@ -30,6 +30,7 @@ current directory, branch, and clean/expected Git status.
 | R-017 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-018 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-019 | done | Codex | `HLR/blender/`, `HLR/js/room3d-layout-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `DECISIONS.md`, `TASKS.md` | `codex/work` | this commit |
+| R-020 | done | Codex | `HLR/js/complications.js`, `HLR/js/state.js`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -149,6 +150,21 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   affect live 3D position/rotation/scale and spotlights; the generated script loads before
   `room3d.js`; Classic fallback and direct `file://` compatibility remain intact; document the
   exact safe edit/export workflow.
+
+### R-020 — Adaptive complication probability
+
+- User-authorized HLR gameplay change. Replace fixed complication probabilities with a bounded
+  live performance model: better ongoing HLR should increase the chance of complications,
+  while a struggling player should receive fewer.
+- Base the model only on already tracked, clinically meaningful gameplay signals. Preserve
+  complication eligibility, maximum count, profile perk, handling score and the
+  complication-free guided mode.
+- Apply the same adaptive principle to the defibrillator contact failure, not only scheduled
+  equipment complications. Keep all probabilities bounded and expose the most recent
+  performance/chance in state so the behavior can be tested deterministically.
+- Acceptance: high-performance state has materially higher probability than poor-performance
+  state; safety errors reduce it; Oskar's existing reduction remains; guided mode never fires;
+  existing complication resolution and scoring paths remain unchanged.
 
 ## Assignment rules
 
@@ -545,3 +561,22 @@ don't leave it dangling as still `open`/`suspected` there.
   idle/base orientation. A fresh browser/WebGL interaction test could not be run because the
   browser-control backend was unavailable, so the existing raycast and Classic-fallback paths
   were preserved and checked statically rather than exercised live.
+
+### R-020 — Adaptive complication probability — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Scheduled equipment complications now use a bounded live performance score instead
+  of a fixed 60 % roll. The score combines compression fraction, compression quality, time to
+  first compressions, rhythm-check timing and rhythm recognition, with a penalty for negative
+  gameplay flags. Defibrillator contact failure uses the same model with a lower 4–20 % range.
+  Guided mode, eligibility, three-event cap, resolution, scoring and Oskar's halved risk remain
+  unchanged. The latest performance and probability are retained in state for inspection.
+- Verified: JavaScript syntax checks passed. A deterministic Node harness confirmed 12 % risk
+  for a poor state versus 79.4 % for a strong state, reduction to 54.9 % after a -10 flag,
+  exact halving to 39.7 % for Oskar, and no probability roll in guided mode. Script order is
+  unchanged and `git diff --check` passed.
+- Notes: No browser backend was available (`agent.browsers.list()` returned an empty list), so
+  a live accelerated scenario could not be exercised in this session. The change is isolated
+  to probability selection; complication effects and their existing resolution paths were not
+  modified.

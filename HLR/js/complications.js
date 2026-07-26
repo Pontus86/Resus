@@ -24,11 +24,41 @@ const COMPS={
    resolved:()=>S.spo2probe,
    fixed:"SpO₂-prob åter på plats, kurvan tillbaka." }
 };
+function complicationPerformance(){
+  let sum=0,weight=0;
+  const add=(value,w)=>{sum+=clamp(value,0,1)*w;weight+=w;};
+  // Modellen använder bara sådant spelaren redan bedöms på. Den räknar löpande i stället
+  // för att återanvända slutpoängen, som innehåller utfall och moment som ännu inte inträffat.
+  if(S.arrestTime>0){
+    const compressionFraction=1-S.handsOff/S.arrestTime;
+    add((compressionFraction-.55)/.35,.35);
+  }
+  add(qualityAvg(),.25);
+  add(S.firstCompAt===null?0:1-S.firstCompAt/60,.15);
+  if(S.checksExpected>0){
+    const meanDeviation=S.checkDeviation/S.checksExpected;
+    add(1-meanDeviation/60,.15);
+  }
+  if(S.rhythmQuiz.total>0){
+    add(S.rhythmQuiz.correct/S.rhythmQuiz.total,.10);
+  }
+  const safetyPenalty=clamp(S.flags.reduce((total,item)=>total+(item.pts<0?-item.pts:0),0)/20,0,.35);
+  return clamp((weight?sum/weight:0)-safetyPenalty,0,1);
+}
+function adaptiveComplicationChance(minimum,maximum){
+  const performance=complicationPerformance();
+  let probability=minimum+(maximum-minimum)*performance;
+  // Oskars etablerade perk ska fortfarande halvera komplikationsrisken.
+  if(S.profile==="oskar")probability*=.5;
+  S.lastComplicationPerformance=performance;
+  S.lastComplicationChance=probability;
+  return probability;
+}
 function maybeComplication(){
   if(S.mode!=="veteran")return;          // håll guidad genomgång ren
   if(S.complication||S.rosc||S.ended)return;
   if(S.complicationsFired>=3)return;     // max 3 per fall
-  if(!chance(S.profile==="oskar"?0.3:0.6))return;   // Oskar: veteran, komplikationer hälften så ofta
+  if(!chance(adaptiveComplicationChance(.12,.82)))return;
   const pool=Object.keys(COMPS).filter(k=>!S._compDone.includes(k)&&COMPS[k].eligible());
   if(!pool.length)return;
   const id=pool[Math.floor(Math.random()*pool.length)];
@@ -53,7 +83,8 @@ function deliverShock(){
   S.charged=false;
   Sound.shock();
   // Slumpad komplikation: dålig plattkontakt → chocken levereras inte (en gång per fall, endast veteranläge)
-  if(S.mode==="veteran"&&!S._shockGlitchUsed&&S.shocks>=1&&(S.rhythm==="VF"||S.rhythm==="pVT")&&chance(0.14)){
+  if(S.mode==="veteran"&&!S._shockGlitchUsed&&S.shocks>=1&&(S.rhythm==="VF"||S.rhythm==="pVT")
+     && chance(adaptiveComplicationChance(.04,.20))){
     S._shockGlitchUsed=true; S.shockFlash=0;
     log("⚠ KOMPLIKATION: dålig plattkontakt, defibrillatorn larmar och chocken levererades inte. Tryck fast plattorna och ladda om.","bad");
     mark("Komplikation: chock ej levererad","cause");

@@ -40,6 +40,7 @@ function newState(){
     access:null, lines:[], ivAttempts:0, cvk:false, pneumo:null, infusions:[], adrenalin:[], amiodaron:0, lidokain:0, drugsGiven:[], timeline:[],
     causeTreatedAt:null, recoverAt:null, roscRecognizeAt:null, cycles:0, roscMinTime:300+Math.round(Math.random()*120), _adrNag:false, _cprNag:false, _waitedAdr:false, treatProgress:{}, warming:0, fluids:0, bicarb:0,
     complication:null, complicationsFired:0, complicationsResolved:0, _compDone:[], nextCompCheck:0, _shockGlitchUsed:false,
+    lastComplicationPerformance:0, lastComplicationChance:0,
     charging:false, chargeReadyAt:null, autoShock:false, fastDone:false, lungDone:false, _narkosSuggestAt:0, _narkosSuggested:false, surgeonNeeded:false, preppedLabels:[], mtpActive:false, dranFails:0, blodgrupperad:false, blodgrupperadAt:null, _kAlert:false, _rhythmShift:0,
     // sjuksköterskans förberedelser
     adrReady:0, amioReady:false, protokoll:false, protokollAt:null, _protRoped:false, _protAdrRoped:false,
@@ -705,4 +706,3 @@ function mark(label,kind){
 function drugOK(){ if(!S.access){log("Ingen fungerande infart, sätt PVK, IO eller CVK först.","warn");return false;} return true;}
 function syncAccess(){ S.access = S.lines.length ? (S.lines.includes("iv")?"iv":S.lines[0]) : null; }
 function addLine(type){ S.lines.push(type); syncAccess(); }
-
