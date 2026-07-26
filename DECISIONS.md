@@ -79,3 +79,27 @@ mark old decisions as superseded rather than rewriting their history.
   exportkontrakt får inte ändras utan motsvarande runtime-migrering.
 - Related: R-019, `HLR/blender/hlr-room.blend`,
   `HLR/blender/export_hlr_layout.py`, `HLR/js/room3d-layout-data.js`.
+
+## D-005 — Allowlistad lokal MCP-brygga för Blender
+
+- Status: accepted
+- Date: 2026-07-26
+- Owner: Pontus
+- Context: HLR-scenerna behöver kunna granskas och finjusteras interaktivt av Claude/Codex,
+  men generella Blender-MCP-servrar erbjuder fri Pythonkörning, externa nedladdningar och bred
+  filåtkomst med samma användarbehörighet som Blender.
+- Decision: Resus använder en liten egen MCP-server och ett Blender-tillägg utan externa
+  beroenden. Kommunikationen går via en arbetskopiespecifik Unix-socket med behörighet `0600`.
+  Endast läsning av scen/objekt, begränsade transform-, synlighets-, material- och poseändringar,
+  intern rendering, snapshots, uttryckligen bekräftad källfilssparning och fyra fasta
+  HLR-exportörer tillåts. Tillägget startas manuellt för en öppen scen under `HLR/blender/`.
+- Alternatives: Installera den generella BlenderMCP-servern, fortsätta enbart med
+  bakgrundsskript, eller exponera Blender över TCP. Den generella servern har för bred
+  exekveringsyta; enbart bakgrundsskript saknar den önskade interaktiva loopen; TCP ger onödig
+  lokal och potentiellt fjärr attackyta.
+- Consequences: Agenten kan arbeta visuellt mot samma öppna scen som användaren utan fri kod-
+  eller nätverksåtkomst. Nya Blender-operationer måste läggas till som granskade, schema-
+  validerade kommandon i båda lagren. MCP ersätter inte snapshot, Git-diff, deterministisk
+  export eller modulverifiering.
+- Related: `scripts/resus_blender_mcp.py`,
+  `HLR/blender/resus_blender_mcp_addon.py`, `docs/resus-blender-mcp.md`.

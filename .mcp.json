@@ -4,6 +4,11 @@
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "resus-blender": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["scripts/resus_blender_mcp.py"]
     }
   }
 }

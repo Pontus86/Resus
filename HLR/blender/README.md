@@ -4,6 +4,12 @@
 rotera och skala de namngivna rotobjekten och spotlightsen utan att redigera JavaScript-
 koordinater.
 
+För interaktiv, allowlistad agentstyrning av en öppen scen finns
+`resus_blender_mcp_addon.py`. Installation, säkerhetsmodell och operatörsflöde beskrivs i
+[`docs/resus-blender-mcp.md`](../../docs/resus-blender-mcp.md). Tillägget autostartar inte
+och ersätter inte arbetsgången med spårade `.blend`-filer, deterministisk export, diff och
+verifiering.
+
 ## Säker arbetsgång
 
 1. Öppna `hlr-room.blend` i Blender 4.3 eller senare.
