@@ -77,3 +77,19 @@ eller ankarnas namn.
 
 Exporten skriver `HLR/js/room3d-patient-rig-data.js`. Bröstbenets rörelse och all
 ansluten utrustning kan därmed använda samma anatomiska referenspunkter.
+
+## Apparatdetaljer
+
+`hlr-equipment-details.blend` innehåller separata rotobjekt för defibrillator,
+ultraljud, ventilator och LUCAS. Detaljerna läggs ovanpå apparaternas befintliga
+state-styrda runtimegeometri, så skärmar, lampor, kablar, kolv och raycastytor
+fortsätter att följa spelet.
+
+```sh
+/Applications/Blender.app/Contents/MacOS/Blender --background \
+  HLR/blender/hlr-equipment-details.blend \
+  --python HLR/blender/export_hlr_equipment_details.py
+```
+
+Exporten skriver `HLR/js/room3d-equipment-detail-data.js`. Ändra inte
+`hlr_equipment_role` eller `hlr_part` utan en motsvarande runtimeändring.

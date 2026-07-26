@@ -2,11 +2,11 @@
    fungerar via file:// utan modellhämtning, byggsteg eller tungt minnesbehov. */
 const HLRRoom3D=(()=>{
   const API={ready:false,failed:false};
-  const objects={},staff={},materials={},rigGeometries={};
+  const objects={},staff={},materials={},rigGeometries={},equipmentDetailParts={};
   let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight;
   let patient,patientTorso,patientAnchors,patientSkinMaterial,patientLipMaterial,patientSweat;
   let lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
-  let padCable,ivLine,usCable,ventCircuit,monitorTrace,defibTrace;
+  let padCable,ivLine,usCable,ventCircuit,ventCircuitReturn,monitorTrace,defibTrace;
   let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,lucasLamp;
   let postScene,postCamera,postQuad,sceneTarget,bloomTargetA,bloomTargetB;
   let brightMaterial,blurMaterial,compositeMaterial,postFXReady=false;
@@ -337,6 +337,7 @@ const HLRRoom3D=(()=>{
     const cupLip=new THREE.Mesh(new THREE.TorusGeometry(.26,.045,8,20),lucasDark);
     cupLip.rotation.x=Math.PI/2;cupLip.position.y=-.57;cupLip.castShadow=true;piston.add(cupLip);
     piston.position.set(0,1.61,-.18);lucas.add(piston);
+    addEquipmentDetails(lucas,"lucas");
     applyAuthoredTransform(lucas,"lucas",MODEL_SCALE);
     scene.add(markPick(lucas,"bed"));
   }
@@ -360,6 +361,28 @@ const HLRRoom3D=(()=>{
     geometry.computeVertexNormals();
     rigGeometries[key]=geometry;
     return geometry;
+  }
+  function equipmentDetailMaterial(key){
+    const colors={dark:C.dark,paper:0xF0EFE6,metal:C.metal,red:C.red,green:C.green,
+      blue:C.blue,amber:C.amber,glass:0x9FD7DC,water:0x69BFD0};
+    const extra=key==="metal"?{roughness:.3,metalness:.65}
+      :key==="glass"||key==="water"?{transparent:true,opacity:.74,roughness:.16}
+      :key==="green"||key==="amber"?{emissive:colors[key],emissiveIntensity:.18,roughness:.42}
+      :{roughness:.52};
+    return material("equipmentDetail-"+key,colors[key]||C.dark,extra);
+  }
+  function addEquipmentDetails(group,role){
+    const source=typeof HLR_EQUIPMENT_DETAILS==="object"&&HLR_EQUIPMENT_DETAILS.roles;
+    if(!source||!source[role])return false;
+    source[role].forEach(spec=>{
+      const mesh=new THREE.Mesh(rigGeometry(spec,"equipment"),equipmentDetailMaterial(spec.material));
+      mesh.name=spec.name;mesh.position.fromArray(spec.position);
+      mesh.quaternion.fromArray(spec.quaternion);mesh.scale.fromArray(spec.scale);
+      mesh.castShadow=true;mesh.receiveShadow=true;
+      mesh.userData.restQuaternion=mesh.quaternion.clone();
+      equipmentDetailParts[spec.name]=mesh;group.add(mesh);
+    });
+    return true;
   }
   function createRiggedStaff(role){
     const source=HLR_STAFF_RIG,g=new THREE.Group(),bones={};
@@ -601,6 +624,7 @@ const HLRRoom3D=(()=>{
       const socket=cylinder(.055,.035,defibDark,12);socket.rotation.x=Math.PI/2;
       socket.position.set(x*.67,1.4,.4);defib.add(socket);
     });
+    addEquipmentDetails(defib,"defib");
     place(markPick(defib,"defib"),"defib",null,6.4,-3);
 
     const us=new THREE.Group();
@@ -629,6 +653,9 @@ const HLRRoom3D=(()=>{
     probeHolder.rotation.y=Math.PI/2;probeHolder.position.set(-.65,1.03,.1);probeHolder.castShadow=true;us.add(probeHolder);
     ultrasoundProbe=cylinder(.075,.48,material("probe",0x52615A),12);
     ultrasoundProbe.rotation.z=Math.PI/2;ultrasoundProbe.position.set(-.7,1.02,.08);us.add(ultrasoundProbe);
+    ultrasoundProbe.userData.homePosition=ultrasoundProbe.position.clone();
+    ultrasoundProbe.userData.homeQuaternion=ultrasoundProbe.quaternion.clone();
+    addEquipmentDetails(us,"ultrasound");
     place(markPick(us,"ultrasound"),"ultrasound",null,7,1);
 
     const vent=new THREE.Group();
@@ -657,6 +684,7 @@ const HLRRoom3D=(()=>{
     const humidifier=cylinder(.14,.34,material("humidifier",0x9FD3D8,{transparent:true,opacity:.72}),16);
     humidifier.position.set(-.38,.88,.05);vent.add(humidifier);
     const ventHandle=box(1.08,.08,.1,ventDark);ventHandle.position.set(0,1.89,-.18);vent.add(ventHandle);
+    addEquipmentDetails(vent,"ventilator");
     place(vent,"ventilator","ventilator",4.4,-.9);
 
     const pole=new THREE.Group();
@@ -686,8 +714,9 @@ const HLRRoom3D=(()=>{
   }
 
   function createDynamicLines(){
-    padCable=line(0x606C67);ivLine=line(0x76B7CF);usCable=line(0x56645D);ventCircuit=line(0x8BC7D5);
-    padCable.visible=ivLine.visible=usCable.visible=ventCircuit.visible=false;
+    padCable=line(0x606C67);ivLine=line(0x76B7CF);usCable=line(0x56645D);
+    ventCircuit=line(0x8BC7D5);ventCircuitReturn=line(0xB9DCE0);
+    padCable.visible=ivLine.visible=usCable.visible=ventCircuit.visible=ventCircuitReturn.visible=false;
   }
   function createLights(){
     scene.add(new THREE.HemisphereLight(0xFFFDF4,0x63736A,.68));
@@ -835,7 +864,13 @@ const HLRRoom3D=(()=>{
     const sweatLevel=!S.rosc?Math.max(0,Math.min(1,((S.t||0)-75)/180)):0;
     patientSweat.visible=sweatLevel>.02;patientSweat.userData.material.opacity=.12+sweatLevel*.38;
     lucas.visible=!!S.lucas&&!S.rosc;
-    if(lucas.visible)piston.position.y=1.61-press*.22;
+    if(lucas.visible){
+      const sternum=patientWorldAnchor("sternum",new THREE.Vector3(0,.47,-.18));
+      lucas.updateMatrixWorld(true);
+      const lucasTarget=lucas.worldToLocal(sternum.clone());
+      piston.position.x=lucasTarget.x;piston.position.z=lucasTarget.z;
+      piston.position.y=1.61-press*.22;
+    }
 
     if(S.pads){
       const defibPos=objects.defib.localToWorld(new THREE.Vector3(0,1.4,.4));
@@ -849,15 +884,26 @@ const HLRRoom3D=(()=>{
     }else ivLine.visible=false;
     if(S.usActive){
       const us=objects.ultrasound.localToWorld(new THREE.Vector3(-.7,1.02,.08));
-      const probe=patientWorldAnchor("ultrasound",new THREE.Vector3(.48,.37,.15));
+      const probeTarget=patientWorldAnchor("ultrasound",new THREE.Vector3(.48,.37,.15));
+      const localProbe=objects.ultrasound.worldToLocal(probeTarget.clone());
+      ultrasoundProbe.position.lerp(localProbe,.22);
+      ultrasoundProbe.quaternion.copy(ultrasoundProbe.userData.homeQuaternion);
+      objects.ultrasound.updateMatrixWorld(true);
+      const probe=ultrasoundProbe.getWorldPosition(new THREE.Vector3());
       setLine(usCable,us,probe,.3);
       ultrasoundProbe.visible=true;
-    }else{usCable.visible=false;ultrasoundProbe.visible=true;}
+    }else{
+      usCable.visible=false;ultrasoundProbe.visible=true;
+      ultrasoundProbe.position.lerp(ultrasoundProbe.userData.homePosition,.2);
+      ultrasoundProbe.quaternion.copy(ultrasoundProbe.userData.homeQuaternion);
+    }
     if(S.vent){
       const ventilator=objects.ventilator.localToWorld(new THREE.Vector3(.34,1.02,.36));
       const airway=patientWorldAnchor("airway",new THREE.Vector3(0,.4,-1.65)).add(new THREE.Vector3(.25,.05,-.13));
       setLine(ventCircuit,ventilator,airway,.55);
-    }else ventCircuit.visible=false;
+      setLine(ventCircuitReturn,ventilator.clone().add(new THREE.Vector3(-.08,.03,0)),
+        airway.clone().add(new THREE.Vector3(-.08,.02,.03)),.48);
+    }else{ventCircuit.visible=false;ventCircuitReturn.visible=false;}
   }
   function updateEquipment(){
     objects.iv_pole.visible=!!S.access;
@@ -868,6 +914,16 @@ const HLRRoom3D=(()=>{
     defibChargeButton.material.emissiveIntensity=S.charged?1.8:S.charging?1.15:.35;
     lucasLamp.material.color.setHex(S.comp?0x5CC98A:0xE5B94B);
     lucasLamp.material.emissive.setHex(S.comp?0x174F30:0x6E4B08);
+    const trackball=equipmentDetailParts.ultrasound_trackball;
+    if(trackball&&S.usActive)trackball.rotation.y=(S.t||0)*1.4;
+    const needle=equipmentDetailParts.ventilator_pressure_needle;
+    if(needle){
+      const swing=S.vent?.38*Math.sin((S.t||0)*Math.PI/3):-.15;
+      needle.quaternion.copy(needle.userData.restQuaternion)
+        .multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,swing)));
+    }
+    const beacon=equipmentDetailParts.ventilator_alarm_beacon;
+    if(beacon)beacon.material.emissiveIntensity=S.vent?.5:.12;
   }
   function updateMonitor(){
     if(!monitorTrace)return;
