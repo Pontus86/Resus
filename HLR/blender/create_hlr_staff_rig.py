@@ -55,6 +55,18 @@ def parent_to_bone(obj, armature, bone_name):
     bpy.context.view_layer.update()
 
 
+def parent_contact_to_bone(obj, armature, bone_name, contact_name):
+    bpy.context.view_layer.update()
+    world = obj.matrix_world.copy()
+    obj.parent = armature
+    obj.parent_type = "BONE"
+    obj.parent_bone = bone_name
+    obj.matrix_world = world
+    obj["hlr_contact"] = contact_name
+    obj["hlr_contact_bone"] = bone_name
+    bpy.context.view_layer.update()
+
+
 def move_to(obj, collection):
     for source in list(obj.users_collection):
         source.objects.unlink(obj)
@@ -174,11 +186,66 @@ def create_meshes(armature):
         cylinder_between(f"upper_arm_{side}", (sign * 0.34, 0, 1.70), (sign * 0.48, 0, 1.30), 0.115, mats["scrub"], armature, f"upper_arm.{side}", "scrub")
         sphere(f"elbow_{side}", (sign * 0.48, 0, 1.30), (0.12, 0.12, 0.12), mats["skin"], armature, f"forearm.{side}", "skin", 1)
         cylinder_between(f"forearm_{side}", (sign * 0.48, 0, 1.30), (sign * 0.43, -0.02, 0.96), 0.09, mats["skin"], armature, f"forearm.{side}", "skin")
-        sphere(f"hand_{side}", (sign * 0.43, -0.06, 0.83), (0.105, 0.075, 0.14), mats["skin"], armature, f"hand.{side}", "skin", 1)
+        sphere(f"palm_{side}", (sign * 0.43, -0.06, 0.84), (0.105, 0.075, 0.12), mats["skin"], armature, f"hand.{side}", "skin", 1)
+        for finger in range(4):
+            x = sign * (0.385 + finger * 0.03)
+            cylinder_between(
+                f"finger_{side}_{finger + 1}", (x, -0.07, 0.80), (x, -0.085, 0.71),
+                0.018, mats["skin"], armature, f"hand.{side}", "skin", 7,
+            )
+        cylinder_between(
+            f"thumb_{side}", (sign * 0.35, -0.07, 0.84), (sign * 0.31, -0.09, 0.76),
+            0.022, mats["skin"], armature, f"hand.{side}", "skin", 7,
+        )
         cylinder_between(f"thigh_{side}", (sign * 0.18, 0, 1.08), (sign * 0.19, 0, 0.67), 0.14, mats["scrub"], armature, f"thigh.{side}", "scrub")
         sphere(f"knee_{side}", (sign * 0.19, 0, 0.67), (0.125, 0.125, 0.13), mats["scrub"], armature, f"shin.{side}", "scrub", 1)
         cylinder_between(f"shin_{side}", (sign * 0.19, 0, 0.67), (sign * 0.18, 0, 0.15), 0.105, mats["scrub"], armature, f"shin.{side}", "scrub")
         cube(f"shoe_{side}", (sign * 0.18, -0.10, 0.08), (0.22, 0.39, 0.13), mats["dark"], armature, f"foot.{side}", "dark")
+
+
+def create_contacts(armature):
+    contacts = bpy.data.collections.new("CONTACT_POINTS")
+    bpy.context.scene.collection.children.link(contacts)
+    for side, sign in (("L", -1), ("R", 1)):
+        obj = bpy.data.objects.new(f"CONTACT_palm.{side}", None)
+        contacts.objects.link(obj)
+        obj.location = (sign * 0.43, -0.085, 0.70)
+        obj.empty_display_type = "SPHERE"
+        obj.empty_display_size = 0.035
+        obj.show_in_front = True
+        parent_contact_to_bone(obj, armature, f"hand.{side}", f"palm.{side}")
+
+
+def create_actions(armature):
+    armature["hlr_torso_lean"] = 0.0
+    armature["hlr_contact_depth"] = 0.0
+    armature["hlr_bag_squeeze"] = 0.0
+    clips = {
+        "compression": {
+            "frames": (1, 5, 9, 17),
+            "hlr_torso_lean": (0.0, -0.24, 0.0, 0.0),
+            "hlr_contact_depth": (0.0, 1.0, 0.0, 0.0),
+            "hlr_bag_squeeze": (0.0, 0.0, 0.0, 0.0),
+        },
+        "ventilation": {
+            "frames": (1, 15, 30),
+            "hlr_torso_lean": (-0.08, -0.12, -0.08),
+            "hlr_contact_depth": (0.0, 0.0, 0.0),
+            "hlr_bag_squeeze": (0.0, 1.0, 0.0),
+        },
+    }
+    for clip_name, clip in clips.items():
+        action = bpy.data.actions.new("HLR_" + clip_name.capitalize())
+        action.use_fake_user = True
+        action["hlr_clip"] = clip_name
+        action["hlr_fps"] = 30
+        for channel, values in clip.items():
+            if channel == "frames":
+                continue
+            curve = action.fcurves.new(data_path=f'["{channel}"]')
+            for frame, value in zip(clip["frames"], values):
+                point = curve.keyframe_points.insert(frame, value)
+                point.interpolation = "LINEAR"
 
 
 def organize_and_light(armature):
@@ -245,10 +312,12 @@ def main():
     clear_scene()
     armature = create_armature()
     create_meshes(armature)
+    create_contacts(armature)
+    create_actions(armature)
     organize_and_light(armature)
     add_instructions()
     scene = bpy.context.scene
-    scene["hlr_staff_rig_version"] = 1
+    scene["hlr_staff_rig_version"] = 2
     scene.render.engine = "BLENDER_EEVEE_NEXT"
     scene.render.resolution_x = 720
     scene.render.resolution_y = 900

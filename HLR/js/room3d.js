@@ -391,7 +391,7 @@ const HLRRoom3D=(()=>{
     markPick(g,role);staff[role]=g;
     g.position.copy(layoutPosition(role,null,0,0));
     applyAuthoredTransform(g,role,MODEL_SCALE);
-    g.userData.layoutYaw=g.rotation.y;
+    g.userData.layoutYaw=g.rotation.y;g.userData.baseY=g.position.y;
     scene.add(g);return g;
   }
   function createStaff(role){
@@ -435,10 +435,63 @@ const HLRRoom3D=(()=>{
     markPick(g,role);staff[role]=g;
     const pos=layoutPosition(role,null,0,0);g.position.copy(pos);
     applyAuthoredTransform(g,role,MODEL_SCALE);
-    g.userData.layoutYaw=g.rotation.y;
+    g.userData.layoutYaw=g.rotation.y;g.userData.baseY=g.position.y;
     scene.add(g);return g;
   }
-  function poseRiggedStaff(g,target,active,compressing){
+  function sampleRigClip(name,phase){
+    const clips=typeof HLR_STAFF_RIG==="object"&&HLR_STAFF_RIG.clips;
+    const clip=clips&&clips[name],value={};
+    if(!clip||!clip.frames||!clip.frames.length)return value;
+    const t=Math.max(0,Math.min(.999999,phase||0));
+    let left=clip.frames[0],right=clip.frames[clip.frames.length-1];
+    for(let i=1;i<clip.frames.length;i++){
+      if(t<=clip.frames[i].time){left=clip.frames[i-1];right=clip.frames[i];break;}
+    }
+    const span=Math.max(.000001,right.time-left.time),mix=(t-left.time)/span;
+    const keys=new Set([...Object.keys(left.values),...Object.keys(right.values)]);
+    keys.forEach(key=>{value[key]=(left.values[key]||0)*(1-mix)+(right.values[key]||0)*mix;});
+    return value;
+  }
+  function aimBoneAt(bone,child,target){
+    const origin=bone.getWorldPosition(new THREE.Vector3());
+    const current=child.getWorldPosition(new THREE.Vector3()).sub(origin).normalize();
+    const desired=target.clone().sub(origin).normalize();
+    const world=bone.getWorldQuaternion(new THREE.Quaternion());
+    const corrected=new THREE.Quaternion().setFromUnitVectors(current,desired).multiply(world);
+    const parentWorld=bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
+    bone.quaternion.copy(parentWorld.multiply(corrected));
+  }
+  function aimBoneVector(bone,localVector,worldDirection){
+    const world=bone.getWorldQuaternion(new THREE.Quaternion());
+    const current=localVector.clone().applyQuaternion(world).normalize();
+    const corrected=new THREE.Quaternion().setFromUnitVectors(current,worldDirection).multiply(world);
+    const parentWorld=bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
+    bone.quaternion.copy(parentWorld.multiply(corrected));
+  }
+  function solveRigArm(g,side,contactTarget){
+    const bones=g.userData.bones,upper=bones["upper_arm."+side],forearm=bones["forearm."+side],hand=bones["hand."+side];
+    const contact=HLR_STAFF_RIG.contacts&&HLR_STAFF_RIG.contacts["palm."+side];
+    if(!upper||!forearm||!hand||!contact)return;
+    g.updateMatrixWorld(true);
+    const shoulder=upper.getWorldPosition(new THREE.Vector3());
+    const elbow=forearm.getWorldPosition(new THREE.Vector3());
+    const wrist=hand.getWorldPosition(new THREE.Vector3());
+    const upperLength=shoulder.distanceTo(elbow),forearmLength=elbow.distanceTo(wrist);
+    const contactVector=new THREE.Vector3().fromArray(contact.position);
+    const contactLength=contactVector.length()*Math.abs(g.scale.y);
+    const wristTarget=contactTarget.clone().add(new THREE.Vector3(0,contactLength,0));
+    const reach=wristTarget.clone().sub(shoulder),distance=Math.max(.001,Math.min(reach.length(),upperLength+forearmLength-.001));
+    const direction=reach.normalize();
+    const along=(upperLength*upperLength-forearmLength*forearmLength+distance*distance)/(2*distance);
+    const height=Math.sqrt(Math.max(0,upperLength*upperLength-along*along));
+    const bend=new THREE.Vector3(side==="L"?-.75:.75,.4,.15);
+    bend.addScaledVector(direction,-bend.dot(direction)).normalize();
+    const elbowTarget=shoulder.clone().addScaledVector(direction,along).addScaledVector(bend,height);
+    aimBoneAt(upper,forearm,elbowTarget);g.updateMatrixWorld(true);
+    aimBoneAt(forearm,hand,wristTarget);g.updateMatrixWorld(true);
+    aimBoneVector(hand,contactVector,new THREE.Vector3(0,-1,0));g.updateMatrixWorld(true);
+  }
+  function poseRiggedStaff(g,target,active,compressing,ventilating,contacts,clip){
     const data=g.userData,bones=data.bones;
     const dx=target.x-g.position.x,dz=target.z-g.position.z;
     g.rotation.y=active?Math.atan2(dx,dz):data.layoutYaw;
@@ -449,14 +502,16 @@ const HLRRoom3D=(()=>{
       bone.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(x||0,0,z||0)));
     };
     if(active){
-      pose("spine",compressing?-.18:-.1,0);
+      pose("spine",clip&&clip.torso_lean!==undefined?clip.torso_lean:(compressing?-.18:-.1),0);
       pose("head",.06,0);
-      pose("upper_arm.L",compressing?-1.12:-.82,compressing?.52:.28);
-      pose("upper_arm.R",compressing?-1.12:-.82,compressing?-.52:-.28);
-      pose("forearm.L",compressing?-.5:-.32,.2);
-      pose("forearm.R",compressing?-.5:-.32,-.2);
-      pose("hand.L",compressing?.18:.08,.08);
-      pose("hand.R",compressing?.18:.08,-.08);
+      if(contacts){
+        g.updateMatrixWorld(true);
+        solveRigArm(g,"L",contacts.left);solveRigArm(g,"R",contacts.right);
+      }else{
+        pose("upper_arm.L",-.82,.28);pose("upper_arm.R",-.82,-.28);
+        pose("forearm.L",-.32,.2);pose("forearm.R",-.32,-.2);
+        pose("hand.L",.08,.08);pose("hand.R",.08,-.08);
+      }
     }else{
       pose("upper_arm.L",-.04,.03);pose("upper_arm.R",-.04,-.03);
       pose("forearm.L",-.08,0);pose("forearm.R",-.08,0);
@@ -464,10 +519,10 @@ const HLRRoom3D=(()=>{
     data.ring.material.opacity=active?.78:0;
     data.ring.material.color.setHex(compressing?C.red:C.green);
   }
-  function poseStaff(g,target,active,compressing){
+  function poseStaff(g,target,active,compressing,ventilating,contacts,clip){
     if(!g)return;
     const data=g.userData;
-    if(data.rigged){poseRiggedStaff(g,target,active,compressing);return;}
+    if(data.rigged){poseRiggedStaff(g,target,active,compressing,ventilating,contacts,clip);return;}
     const dx=target.x-g.position.x,dz=target.z-g.position.z;
     g.rotation.y=active?Math.atan2(dx,dz):data.layoutYaw;
     g.updateMatrixWorld(true);
@@ -732,9 +787,18 @@ const HLRRoom3D=(()=>{
       const ventilating=role==="airway_staff"&&S.vent&&!S.rosc;
       const active=compressing||ventilating||(owner&&queueBusy(owner));
       const target=compressing?chest:ventilating?head:new THREE.Vector3(0,1.2,0);
-      const press=compressing?Math.max(0,Math.sin(typeof compPhase==="number"?compPhase:0)):0;
-      g.position.y=compressing?-press*.1:0;
-      poseStaff(g,target,active,compressing);
+      const phase=typeof compPhase==="number"?compPhase:0;
+      const clipPhase=compressing?((phase%(Math.PI*2)+Math.PI*2)%(Math.PI*2))/(Math.PI*2):((S.t||0)%6)/6;
+      const clip=sampleRigClip(compressing?"compression":"ventilation",clipPhase);
+      const contacts=compressing?{
+        left:patientWorldAnchor("compression_hand_left",new THREE.Vector3(-.06,.43,-.18)),
+        right:patientWorldAnchor("compression_hand_right",new THREE.Vector3(.06,.45,-.18))
+      }:ventilating?{
+        left:patientWorldAnchor("mask_seal",new THREE.Vector3(-.1,.43,-1.7)),
+        right:patientWorldAnchor("bag_grip",new THREE.Vector3(.38,.55,-2.1))
+      }:null;
+      g.position.y=g.userData.baseY-(clip.contact_depth||0)*.08;
+      poseStaff(g,target,active,compressing,ventilating,contacts,clip);
       if(!g.userData.rigged)g.userData.torso.rotation.x=active ? .08 : 0;
     });
   }
@@ -753,7 +817,8 @@ const HLRRoom3D=(()=>{
     airwayMask.visible=S.airway==="mask"||S.airway==="igel";
     airwayTube.visible=S.airway==="tub"||S.airway==="koniotomi";
     ventBag.visible=!!S.vent;
-    ventBag.scale.y=.8*(S.vent?1-.16*Math.max(0,Math.sin(phase/5)):1);
+    const bagClip=sampleRigClip("ventilation",((S.t||0)%6)/6);
+    ventBag.scale.y=.8*(S.vent?1-.18*(bagClip.bag_squeeze||0):1);
     accessPatch.visible=!!S.access;
     const skinBase=new THREE.Color(S.patient&&S.patient.skin||C.skin);
     let oxygenation=S.rosc?1:.08+(S.comp?.16:0)+(S.perfusing?.2:0)+(S.vent?.16:0)+(S.o2max?.22:0);

@@ -1,6 +1,7 @@
 """Exportera HLR-personriggens ben och lågpolymeshar till vanlig JavaScript."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -21,6 +22,7 @@ REQUIRED_BONES = {
     "upper_arm.L", "forearm.L", "hand.L", "upper_arm.R", "forearm.R", "hand.R",
     "thigh.L", "shin.L", "foot.L", "thigh.R", "shin.R", "foot.R",
 }
+REQUIRED_CONTACTS = {"palm.L", "palm.R"}
 
 
 def clean_number(value):
@@ -122,13 +124,64 @@ def export_meshes(armature, bone_world):
     return result
 
 
+def export_contacts(bone_world):
+    result = {}
+    for obj in bpy.data.objects:
+        name = obj.get("hlr_contact")
+        if not name:
+            continue
+        bone_name = obj.get("hlr_contact_bone")
+        if bone_name not in bone_world:
+            raise RuntimeError(f"Kontaktpunkten {name} hänvisar till okänt ben {bone_name}")
+        local = bone_world[bone_name].inverted() @ convert_matrix(obj.matrix_world)
+        result[name] = {"bone": bone_name, **transform_payload(local)}
+    missing = REQUIRED_CONTACTS - result.keys()
+    if missing:
+        raise RuntimeError("Personriggen saknar kontaktpunkter: " + ", ".join(sorted(missing)))
+    return dict(sorted(result.items()))
+
+
+def export_clips():
+    result = {}
+    path_pattern = re.compile(r'^\["(hlr_[a-z_]+)"\]$')
+    for action in sorted(bpy.data.actions, key=lambda item: item.name):
+        name = action.get("hlr_clip")
+        if not name:
+            continue
+        frames = sorted({
+            clean_number(point.co.x)
+            for curve in action.fcurves
+            for point in curve.keyframe_points
+        })
+        if len(frames) < 2:
+            raise RuntimeError(f"Animationen {name} behöver minst två nyckelbilder")
+        start, end = frames[0], frames[-1]
+        samples = []
+        for frame in frames:
+            values = {}
+            for curve in action.fcurves:
+                match = path_pattern.match(curve.data_path)
+                if match:
+                    values[match.group(1).removeprefix("hlr_")] = clean_number(curve.evaluate(frame))
+            samples.append({
+                "time": clean_number((frame - start) / max(1, end - start)),
+                "values": dict(sorted(values.items())),
+            })
+        result[name] = {"fps": int(action.get("hlr_fps", 30)), "frames": samples}
+    if {"compression", "ventilation"} - result.keys():
+        raise RuntimeError("Personriggen saknar kompressions- eller ventilationsanimation")
+    return dict(sorted(result.items()))
+
+
 def main():
     armature = find_armature()
     bones, bone_world = export_bones(armature)
     payload = {
-        "version": 1,
+        "version": 2,
         "bones": bones,
         "meshes": export_meshes(armature, bone_world),
+        "contacts": export_contacts(bone_world),
+        "clips": export_clips(),
     }
     destination = output_path()
     destination.parent.mkdir(parents=True, exist_ok=True)

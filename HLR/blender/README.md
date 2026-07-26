@@ -56,11 +56,18 @@ Efter en avsiktlig modelländring:
 Exporten bäddar in restarmatur och lågpolymeshar i
 `HLR/js/room3d-staff-rig-data.js`. Inga Blender-filer laddas av webbsidan.
 
+Action Editor innehåller `HLR_Compression` och `HLR_Ventilation`. Deras namngivna
+kurvor styr framåtlutning, kontaktfas och blåskompression i webben. Samlingen
+`CONTACT_POINTS` markerar handflatornas verkliga kontaktpunkt; runtime använder
+tvåbens-IK så dessa möter patientens motsvarande ankare utan att händerna går
+igenom thorax, mask eller blåsa.
+
 ## Riggad patient och kliniska ankare
 
 `hlr-patient-rig.blend` innehåller den liggande patienten. Samlingen
-`CLINICAL_ANCHORS` äger fästpunkterna för sternum, luftväg, defibrillatorplattor,
-infart och ultraljud. Ändra inte benens eller ankarnas namn.
+`CLINICAL_ANCHORS` äger fästpunkterna för sternum, kompressionshänder, masktätning,
+ventilationsblåsa, defibrillatorplattor, infart och ultraljud. Ändra inte benens
+eller ankarnas namn.
 
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender --background \

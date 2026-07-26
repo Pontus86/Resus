@@ -21,7 +21,11 @@ REQUIRED_BONES = {
     "upper_arm.L", "forearm.L", "hand.L", "upper_arm.R", "forearm.R", "hand.R",
     "thigh.L", "shin.L", "foot.L", "thigh.R", "shin.R", "foot.R",
 }
-REQUIRED_ANCHORS = {"sternum", "airway", "pad_left", "pad_right", "access_right", "ultrasound"}
+REQUIRED_ANCHORS = {
+    "sternum", "compression_hand_left", "compression_hand_right",
+    "airway", "mask_seal", "bag_grip",
+    "pad_left", "pad_right", "access_right", "ultrasound",
+}
 
 
 def clean_number(value):
