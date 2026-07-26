@@ -1,11 +1,13 @@
 """Bygg en liggande, riggad patient från Kropps-atlasens anatomiska hudyta."""
 
 import json
+import math
 import os
 from pathlib import Path
 
 import bpy
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 
 
 HERE = Path(__file__).resolve().parent
@@ -181,32 +183,308 @@ def create_atlas_body(mat):
     return obj
 
 
-def create_gown_shell(body, mat):
+def clothing_mesh(name, vertices, faces, mat, material_role):
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    for polygon in mesh.polygons:
+        polygon.use_smooth = True
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    assign(obj, mat)
+    obj["hlr_material"] = material_role
+    obj["hlr_skinned"] = True
+    return obj
+
+
+def grid_faces(columns, rows, skip=None):
+    faces = []
+    for row in range(rows - 1):
+        for column in range(columns - 1):
+            if skip and skip(row, column):
+                continue
+            lower_left = row * columns + column
+            faces.append((
+                lower_left,
+                lower_left + 1,
+                lower_left + columns + 1,
+                lower_left + columns,
+            ))
+    return faces
+
+
+def top_grid_clothing_mesh(body, name, rows, margin, mat, material_role):
+    body_bvh = mesh_bvh(body)
+    vertices = []
+    columns = len(rows[0])
+    if any(len(row) != columns for row in rows):
+        raise RuntimeError(f"Ojämnt klädgrid i {name}")
+    for row_index, row in enumerate(rows):
+        for column_index, (x, y, fallback_z) in enumerate(row):
+            top = top_skin_point(body_bvh, Vector((x, y, fallback_z)))
+            fold = 0.003 * (
+                0.5
+                + 0.5 * math.sin(row_index * 0.8 + column_index * 1.7)
+            )
+            z = (top.z if top else fallback_z) + margin + fold
+            vertices.append((x, y, z))
+    return clothing_mesh(
+        name,
+        vertices,
+        grid_faces(columns, len(rows)),
+        mat,
+        material_role,
+    )
+
+
+def top_skin_point(body_bvh, point):
+    hit = body_bvh.ray_cast(Vector((point.x, point.y, 2.0)), Vector((0, 0, -1)), 4.0)
+    return hit[0] if hit and hit[0] else None
+
+
+def surface_clothing_mesh(body, name, predicate, margin, mat, material_role):
     source = body.data
+    body_bvh = mesh_bvh(body)
     selected = []
     used = set()
     for polygon in source.polygons:
         center = sum((source.vertices[index].co for index in polygon.vertices), Vector()) / len(polygon.vertices)
-        width = 0.60 if center.y > -0.50 else 0.48
-        if -0.82 <= center.y <= 0.82 and abs(center.x) <= width:
+        top = top_skin_point(body_bvh, center)
+        if predicate(center, polygon.normal) and top and center.z >= top.z - 0.045:
             face = tuple(polygon.vertices)
             selected.append(face)
             used.update(face)
+    if not selected:
+        raise RuntimeError(f"Klädregionen {name} saknar polygoner")
     remap = {old: new for new, old in enumerate(sorted(used))}
-    vertices = [source.vertices[old].co.copy() for old in sorted(used)]
+    vertices = []
+    for old in sorted(used):
+        source_vertex = source.vertices[old]
+        top = top_skin_point(body_bvh, source_vertex.co)
+        if not top:
+            raise RuntimeError(f"Saknar hudyta under vertex i {name}")
+        # Vertikal projektion är robust för den ryggliggande patientens synliga klädlager.
+        fold = 0.0025 * (1.0 + math.sin(source_vertex.co.y * 19 + source_vertex.co.x * 13))
+        vertices.append(Vector((source_vertex.co.x, source_vertex.co.y, top.z + margin + fold)))
     faces = [tuple(remap[index] for index in face) for face in selected]
-    mesh = bpy.data.meshes.new("AtlasPatientGown")
-    mesh.from_pydata(vertices, [], faces)
-    mesh.update()
-    for vertex in mesh.vertices:
-        vertex.co += vertex.normal * 0.025
-    mesh.update()
-    obj = bpy.data.objects.new("atlas_gown_mesh", mesh)
-    bpy.context.collection.objects.link(obj)
-    assign(obj, mat)
-    obj["hlr_material"] = "gown"
-    obj["hlr_skinned"] = True
-    return obj
+    return clothing_mesh(name, vertices, faces, mat, material_role)
+
+
+def mesh_bvh(obj):
+    return BVHTree.FromPolygons(
+        [vertex.co.copy() for vertex in obj.data.vertices],
+        [tuple(polygon.vertices) for polygon in obj.data.polygons],
+        all_triangles=False,
+    )
+
+
+def raise_clothing_above_skin(body_bvh, garment, minimum):
+    for _iteration in range(20):
+        corrections = {}
+        for polygon in garment.data.polygons:
+            points = [garment.data.vertices[index].co for index in polygon.vertices]
+            samples = [*points, sum(points, Vector()) / len(points)]
+            samples.extend(
+                (points[index] + points[(index + 1) % len(points)]) / 2
+                for index in range(len(points))
+            )
+            deficit = 0.0
+            for sample in samples:
+                top = top_skin_point(body_bvh, sample)
+                if top:
+                    deficit = max(deficit, minimum - (sample.z - top.z))
+            if deficit > 0:
+                for index in polygon.vertices:
+                    corrections[index] = max(corrections.get(index, 0.0), deficit + 0.001)
+        if not corrections:
+            return
+        for index, correction in corrections.items():
+            garment.data.vertices[index].co.z += correction
+        garment.data.update()
+    raise RuntimeError(f"{garment.name} kunde inte lyftas helt utanför huden")
+
+
+def validate_clothing_clearance(body, garments):
+    body_bvh = mesh_bvh(body)
+    for garment, minimum in garments:
+        raise_clothing_above_skin(body_bvh, garment, minimum)
+        samples = [vertex.co for vertex in garment.data.vertices]
+        for polygon in garment.data.polygons:
+            points = [garment.data.vertices[index].co for index in polygon.vertices]
+            samples.append(sum(points, Vector()) / len(points))
+            samples.extend(
+                (points[index] + points[(index + 1) % len(points)]) / 2
+                for index in range(len(points))
+            )
+        clearances = []
+        for sample in samples:
+            top = top_skin_point(body_bvh, sample)
+            if top:
+                clearances.append(sample.z - top.z)
+        smallest = min(clearances)
+        wrong_side = sum(clearance <= 0 for clearance in clearances)
+        if wrong_side or smallest < minimum:
+            raise RuntimeError(
+                f"{garment.name} skär huden: {wrong_side} prover på insidan, "
+                f"minsta samplade avstånd {smallest:.4f} m"
+            )
+        garment["hlr_skin_clearance"] = round(smallest, 5)
+        garment["hlr_skin_intersections"] = 0
+        print(
+            f"Klädkontroll {garment.name}: {len(samples)} ytprover, "
+            f"{smallest:.4f} m, alla utanför huden"
+        )
+
+
+def create_patient_clothing(body, armature, gown_mat, sheet_mat, pants_mat):
+    closed = surface_clothing_mesh(
+        body,
+        "gown_closed_panel",
+        lambda center, normal: (
+            -0.58 <= center.y <= 0.80
+            and abs(center.x) <= 0.43
+            and center.z >= 0.20
+        ),
+        0.016,
+        gown_mat,
+        "gown",
+    )
+    assign_torso_cloth_weights(closed, armature)
+
+    panels = []
+    yokes = []
+    sleeves = []
+    for side, sign in (("L", -1), ("R", 1)):
+        side_panel = surface_clothing_mesh(
+            body,
+            f"gown_open_panel_{side}",
+            lambda center, normal, sign=sign: (
+                -0.58 <= center.y <= 0.66
+                and 0.32 <= sign * center.x <= 0.60
+                and center.z >= 0.12
+            ),
+            0.021,
+            gown_mat,
+            "gown",
+        )
+        assign_torso_cloth_weights(side_panel, armature)
+        panels.append(side_panel)
+
+        yoke = surface_clothing_mesh(
+            body,
+            f"gown_shoulder_yoke_{side}",
+            lambda center, normal, sign=sign: (
+                0.52 <= center.y <= 1.10
+                and 0.08 <= sign * center.x <= 0.67
+                and center.z >= 0.10
+            ),
+            0.019,
+            gown_mat,
+            "gown",
+        )
+        assign_torso_cloth_weights(yoke, armature)
+        yokes.append(yoke)
+
+        sleeve = surface_clothing_mesh(
+            body,
+            f"gown_sleeve_{side}",
+            lambda center, _normal, sign=sign: (
+                0.10 <= center.y <= 0.56
+                and 0.49 <= sign * center.x <= 0.76
+                and center.z >= -0.02
+            ),
+            0.018,
+            gown_mat,
+            "gown",
+        )
+        assign_skin_weights(sleeve, armature)
+        sleeves.append(sleeve)
+
+    pelvis_xs = tuple(-0.46 + index * 0.92 / 16 for index in range(17))
+    pelvis_ys = tuple(-0.84 + index * 0.62 / 12 for index in range(13))
+    pants_pelvis = top_grid_clothing_mesh(
+        body,
+        "patient_pants_pelvis",
+        [
+            [
+                (x, y, 0.20 + 0.13 * max(0, 1 - (x / 0.46) ** 2))
+                for x in pelvis_xs
+            ]
+            for y in pelvis_ys
+        ],
+        0.100,
+        pants_mat,
+        "pants",
+    )
+    assign_rigid_skin(pants_pelvis, armature, "root")
+    pants_legs = []
+    for side, sign in (("L", -1), ("R", 1)):
+        leg_ys = tuple(-0.76 - index * 1.14 / 16 for index in range(17))
+        leg_widths = tuple(0.23 - index * 0.09 / 16 for index in range(17))
+        fractions = tuple(-1.0 + index / 6 for index in range(13))
+        leg = top_grid_clothing_mesh(
+            body,
+            f"patient_pants_leg_{side}",
+            [
+                [
+                    (
+                        sign * 0.20 + fraction * width,
+                        y,
+                        0.15 + 0.10 * max(0, 1 - fraction * fraction),
+                    )
+                    for fraction in fractions
+                ]
+                for y, width in zip(leg_ys, leg_widths)
+            ],
+            0.085,
+            pants_mat,
+            "pants",
+        )
+        assign_skin_weights(leg, armature)
+        pants_legs.append(leg)
+
+    sheet_ys = (-1.98, -1.82, -1.62, -1.42, -1.22, -1.02, -0.82, -0.57, -0.38, -0.22)
+    sheet_widths = (0.45, 0.47, 0.50, 0.54, 0.58, 0.62, 0.65, 0.68, 0.69, 0.67)
+    sheet_heights = (0.25, 0.28, 0.32, 0.39, 0.46, 0.52, 0.56, 0.59, 0.61, 0.60)
+    fractions = (-1.18, -1.0, -0.75, -0.50, -0.25, 0.0, 0.25, 0.50, 0.75, 1.0, 1.18)
+    sheet_vertices = []
+    for row, y in enumerate(sheet_ys):
+        for fraction in fractions:
+            edge_drop = max(0.0, abs(fraction) - 1.0) / 0.18 * 0.16
+            fold = (
+                0.022
+                * math.cos(fraction * math.pi * 3 + row * 0.55)
+                * (1 - min(1, abs(fraction)))
+            )
+            sheet_vertices.append((
+                fraction * sheet_widths[row],
+                y,
+                sheet_heights[row] - edge_drop + fold,
+            ))
+    sheet = clothing_mesh(
+        "patient_leg_sheet",
+        sheet_vertices,
+        grid_faces(len(fractions), len(sheet_ys)),
+        sheet_mat,
+        "sheet",
+    )
+    assign_rigid_skin(sheet, armature, "root")
+    for pants_part in (pants_pelvis, *pants_legs):
+        raise_clothing_above_skin(mesh_bvh(pants_part), sheet, 0.018)
+    sheet["hlr_pants_clearance"] = 0.018
+    validate_clothing_clearance(
+        body,
+        [
+            (closed, 0.004),
+            *((panel, 0.004) for panel in panels),
+            *((yoke, 0.004) for yoke in yokes),
+            *((sleeve, 0.004) for sleeve in sleeves),
+            (pants_pelvis, 0.004),
+            *((leg, 0.004) for leg in pants_legs),
+            (sheet, 0.004),
+        ],
+    )
+    return closed, panels, sheet
 
 
 def create_hair_shell(body, mat):
@@ -302,6 +580,17 @@ def assign_rigid_skin(obj, armature, bone_name):
     obj["hlr_armature"] = armature.name
 
 
+def assign_torso_cloth_weights(obj, armature):
+    root = obj.vertex_groups.new(name="root")
+    chest = obj.vertex_groups.new(name="chest")
+    for vertex in obj.data.vertices:
+        chest_weight = max(0.0, min(1.0, (vertex.co.y + 0.52) / 0.62))
+        root.add((vertex.index,), 1.0 - chest_weight, "REPLACE")
+        chest.add((vertex.index,), chest_weight, "REPLACE")
+    obj.parent = armature
+    obj["hlr_armature"] = armature.name
+
+
 def sphere(name, location, scale, mat, armature, bone, material_role, subdivisions=2):
     bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=subdivisions, radius=1, location=location)
     obj = bpy.context.object
@@ -386,6 +675,8 @@ def create_meshes(armature):
     mats = {
         "skin": material("Skin", (0.67, 0.42, 0.27)),
         "gown": material("Patient gown", (0.43, 0.67, 0.57)),
+        "sheet": material("Patient sheet", (0.78, 0.84, 0.81), roughness=0.82),
+        "pants": material("Patient pants", (0.20, 0.31, 0.38), roughness=0.78),
         "hair": material("Hair", (0.08, 0.055, 0.04)),
         "dark": material("Eyes", (0.025, 0.035, 0.03)),
         "lips": material("Lips", (0.38, 0.16, 0.18)),
@@ -393,24 +684,14 @@ def create_meshes(armature):
         "iris": material("Iris", (0.24, 0.36, 0.28), roughness=0.35),
         "cornea": material("Cornea", (0.64, 0.82, 0.86), roughness=0.12, alpha=0.22),
         "eyebrow": material("Eyebrows", (0.07, 0.048, 0.035)),
-        "gown_dark": material("Gown seams", (0.24, 0.48, 0.40)),
-        "gown_light": material("Gown folds", (0.58, 0.76, 0.67)),
         "wristband": material("Patient wristband", (0.84, 0.88, 0.82)),
     }
     body = create_atlas_body(mats["skin"])
-    gown = create_gown_shell(body, mats["gown"])
     hair = create_hair_shell(body, mats["hair"])
     assign_skin_weights(body, armature)
-    assign_skin_weights(gown, armature)
     assign_rigid_skin(hair, armature, "head")
+    create_patient_clothing(body, armature, mats["gown"], mats["sheet"], mats["pants"])
     create_atlas_face_parts(armature, mats)
-    cube("gown_center_seam", (0, 0.02, 0.605), (0.026, 1.14, 0.020),
-         mats["gown_dark"], armature, "chest", "gown_dark", bevel=0.006)
-    for side, sign in (("L", -1), ("R", 1)):
-        cube(f"gown_neckline_{side}", (sign * 0.08, 0.69, 0.598), (0.13, 0.26, 0.024),
-             mats["gown_dark"], armature, "chest", "gown_dark", rotation_z=sign * 0.55, bevel=0.01)
-        cube(f"gown_fold_{side}", (sign * 0.28, 0.02, 0.600), (0.018, 0.88, 0.018),
-             mats["gown_light"], armature, "chest", "gown_light", rotation_z=sign * 0.06, bevel=0.004)
     cylinder_between("patient_wristband", (0.65, -0.36, 0.16), (0.67, -0.44, 0.15), 0.102,
                      mats["wristband"], armature, "forearm.R", "wristband", 14)
 

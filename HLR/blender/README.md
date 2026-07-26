@@ -78,6 +78,18 @@ projektets `Models/` kan `RESUS_BODY_PARTS_ROOT` peka på mappen
 `BodyParts3D_20181210i412_full`. De tunga Atlas-ytorna exporteras alltså aldrig
 oförändrade till HLR-sidan.
 
+Patientkläderna är separata lågpolymeshar: axelok, korta ärmar, två öppna
+sidopaneler, en mittpanel, byxor och ett lakan över bäcken/ben. Mittpanelen visas
+vid ankomst men döljs när kompressioner, defibrillatorplattor eller LUCAS
+påbörjas. Axelok och ärmar ligger kvar, medan thorax exponeras och byxorna
+fortsätter täcka patienten under lakanet.
+
+Generatorn projicerar klädernas synliga ytor mot den ryggliggande Atlas-huden och
+lägger dem med ett positivt säkerhetsavstånd. Vid återskapande provas samtliga
+vertices samt kanternas mittpunkter och polygonernas centrum. Genereringen avbryts
+om någon provpunkt ligger i eller för nära kroppen; byxorna byggs tätare och med
+större tygmån eftersom de ska ligga löst under lakanet.
+
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender --background \
   HLR/blender/hlr-patient-rig.blend \

@@ -4,7 +4,7 @@ const HLRRoom3D=(()=>{
   const API={ready:false,failed:false};
   const objects={},staff={},materials={},rigGeometries={},equipmentDetailParts={};
   let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight,roomClockSecond,roomClockMinute;
-  let patient,patientTorso,patientAnchors,patientSkinMaterial,patientLipMaterial,patientSweat;
+  let patient,patientTorso,patientAnchors,patientSkinMaterial,patientLipMaterial,patientSweat,patientGownClosed;
   let lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
   let padCable,ivLine,usCable,ventCircuit,ventCircuitReturn,monitorTrace,defibTrace;
   let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,ultrasoundScanFan,lucasLamp,ivBag,ivDrip;
@@ -227,6 +227,8 @@ const HLRRoom3D=(()=>{
 
   function patientRigMaterial(key){
     if(key==="gown")return material("gown",C.gown);
+    if(key==="sheet")return material("patientSheet",0xD5DEDA,{roughness:.82});
+    if(key==="pants")return material("patientPants",0x344D5B,{roughness:.78});
     if(key==="gown_dark")return material("gownDark",new THREE.Color(C.gown).multiplyScalar(.68).getHex());
     if(key==="gown_light")return material("gownLight",new THREE.Color(C.gown).lerp(new THREE.Color(0xFFFFFF),.24).getHex());
     if(key==="wristband")return material("patientWristband",0xE5EEE8,{roughness:.44});
@@ -275,6 +277,7 @@ const HLRRoom3D=(()=>{
       if(spec.skinIndices){
         mesh.frustumCulled=false;g.add(mesh);g.updateMatrixWorld(true);mesh.bind(skeleton);
       }else bones[spec.bone].add(mesh);
+      if(spec.name==="gown_closed_panel")patientGownClosed=mesh;
     });
     patientTorso=bones.chest;
     patientTorso.userData.restY=patientTorso.position.y;
@@ -295,7 +298,7 @@ const HLRRoom3D=(()=>{
   function createPatient(){
     const skin=patientRigMaterial("skin"),gown=material("gown",C.gown),hair=material("hair",C.hair);
     const g=new THREE.Group();g.position.set(0,.98,0);
-    patientAnchors=null;
+    patientAnchors=null;patientGownClosed=null;
     if(typeof HLR_PATIENT_RIG==="object"&&HLR_PATIENT_RIG.bones&&HLR_PATIENT_RIG.meshes&&HLR_PATIENT_RIG.anchors){
       createRiggedPatientBody(g);
     }else{
@@ -891,6 +894,7 @@ const HLRRoom3D=(()=>{
     patientTorso.position.y=patientTorso.userData.restY-press*.04+breath*.015;
     pads.position.y=pads.userData.restY-press*.04;
     pads.visible=!!S.pads;
+    if(patientGownClosed)patientGownClosed.visible=!(S.pads||S.comp||S.lucas);
     airwayMask.visible=S.airway==="mask"||S.airway==="igel";
     airwayTube.visible=S.airway==="tub"||S.airway==="koniotomi";
     ventBag.visible=!!S.vent;
