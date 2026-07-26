@@ -86,7 +86,19 @@ function drawRoomLabels(g){
 }
 
 function drawRoom(){
-  if(roomView==="sprite"){ drawRoomSprite(); return; }
+  if(roomView==="sprite"){
+    if(typeof HLRRoom3D==="object"&&HLRRoom3D.render()){
+      $("room").classList.add("room-view-hidden");
+      HLRRoom3D.setVisible(true);
+      return;
+    }
+    $("room").classList.remove("room-view-hidden");
+    if(typeof HLRRoom3D==="object")HLRRoom3D.setVisible(false);
+    drawRoomSprite();
+    return;
+  }
+  $("room").classList.remove("room-view-hidden");
+  if(typeof HLRRoom3D==="object")HLRRoom3D.setVisible(false);
   drawRoomClassic();
 }
 function drawRoomClassic(){
@@ -510,9 +522,9 @@ function drawRoomClassic(){
 }
 
 /* =====================================================================
-   DIORAMAVY — samma interna id "sprite" behålls så sparade val och
-   klickzoner fortsätter fungera. Vyn ritas som ett sammanhållet 2,5D-
-   akutrum; konceptarkets fristående bitmappar används inte längre.
+   CANVAS-FALLBACK FÖR 3D-VYN — samma interna id "sprite" behålls så
+   sparade val fortsätter fungera. Den här 2,5D-scenen används bara när
+   WebGL/Three.js inte kan starta; bitmapparna används inte längre.
    ===================================================================== */
 const SPR = {
   OUT:"#22201E", OUT2:"#3A362F", floorA:"#E7EAE6", floorB:"#DCE3DC", floorC:"#CBD8CC",

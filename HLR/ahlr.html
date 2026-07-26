@@ -31,12 +31,16 @@
   <div class="grid">
     <div>
       <div class="panel">
-        <h3 class="rvhead">Akutrum 1, vy ovanifrån
+        <h3 class="rvhead">Akutrum 1
           <span class="rvseg" id="rvseg" role="group" aria-label="Rumsvy">
-            <button data-v="klassisk" class="sel">Klassisk</button><button data-v="sprite">Diorama</button>
+            <button data-v="klassisk" class="sel">Klassisk</button><button data-v="sprite">3D</button>
           </span>
         </h3>
-        <canvas id="room" width="560" height="330"></canvas>
+        <div class="room-stage">
+          <canvas id="room" width="560" height="330" aria-label="Klassisk vy av akutrummet"></canvas>
+          <canvas id="room3d" class="room-view-hidden" width="560" height="330"
+            aria-label="Fast tredimensionell vy av akutrummet"></canvas>
+        </div>
         <div class="monitor">
           <canvas id="ecg" width="540" height="96"></canvas>
           <canvas id="art" width="540" height="40" class="hidden"></canvas>
@@ -208,6 +212,8 @@
 <script src="js/guide.js"></script>
 <script src="js/tick.js"></script>
 <script src="js/ultrasound.js"></script>
+<script src="../lib/three.min.js"></script>
+<script src="js/room3d.js"></script>
 <script src="js/room-render.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/leaderboard.js"></script>

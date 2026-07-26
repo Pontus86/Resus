@@ -25,6 +25,7 @@ current directory, branch, and clean/expected Git status.
 | R-006 | ready | Codex | `Kroppsatlas/models/body/manifest.js` only | `codex/work` | — |
 | R-011 | done | Codex | `IDEAS/`, `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/room-render.js`, `HLR/js/ultrasound.js`, `HLR/js/main.js` | `codex/work` | this commit |
 | R-014 | done | Codex | `.agents/`, `.gitignore`, `scripts/agent_loop.py`, `tests/test_agent_loop.py`, `docs/agent-loop.md`, `AGENTS.md`, `DECISIONS.md`, `TASKS.md` | `codex/work` | this commit |
+| R-015 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/room3d.js`, `HLR/js/room-render.js`, `HLR/js/main.js`, `IDEAS/README.md`, `IDEAS/2026-07-25-hlr-diorama-view.md`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -130,6 +131,24 @@ don't leave it dangling as still `open`/`suspected` there.
 - 2026-07-25 — Repository coordination established. Added `AGENTS.md`, removed the tracked
   `Blodgas/bloodgas_pkg 7` and `Blodgas/bloodgas_pkg 8` snapshots, and reserved a separate
   Codex worktree. Commits: `a82997e`, `7bb2099`.
+
+### R-015 — Live 3D room for HLR — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Replaced the visible 2.5D option with a fixed-camera Three.js scene made from
+  procedural low-poly room, patient, shared staff and equipment meshes. Simulator state
+  drives poses, visibility, LUCAS, ventilation, pads/cables, access, ultrasound, surgeon,
+  shock and ROSC. Added raycast interactions while retaining Classic and the old Canvas
+  diorama as WebGL fallback; closed I-003.
+- Verified: `node --check` on all affected scripts; HTML dependency/load-order and 3D state
+  contract assertions; live local browser rendering with zero console warnings/errors;
+  raycast airway interaction changed state to mask ventilation; raycast defibrillator
+  interaction completed the normal work queue and showed pads; Classic switching remained
+  functional; 390 px viewport preserved the 560:330 stage ratio without horizontal overflow;
+  `git diff --check`.
+- Notes: No external models, new data source, build step or download. The low-poly mesh
+  builders are intentionally local and can be refined later. R-006 was not touched.
 
 ### R-014 — Bounded Claude Code ↔ Codex controller — done
 

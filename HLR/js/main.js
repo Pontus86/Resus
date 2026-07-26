@@ -84,6 +84,7 @@ function boot(){
   const sbox=$("sbarBox"); if(sbox)sbox.addEventListener("click",()=>{ if(dlgTyping&&dlgSkip)dlgSkip(); });
   // ---- Klickbara objekt i rummet (alternativ till åtgärdslådan) ----
   const room=$("room");
+  const room3d=$("room3d");
   const roomXY=e=>{const r=room.getBoundingClientRect();return {x:(e.clientX-r.left)*560/r.width, y:(e.clientY-r.top)*330/r.height};};
   const inR=(p,a)=>p.x>=a[0]&&p.x<=a[2]&&p.y>=a[1]&&p.y<=a[3];
   const findAct=(tab,id)=>{const a=(ACTIONS[tab]||[]).find(x=>x.id===id);return a;};
@@ -135,7 +136,25 @@ function boot(){
     for(const h of hotspots()){ if(h.show()&&inR(p,h.r)){ cur="pointer"; break; } }
     room.style.cursor=cur;
   });
-  /* Rumsvy-växlare (Klassisk / Diorama) */
+  // 3D-vyn använder riktig raycasting. Samma åtgärdsobjekt återanvänds så att ett
+  // klick aldrig skapar en separat spelregel vid sidan av åtgärdslådan.
+  const ACTION_BY_3D_ROLE={
+    airway_staff:A_luftvag,doctor:A_team,bed:A_lucas,compressor:A_komp,
+    ladda_button:A_ladda,defib:A_defib,ultrasound:A_us
+  };
+  if(room3d){
+    room3d.addEventListener("click",e=>{
+      if(!S.running||S.ended||S.phase==="prearrival"||typeof HLRRoom3D!=="object")return;
+      const action=ACTION_BY_3D_ROLE[HLRRoom3D.pick(e)];
+      if(action&&action.show()){action.run();renderActions(true);}
+    });
+    room3d.addEventListener("mousemove",e=>{
+      if(!S.running||S.ended||typeof HLRRoom3D!=="object"){room3d.style.cursor="default";return;}
+      const action=ACTION_BY_3D_ROLE[HLRRoom3D.pick(e)];
+      room3d.style.cursor=action&&action.show()?"pointer":"default";
+    });
+  }
+  /* Rumsvy-växlare (Klassisk / 3D med Canvas-fallback) */
   const rvseg=$("rvseg");
   if(rvseg){ rvseg.querySelectorAll("button").forEach(b=>{
     b.onclick=()=>{ roomView=b.dataset.v;

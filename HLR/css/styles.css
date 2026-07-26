@@ -57,7 +57,10 @@ body.expert #chips{display:none !important}
 .rvseg button.sel{background:var(--ink);color:#fff}
 
 /* ---------- rum + monitor ---------- */
-#room{display:block;width:100%;height:auto;background:#E4E0DE}
+.room-stage{position:relative;width:100%;aspect-ratio:560/330;overflow:hidden;background:#E4E0DE}
+#room,#room3d{position:absolute;inset:0;display:block;width:100%;height:100%;background:#E4E0DE}
+#room3d{touch-action:manipulation}
+.room-view-hidden{visibility:hidden;pointer-events:none}
 #usPanel{margin-bottom:12px}
 .usbox{padding:10px 12px;display:flex;gap:12px;align-items:flex-start}
 #us{border-radius:8px;background:#0d1412;border:1px solid #2b3530;flex:none;width:260px;max-width:52%}

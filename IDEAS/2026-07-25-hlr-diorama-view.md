@@ -1,8 +1,8 @@
 # I-003 — Fast dioramavy för A-HLR-simulatorn
 
-- Status: `approved`
+- Status: `closed`
 - Current baton: `Codex`
-- Related task: `R-011`
+- Related tasks: `R-011`, `R-015`
 
 ## Fråga
 
@@ -69,3 +69,14 @@ statiska bilder.
 - Medicinsk korrekthet och begriplig interaktion väger tyngre än detaljrikedom.
 - Alla runtime-resurser måste fungera via `file://` och under GitHub Pages `/Resus/`.
 
+## Genomförande 2026-07-26
+
+R-015 ersatte den synliga Canvas-dioraman med live-3D enligt steg 5. Rummet, britsen,
+patienten, personalen och kärnutrustningen består nu av procedurgenererade Three.js-meshar
+bakom en fast ortografisk kamera. Simulatorns tillstånd styr poser, synlighet, slangar,
+plattor, LUCAS, luftväg, ultraljud, chock och ROSC. Canvas-versionen ligger kvar som
+automatisk fallback om WebGL inte kan starta, och Klassisk-vyn är fortsatt valbar.
+
+Inga externa modeller eller nya datakällor infördes. Framtida detaljarbete kan därför ske
+genom att förfina de lokala meshbyggarna utan att ändra simulatorns state- eller
+interaktionskontrakt.
