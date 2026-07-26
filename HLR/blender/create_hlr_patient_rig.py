@@ -1,5 +1,6 @@
-"""Bygg en liggande, riggad patient med kliniska fästpunkter för HLR-rummet."""
+"""Bygg en liggande, riggad patient från Kropps-atlasens anatomiska hudyta."""
 
+import json
 from pathlib import Path
 
 import bpy
@@ -8,6 +9,9 @@ from mathutils import Vector
 
 HERE = Path(__file__).resolve().parent
 OUTPUT = HERE / "hlr-patient-rig.blend"
+ATLAS_SKIN = HERE.parent.parent / "Kroppsatlas" / "models" / "body" / "skin.js"
+ATLAS_SCALE = 0.0023
+ATLAS_CENTER = Vector((-0.647, -100.7677, 781.6244))
 
 
 def clear_scene():
@@ -51,6 +55,121 @@ def parent_to_bone(obj, armature, bone_name):
     obj.matrix_world = world
     bpy.context.view_layer.update()
     obj["hlr_bone"] = bone_name
+
+
+def load_atlas_skin():
+    source = ATLAS_SKIN.read_text(encoding="utf-8")
+    marker = "window.BODY3D_OBJ['skin'] = "
+    start = source.index(marker) + len(marker)
+    encoded = source[start:].strip()
+    if encoded.endswith(";"):
+        encoded = encoded[:-1]
+    obj_text = json.loads(encoded)
+    vertices = []
+    faces = []
+    for line in obj_text.splitlines():
+        if line.startswith("v "):
+            raw = Vector(tuple(float(value) for value in line.split()[1:4]))
+            # BodyParts3D står upp (Z kraniellt, Y framåt). Patienten ligger med huvudet mot +Y.
+            vertices.append(
+                (
+                    (raw.x - ATLAS_CENTER.x) * ATLAS_SCALE,
+                    (raw.z - ATLAS_CENTER.z) * ATLAS_SCALE - 0.12,
+                    (raw.y + 246.783) * ATLAS_SCALE,
+                )
+            )
+        elif line.startswith("f "):
+            faces.append(tuple(int(part.split("/")[0]) - 1 for part in line.split()[1:]))
+    if not vertices or not faces:
+        raise RuntimeError("Kunde inte läsa Atlas-huden")
+    return vertices, faces
+
+
+def create_atlas_body(mat):
+    vertices, faces = load_atlas_skin()
+    mesh = bpy.data.meshes.new("AtlasPatientSkin")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new("atlas_body_mesh", mesh)
+    bpy.context.collection.objects.link(obj)
+    assign(obj, mat)
+    obj["hlr_material"] = "skin"
+    obj["hlr_skinned"] = True
+    modifier = obj.modifiers.new("Webboptimerad yta", "DECIMATE")
+    modifier.ratio = 0.07
+    modifier.use_collapse_triangulate = True
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+    bpy.ops.object.modifier_apply(modifier=modifier.name)
+    obj.select_set(False)
+    return obj
+
+
+def create_gown_shell(body, mat):
+    source = body.data
+    selected = []
+    used = set()
+    for polygon in source.polygons:
+        center = sum((source.vertices[index].co for index in polygon.vertices), Vector()) / len(polygon.vertices)
+        width = 0.60 if center.y > -0.50 else 0.48
+        if -0.82 <= center.y <= 0.82 and abs(center.x) <= width:
+            face = tuple(polygon.vertices)
+            selected.append(face)
+            used.update(face)
+    remap = {old: new for new, old in enumerate(sorted(used))}
+    vertices = [source.vertices[old].co.copy() for old in sorted(used)]
+    faces = [tuple(remap[index] for index in face) for face in selected]
+    mesh = bpy.data.meshes.new("AtlasPatientGown")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    for vertex in mesh.vertices:
+        vertex.co += vertex.normal * 0.025
+    mesh.update()
+    obj = bpy.data.objects.new("atlas_gown_mesh", mesh)
+    bpy.context.collection.objects.link(obj)
+    assign(obj, mat)
+    obj["hlr_material"] = "gown"
+    obj["hlr_skinned"] = True
+    return obj
+
+
+def distance_to_segment(point, start, end):
+    segment = end - start
+    factor = max(0.0, min(1.0, (point - start).dot(segment) / max(segment.length_squared, 0.000001)))
+    return (point - (start + segment * factor)).length
+
+
+def weight_candidates(point):
+    side = "L" if point.x < 0 else "R"
+    if point.y > 0.90:
+        return ("head", "chest")
+    if point.y < -0.68:
+        return (f"thigh.{side}", f"shin.{side}", f"foot.{side}", "root")
+    if abs(point.x) > 0.38:
+        return (f"upper_arm.{side}", f"forearm.{side}", f"hand.{side}", "chest", "root")
+    return ("root", "chest", "head")
+
+
+def assign_skin_weights(obj, armature):
+    segments = {
+        bone.name: (bone.head_local.copy(), bone.tail_local.copy())
+        for bone in armature.data.bones
+    }
+    groups = {name: obj.vertex_groups.new(name=name) for name in segments}
+    for vertex in obj.data.vertices:
+        distances = sorted(
+            (
+                (distance_to_segment(vertex.co, *segments[name]), name)
+                for name in weight_candidates(vertex.co)
+            ),
+            key=lambda item: item[0],
+        )[:2]
+        raw_weights = [(1.0 / max(distance, 0.025) ** 2, name) for distance, name in distances]
+        total = sum(weight for weight, _name in raw_weights)
+        for weight, name in raw_weights:
+            groups[name].add((vertex.index,), weight / total, "REPLACE")
+    obj.parent = armature
+    obj["hlr_armature"] = armature.name
 
 
 def sphere(name, location, scale, mat, armature, bone, material_role, subdivisions=2):
@@ -105,21 +224,21 @@ def create_armature():
     armature.select_set(True)
     bpy.ops.object.mode_set(mode="EDIT")
     bones = (
-        ("root", None, (0, -0.65, 0.08), (0, -0.30, 0.10)),
-        ("chest", "root", (0, -0.30, 0.12), (0, 0.55, 0.15)),
-        ("head", "root", (0, 1.04, 0.13), (0, 1.72, 0.16)),
-        ("upper_arm.L", "root", (-0.43, 0.42, 0.10), (-0.72, -0.02, 0.08)),
-        ("forearm.L", "upper_arm.L", (-0.72, -0.02, 0.08), (-1.02, -0.48, 0.06)),
-        ("hand.L", "forearm.L", (-1.02, -0.48, 0.06), (-1.05, -0.68, 0.06)),
-        ("upper_arm.R", "root", (0.43, 0.42, 0.10), (0.72, -0.02, 0.08)),
-        ("forearm.R", "upper_arm.R", (0.72, -0.02, 0.08), (1.02, -0.48, 0.06)),
-        ("hand.R", "forearm.R", (1.02, -0.48, 0.06), (1.05, -0.68, 0.06)),
-        ("thigh.L", "root", (-0.24, -0.82, 0.08), (-0.31, -1.35, 0.07)),
-        ("shin.L", "thigh.L", (-0.31, -1.35, 0.07), (-0.36, -1.93, 0.06)),
-        ("foot.L", "shin.L", (-0.36, -1.93, 0.06), (-0.36, -2.15, 0.05)),
-        ("thigh.R", "root", (0.24, -0.82, 0.08), (0.31, -1.35, 0.07)),
-        ("shin.R", "thigh.R", (0.31, -1.35, 0.07), (0.36, -1.93, 0.06)),
-        ("foot.R", "shin.R", (0.36, -1.93, 0.06), (0.36, -2.15, 0.05)),
+        ("root", None, (0, -0.67, 0.18), (0, -0.28, 0.20)),
+        ("chest", "root", (0, -0.28, 0.22), (0, 0.76, 0.31)),
+        ("head", "root", (0, 0.96, 0.25), (0, 1.75, 0.30)),
+        ("upper_arm.L", "root", (-0.49, 0.63, 0.22), (-0.62, 0.05, 0.18)),
+        ("forearm.L", "upper_arm.L", (-0.62, 0.05, 0.18), (-0.68, -0.50, 0.15)),
+        ("hand.L", "forearm.L", (-0.68, -0.50, 0.15), (-0.70, -0.73, 0.14)),
+        ("upper_arm.R", "root", (0.49, 0.63, 0.22), (0.62, 0.05, 0.18)),
+        ("forearm.R", "upper_arm.R", (0.62, 0.05, 0.18), (0.68, -0.50, 0.15)),
+        ("hand.R", "forearm.R", (0.68, -0.50, 0.15), (0.70, -0.73, 0.14)),
+        ("thigh.L", "root", (-0.19, -0.62, 0.16), (-0.20, -1.30, 0.13)),
+        ("shin.L", "thigh.L", (-0.20, -1.30, 0.13), (-0.21, -1.90, 0.10)),
+        ("foot.L", "shin.L", (-0.21, -1.90, 0.10), (-0.21, -2.13, 0.08)),
+        ("thigh.R", "root", (0.19, -0.62, 0.16), (0.20, -1.30, 0.13)),
+        ("shin.R", "thigh.R", (0.20, -1.30, 0.13), (0.21, -1.90, 0.10)),
+        ("foot.R", "shin.R", (0.21, -1.90, 0.10), (0.21, -2.13, 0.08)),
     )
     created = {}
     for name, parent, head, tail in bones:
@@ -145,37 +264,27 @@ def create_meshes(armature):
         "gown_light": material("Gown folds", (0.58, 0.76, 0.67)),
         "wristband": material("Patient wristband", (0.84, 0.88, 0.82)),
     }
-    sphere("chest_mesh", (0, 0.10, 0.17), (0.58, 0.79, 0.23), mats["gown"], armature, "chest", "gown", 3)
-    sphere("pelvis_mesh", (0, -0.72, 0.13), (0.49, 0.43, 0.19), mats["gown"], armature, "root", "gown", 2)
-    cylinder_between("neck_mesh", (0, 0.88, 0.13), (0, 1.12, 0.14), 0.15, mats["skin"], armature, "head", "skin", 14)
-    sphere("head_mesh", (0, 1.43, 0.16), (0.33, 0.40, 0.29), mats["skin"], armature, "head", "skin", 3)
-    sphere("jaw_mesh", (0, 1.22, 0.14), (0.24, 0.22, 0.22), mats["skin"], armature, "head", "skin", 2)
-    sphere("hair_mesh", (0, 1.56, 0.29), (0.34, 0.31, 0.11), mats["hair"], armature, "head", "hair", 2)
-    sphere("nose_mesh", (0, 1.46, 0.455), (0.05, 0.07, 0.055), mats["skin"], armature, "head", "skin", 1)
-    sphere("lips_mesh", (0, 1.34, 0.435), (0.075, 0.022, 0.018), mats["lips"], armature, "head", "lips", 1)
+    body = create_atlas_body(mats["skin"])
+    gown = create_gown_shell(body, mats["gown"])
+    assign_skin_weights(body, armature)
+    assign_skin_weights(gown, armature)
+    sphere("hair_mesh", (0, 1.61, 0.47), (0.30, 0.27, 0.10), mats["hair"], armature, "head", "hair", 2)
+    sphere("lips_mesh", (0, 1.48, 0.65), (0.065, 0.020, 0.014), mats["lips"], armature, "head", "lips", 1)
     for side, sign in (("L", -1), ("R", 1)):
-        sphere(f"eye_white_{side}", (sign * 0.105, 1.50, 0.425), (0.048, 0.030, 0.018),
+        sphere(f"eye_white_{side}", (sign * 0.095, 1.62, 0.625), (0.044, 0.026, 0.015),
                mats["eye_white"], armature, "head", "eye_white", 1)
-        sphere(f"ear_{side}", (sign * 0.31, 1.43, 0.16), (0.045, 0.07, 0.055),
-               mats["skin"], armature, "head", "skin", 1)
-        cylinder_between(f"eyebrow_{side}", (sign * 0.16, 1.55, 0.452), (sign * 0.055, 1.57, 0.455),
+        cylinder_between(f"eyebrow_{side}", (sign * 0.15, 1.68, 0.647), (sign * 0.05, 1.69, 0.65),
                          0.012, mats["hair"], armature, "head", "hair", 7)
-    cube("gown_center_seam", (0, 0.06, 0.402), (0.026, 1.10, 0.020),
+    cube("gown_center_seam", (0, 0.02, 0.605), (0.026, 1.14, 0.020),
          mats["gown_dark"], armature, "chest", "gown_dark", bevel=0.006)
     for side, sign in (("L", -1), ("R", 1)):
-        cube(f"gown_neckline_{side}", (sign * 0.08, 0.68, 0.397), (0.13, 0.26, 0.024),
+        cube(f"gown_neckline_{side}", (sign * 0.08, 0.69, 0.598), (0.13, 0.26, 0.024),
              mats["gown_dark"], armature, "chest", "gown_dark", rotation_z=sign * 0.55, bevel=0.01)
-        cube(f"gown_fold_{side}", (sign * 0.28, 0.03, 0.398), (0.018, 0.88, 0.018),
+        cube(f"gown_fold_{side}", (sign * 0.28, 0.02, 0.600), (0.018, 0.88, 0.018),
              mats["gown_light"], armature, "chest", "gown_light", rotation_z=sign * 0.06, bevel=0.004)
     for side, sign in (("L", -1), ("R", 1)):
-        sphere(f"eye_{side}", (sign * 0.105, 1.50, 0.444), (0.019, 0.016, 0.010), mats["dark"], armature, "head", "dark", 1)
-        cylinder_between(f"upper_arm_{side}", (sign * 0.43, 0.42, 0.10), (sign * 0.72, -0.02, 0.08), 0.13, mats["skin"], armature, f"upper_arm.{side}", "skin")
-        cylinder_between(f"forearm_{side}", (sign * 0.72, -0.02, 0.08), (sign * 1.02, -0.48, 0.06), 0.115, mats["skin"], armature, f"forearm.{side}", "skin")
-        sphere(f"hand_{side}", (sign * 1.04, -0.59, 0.06), (0.13, 0.19, 0.08), mats["skin"], armature, f"hand.{side}", "skin", 1)
-        cylinder_between(f"thigh_{side}", (sign * 0.24, -0.82, 0.08), (sign * 0.31, -1.35, 0.07), 0.15, mats["gown"], armature, f"thigh.{side}", "gown")
-        cylinder_between(f"shin_{side}", (sign * 0.31, -1.35, 0.07), (sign * 0.36, -1.93, 0.06), 0.13, mats["skin"], armature, f"shin.{side}", "skin")
-        sphere(f"foot_{side}", (sign * 0.36, -2.04, 0.06), (0.15, 0.27, 0.10), mats["skin"], armature, f"foot.{side}", "skin", 1)
-    cylinder_between("patient_wristband", (0.86, -0.23, 0.065), (0.91, -0.31, 0.063), 0.124,
+        sphere(f"eye_{side}", (sign * 0.095, 1.62, 0.641), (0.017, 0.014, 0.009), mats["dark"], armature, "head", "dark", 1)
+    cylinder_between("patient_wristband", (0.65, -0.36, 0.16), (0.67, -0.44, 0.15), 0.102,
                      mats["wristband"], armature, "forearm.R", "wristband", 14)
 
 
@@ -198,20 +307,20 @@ def organize_preview(armature):
     bpy.context.scene.collection.children.link(mesh_collection)
     bpy.context.scene.collection.children.link(anchor_collection)
     move_to(armature, rig_collection)
-    for obj in [item for item in bpy.data.objects if item.get("hlr_bone")]:
+    for obj in [item for item in bpy.data.objects if item.get("hlr_bone") or item.get("hlr_skinned")]:
         move_to(obj, mesh_collection)
 
     anchors = {
-        "sternum": (0, 0.18, 0.39),
-        "compression_hand_left": (0, 0.18, 0.42),
-        "compression_hand_right": (0, 0.18, 0.445),
-        "airway": (0, 1.41, 0.49),
-        "mask_seal": (0, 1.41, 0.49),
-        "bag_grip": (0.38, 1.82, 0.58),
-        "pad_left": (-0.34, 0.60, 0.38),
-        "pad_right": (0.34, -0.12, 0.38),
-        "access_right": (1.02, -0.38, 0.20),
-        "ultrasound": (0.48, -0.15, 0.36),
+        "sternum": (0, 0.18, 0.61),
+        "compression_hand_left": (0, 0.18, 0.64),
+        "compression_hand_right": (0, 0.18, 0.665),
+        "airway": (0, 1.52, 0.68),
+        "mask_seal": (0, 1.52, 0.68),
+        "bag_grip": (0.38, 1.82, 0.76),
+        "pad_left": (-0.31, 0.57, 0.60),
+        "pad_right": (0.31, -0.10, 0.60),
+        "access_right": (0.66, -0.42, 0.30),
+        "ultrasound": (0.43, -0.15, 0.58),
     }
     for name, location in anchors.items():
         create_anchor(name, location, anchor_collection)
@@ -262,6 +371,7 @@ def add_instructions():
     text.write(
         "HLR PATIENT RIG\n\n"
         "Patienten ligger med huvudet mot positiv Blender-Y.\n"
+        "atlas_body_mesh är en webboptimerad kopia av Kropps-atlasens BodyParts3D-hud.\n"
         "Posera HLR_PATIENT_RIG i Pose Mode. Ändra inte bennamn eller ankarnamn.\n"
         "CLINICAL_ANCHORS styr sternum, luftväg, plattor, infart och ultraljud i webben.\n"
         "Kör export_hlr_patient_rig.py efter en avsiktlig modelländring.\n"
@@ -275,7 +385,7 @@ def main():
     organize_preview(armature)
     add_instructions()
     scene = bpy.context.scene
-    scene["hlr_patient_rig_version"] = 1
+    scene["hlr_patient_rig_version"] = 2
     scene.render.engine = "BLENDER_EEVEE_NEXT"
     scene.render.resolution_x = 900
     scene.render.resolution_y = 680

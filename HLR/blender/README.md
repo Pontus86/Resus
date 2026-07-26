@@ -69,6 +69,11 @@ igenom thorax, mask eller blåsa.
 ventilationsblåsa, defibrillatorplattor, infart och ultraljud. Ändra inte benens
 eller ankarnas namn.
 
+Kroppsformen kommer från Kropps-atlasens BodyParts3D-hud. Generatorn läser den
+spårade `Kroppsatlas/models/body/skin.js`, lägger modellen i ryggläge, reducerar
+den till en webbanpassad yta och skapar riggvikter samt en separat patientskjorta.
+Den tunga Atlas-ytan exporteras alltså aldrig oförändrad till HLR-sidan.
+
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender --background \
   HLR/blender/hlr-patient-rig.blend \

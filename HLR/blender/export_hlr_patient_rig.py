@@ -81,31 +81,63 @@ def export_bones(armature):
     return dict(sorted(bones.items())), world_matrices
 
 
-def mesh_geometry(obj, depsgraph):
+def mesh_geometry(obj, depsgraph, convert_vertices=False):
     evaluated = obj.evaluated_get(depsgraph)
     mesh = evaluated.to_mesh()
     try:
         mesh.calc_loop_triangles()
-        positions = [number for vertex in mesh.vertices for number in clean_vector(vertex.co)]
+        positions = []
+        for vertex in mesh.vertices:
+            coordinate = (BLENDER_TO_THREE @ vertex.co.to_4d()).to_3d() if convert_vertices else vertex.co
+            positions.extend(clean_vector(coordinate))
         indices = [int(index) for triangle in mesh.loop_triangles for index in triangle.vertices]
         return positions, indices
     finally:
         evaluated.to_mesh_clear()
 
 
-def export_meshes(bone_world):
+def skin_weights(obj, bone_order):
+    bone_indices = {name: index for index, name in enumerate(bone_order)}
+    group_names = {group.index: group.name for group in obj.vertex_groups}
+    indices = []
+    weights = []
+    for vertex in obj.data.vertices:
+        influences = sorted(
+            (
+                (assignment.weight, group_names.get(assignment.group))
+                for assignment in vertex.groups
+                if group_names.get(assignment.group) in bone_indices
+            ),
+            reverse=True,
+        )[:4]
+        total = sum(weight for weight, _name in influences)
+        if total <= 0:
+            influences = [(1.0, "root")]
+            total = 1.0
+        while len(influences) < 4:
+            influences.append((0.0, "root"))
+        indices.extend(bone_indices[name] for _weight, name in influences)
+        weights.extend(clean_number(weight / total) for weight, _name in influences)
+    return indices, weights
+
+
+def export_meshes(bone_world, bone_order):
     result = []
     depsgraph = bpy.context.evaluated_depsgraph_get()
     for obj in sorted(bpy.data.objects, key=lambda item: item.name):
         bone_name = obj.get("hlr_bone")
-        if not bone_name:
+        skinned = bool(obj.get("hlr_skinned"))
+        if not bone_name and not skinned:
             continue
-        positions, indices = mesh_geometry(obj, depsgraph)
-        local = bone_world[bone_name].inverted() @ convert_matrix(obj.matrix_world)
-        result.append({
+        positions, indices = mesh_geometry(obj, depsgraph, convert_vertices=skinned)
+        local = convert_matrix(obj.matrix_world) if skinned else bone_world[bone_name].inverted() @ convert_matrix(obj.matrix_world)
+        payload = {
             "name": obj.name, "bone": bone_name, "material": obj.get("hlr_material", "skin"),
             **transform_payload(local), "positions": positions, "indices": indices,
-        })
+        }
+        if skinned:
+            payload["skinIndices"], payload["skinWeights"] = skin_weights(obj, bone_order)
+        result.append(payload)
     if not result:
         raise RuntimeError("Patientriggen saknar exporterbara meshar")
     return result
@@ -126,10 +158,12 @@ def export_anchors():
 def main():
     armature = find_armature()
     bones, bone_world = export_bones(armature)
+    bone_order = sorted(bones)
     payload = {
-        "version": 1,
+        "version": 2,
+        "boneOrder": bone_order,
         "bones": bones,
-        "meshes": export_meshes(bone_world),
+        "meshes": export_meshes(bone_world, bone_order),
         "anchors": export_anchors(),
     }
     destination = output_path()

@@ -255,11 +255,23 @@ const HLRRoom3D=(()=>{
       }
       if(!progressed)throw new Error("HLR-patientriggen har en trasig benhierarki");
     }
+    const boneOrder=source.boneOrder||Object.keys(source.bones);
+    const skeleton=new THREE.Skeleton(boneOrder.map(name=>bones[name]));
     source.meshes.forEach(spec=>{
-      const mesh=new THREE.Mesh(rigGeometry(spec,"patient"),patientRigMaterial(spec.material));
+      const geometry=rigGeometry(spec,"patient");
+      if(spec.skinIndices&&spec.skinWeights){
+        geometry.setAttribute("skinIndex",new THREE.Uint16BufferAttribute(spec.skinIndices,4));
+        geometry.setAttribute("skinWeight",new THREE.Float32BufferAttribute(spec.skinWeights,4));
+      }
+      const mesh=spec.skinIndices
+        ?new THREE.SkinnedMesh(geometry,patientRigMaterial(spec.material))
+        :new THREE.Mesh(geometry,patientRigMaterial(spec.material));
       mesh.name=spec.name;mesh.position.fromArray(spec.position);
       mesh.quaternion.fromArray(spec.quaternion);mesh.scale.fromArray(spec.scale);
-      mesh.castShadow=true;mesh.receiveShadow=true;bones[spec.bone].add(mesh);
+      mesh.castShadow=true;mesh.receiveShadow=true;
+      if(spec.skinIndices){
+        mesh.frustumCulled=false;g.add(mesh);g.updateMatrixWorld(true);mesh.bind(skeleton);
+      }else bones[spec.bone].add(mesh);
     });
     patientTorso=bones.chest;
     patientTorso.userData.restY=patientTorso.position.y;
