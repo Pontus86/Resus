@@ -35,6 +35,7 @@ current directory, branch, and clean/expected Git status.
 | R-022 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/main.js`, `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 | R-023 | done | Codex | `HLR/blender/`, `HLR/js/room3d-staff-rig-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `TASKS.md` | `codex/work` | this commit |
 | R-024 | done | Codex | `HLR/blender/`, `HLR/js/room3d-patient-rig-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `TASKS.md` | `codex/work` | this commit |
+| R-025 | in progress | Codex | `HLR/blender/`, `HLR/js/room3d*.js`, `HLR/js/ui.js`, `TASKS.md` | `codex/work` | — |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -214,6 +215,21 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   Blender export round-trip succeeds; a bone-pose test moves only the expected hierarchy; live
   data loads before `room3d.js`; syntax/file/load-order contracts pass; post-FX remains off by
   default and Classic/Canvas behavior is unchanged.
+
+### R-025 — Five-stage HLR 3D clinical refinement
+
+- User-authorized continuation of the HLR 3D work, completed strictly in this order:
+  patient reactions; Blender-authored staff actions and hand contacts; core equipment detail;
+  faces and clothing; sound and small environment animation.
+- Keep all production assets embedded and deterministic. Preserve direct `file://` use, the
+  Classic/Canvas fallback, state and raycast behavior, optional/default-off post-processing and
+  the editable Blender sources.
+- Use the existing gameplay state rather than inventing a parallel simulation. Clinical visual
+  changes must remain legible but restrained, and sounds must obey the existing sound toggle.
+- Acceptance: each stage is a separate logical commit and is verified before the next starts;
+  Blender exports remain deterministic; compression/ventilation contact targets resolve;
+  equipment and character meshes remain within plausible bounds; the final page has no new
+  syntax, dependency, load-order or fallback regressions.
 
 ## Assignment rules
 

@@ -4,7 +4,8 @@ const HLRRoom3D=(()=>{
   const API={ready:false,failed:false};
   const objects={},staff={},materials={},rigGeometries={};
   let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight;
-  let patient,patientTorso,patientAnchors,lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
+  let patient,patientTorso,patientAnchors,patientSkinMaterial,patientLipMaterial,patientSweat;
+  let lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
   let padCable,ivLine,usCable,ventCircuit,monitorTrace,defibTrace;
   let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,lucasLamp;
   let postScene,postCamera,postQuad,sceneTarget,bloomTargetA,bloomTargetB;
@@ -217,7 +218,12 @@ const HLRRoom3D=(()=>{
     if(key==="gown")return material("gown",C.gown);
     if(key==="hair")return material("hair",C.hair);
     if(key==="dark")return material("dark",C.dark);
-    return material("skin",C.skin);
+    if(key==="lips"){
+      patientLipMaterial=material("patientLips",0x8F535B,{roughness:.48});
+      return patientLipMaterial;
+    }
+    patientSkinMaterial=material("patientSkin",C.skin,{roughness:.62});
+    return patientSkinMaterial;
   }
   function createRiggedPatientBody(g){
     const source=HLR_PATIENT_RIG,bones={},pending=Object.keys(source.bones);
@@ -257,7 +263,7 @@ const HLRRoom3D=(()=>{
   }
 
   function createPatient(){
-    const skin=material("skin",C.skin),gown=material("gown",C.gown),hair=material("hair",C.hair);
+    const skin=patientRigMaterial("skin"),gown=material("gown",C.gown),hair=material("hair",C.hair);
     const g=new THREE.Group();g.position.set(0,.98,0);
     patientAnchors=null;
     if(typeof HLR_PATIENT_RIG==="object"&&HLR_PATIENT_RIG.bones&&HLR_PATIENT_RIG.meshes&&HLR_PATIENT_RIG.anchors){
@@ -269,6 +275,7 @@ const HLRRoom3D=(()=>{
       const neck=cylinder(.16,.3,skin,12);neck.rotation.x=Math.PI/2;neck.position.set(0,.1,-1.08);g.add(neck);
       const head=sphere(.38,skin,18);head.scale.set(.9,.75,1.08);head.position.set(0,.15,-1.48);g.add(head);
       const hairCap=sphere(.385,hair,16);hairCap.scale.set(.92,.38,1.08);hairCap.position.set(0,.36,-1.51);g.add(hairCap);
+      const lips=sphere(.07,patientRigMaterial("lips"),10);lips.scale.set(1,.3,.22);lips.position.set(0,.4,-1.67);g.add(lips);
       [[new THREE.Vector3(-.48,.1,-.55),new THREE.Vector3(-1.03,.06,.48)],
         [new THREE.Vector3(.48,.1,-.55),new THREE.Vector3(1.03,.06,.48)],
         [new THREE.Vector3(-.28,.08,1.18),new THREE.Vector3(-.38,.06,1.92)],
@@ -292,6 +299,12 @@ const HLRRoom3D=(()=>{
     ventBag.scale.set(.7,.8,1.45);ventBag.position.copy(airway).add(new THREE.Vector3(.38,.16,-.39));g.add(ventBag);
     accessPatch=box(.2,.06,.28,material("access",0xEDE9D7));
     accessPatch.position.copy(patientAnchor("access_right",new THREE.Vector3(1.02,.21,.38)));g.add(accessPatch);
+    patientSweat=new THREE.Group();
+    const sweatMaterial=material("patientSweat",0xDDF5F2,{transparent:true,opacity:0,roughness:.12,metalness:.05});
+    [[-.12,.43,-1.55],[.08,.445,-1.61],[.18,.41,-1.48]].forEach((p,i)=>{
+      const drop=sphere(.018+i*.004,sweatMaterial,8);drop.scale.set(.7,.28,1.25);drop.position.fromArray(p);patientSweat.add(drop);
+    });
+    patientSweat.userData.material=sweatMaterial;g.add(patientSweat);
     patient=place(g,"patient",null,0,0);
     if(!authoredObject("patient"))patient.position.y=.98;
 
@@ -730,8 +743,11 @@ const HLRRoom3D=(()=>{
     if(!patient.visible){lucas.visible=false;return;}
     const phase=typeof compPhase==="number"?compPhase:0;
     const press=S.comp?Math.max(0,Math.sin(phase)):0;
-    patientTorso.scale.y=patientTorso.userData.restScaleY*(1-press*.22);
-    patientTorso.position.y=patientTorso.userData.restY-press*.04;
+    const breathing=S.vent||S.rosc;
+    const breathPeriod=S.rosc?4.3:6;
+    const breath=breathing?.5-.5*Math.cos((S.t||0)*Math.PI*2/breathPeriod):0;
+    patientTorso.scale.y=patientTorso.userData.restScaleY*(1-press*.22+breath*.08);
+    patientTorso.position.y=patientTorso.userData.restY-press*.04+breath*.015;
     pads.position.y=pads.userData.restY-press*.04;
     pads.visible=!!S.pads;
     airwayMask.visible=S.airway==="mask"||S.airway==="igel";
@@ -739,6 +755,20 @@ const HLRRoom3D=(()=>{
     ventBag.visible=!!S.vent;
     ventBag.scale.y=.8*(S.vent?1-.16*Math.max(0,Math.sin(phase/5)):1);
     accessPatch.visible=!!S.access;
+    const skinBase=new THREE.Color(S.patient&&S.patient.skin||C.skin);
+    let oxygenation=S.rosc?1:.08+(S.comp?.16:0)+(S.perfusing?.2:0)+(S.vent?.16:0)+(S.o2max?.22:0);
+    if(S.airway==="tub"||S.airway==="igel"||S.airway==="koniotomi")oxygenation+=.15;
+    oxygenation=Math.max(0,Math.min(1,oxygenation));
+    const cyanosis=1-oxygenation;
+    const skinTarget=skinBase.clone().lerp(new THREE.Color(0x717A91),cyanosis*.42);
+    patientSkinMaterial.color.lerp(skinTarget,.08);
+    if(patientLipMaterial){
+      const lipTarget=new THREE.Color(S.rosc?0xA45F62:0x596A91).lerp(new THREE.Color(0xA45F62),oxygenation*.7);
+      patientLipMaterial.color.lerp(lipTarget,.1);
+    }
+    patientSkinMaterial.roughness=S.rosc?.62:Math.max(.3,.62-Math.min(1,(S.t||0)/360)*.26);
+    const sweatLevel=!S.rosc?Math.max(0,Math.min(1,((S.t||0)-75)/180)):0;
+    patientSweat.visible=sweatLevel>.02;patientSweat.userData.material.opacity=.12+sweatLevel*.38;
     lucas.visible=!!S.lucas&&!S.rosc;
     if(lucas.visible)piston.position.y=1.61-press*.22;
 

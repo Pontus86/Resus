@@ -122,6 +122,7 @@ def create_meshes(armature):
         "gown": material("Patient gown", (0.43, 0.67, 0.57)),
         "hair": material("Hair", (0.08, 0.055, 0.04)),
         "dark": material("Eyes", (0.025, 0.035, 0.03)),
+        "lips": material("Lips", (0.38, 0.16, 0.18)),
     }
     sphere("chest_mesh", (0, 0.10, 0.17), (0.58, 0.79, 0.23), mats["gown"], armature, "chest", "gown", 3)
     sphere("pelvis_mesh", (0, -0.72, 0.13), (0.49, 0.43, 0.19), mats["gown"], armature, "root", "gown", 2)
@@ -130,6 +131,7 @@ def create_meshes(armature):
     sphere("jaw_mesh", (0, 1.22, 0.14), (0.24, 0.22, 0.22), mats["skin"], armature, "head", "skin", 2)
     sphere("hair_mesh", (0, 1.50, 0.34), (0.34, 0.37, 0.13), mats["hair"], armature, "head", "hair", 2)
     sphere("nose_mesh", (0, 1.69, 0.18), (0.05, 0.07, 0.065), mats["skin"], armature, "head", "skin", 1)
+    sphere("lips_mesh", (0, 1.59, 0.275), (0.075, 0.022, 0.018), mats["lips"], armature, "head", "lips", 1)
     for side, sign in (("L", -1), ("R", 1)):
         sphere(f"eye_{side}", (sign * 0.105, 1.655, 0.255), (0.024, 0.015, 0.022), mats["dark"], armature, "head", "dark", 1)
         cylinder_between(f"upper_arm_{side}", (sign * 0.43, 0.42, 0.10), (sign * 0.72, -0.02, 0.08), 0.13, mats["skin"], armature, f"upper_arm.{side}", "skin")
