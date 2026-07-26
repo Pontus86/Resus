@@ -67,14 +67,15 @@ def find_armature():
 def export_bones(armature):
     bones = {}
     world_matrices = {}
-    for bone in armature.data.bones:
+    exported_bones = [bone for bone in armature.data.bones if bone.use_deform]
+    for bone in exported_bones:
         head_world = armature.matrix_world @ bone.head_local
         head_three = BLENDER_TO_THREE @ head_world.to_4d()
         world_matrices[bone.name] = Matrix.Translation(head_three.to_3d())
     missing = REQUIRED_BONES - world_matrices.keys()
     if missing:
         raise RuntimeError("Patientriggen saknar ben: " + ", ".join(sorted(missing)))
-    for bone in armature.data.bones:
+    for bone in exported_bones:
         world = world_matrices[bone.name]
         local = world_matrices[bone.parent.name].inverted() @ world if bone.parent else world
         bones[bone.name] = {"parent": bone.parent.name if bone.parent else None, **transform_payload(local)}

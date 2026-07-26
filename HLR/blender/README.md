@@ -69,6 +69,26 @@ igenom thorax, mask eller blåsa.
 ventilationsblåsa, defibrillatorplattor, infart och ultraljud. Ändra inte benens
 eller ankarnas namn.
 
+Armaturens restläge är anatomisk neutralposition i ryggläge: underarmar och händer
+är supinerade med handflatorna uppåt. Mesharna för hud, ansikte, hår, patientskjorta
+och byxor har riktiga Armature-modifierare. Lakanet är däremot stelt parentat till
+`root`, saknar anatomiska vikter och får inte ges en Armature-modifierare.
+
+Action Editor innehåller följande sparade kontrollposer:
+
+- `Patient_Neutral`
+- `Patient_SupineGravity`
+- `Patient_ArmsAbducted`
+- `Patient_IVAccess`
+- `Patient_HeadTiltChinLift`
+- `Patient_HipKneeFlexion`
+
+`SUPPORT_CONTACTS` markerar handryggarnas, handledernas, vadernas och hälarnas
+kontakt mot underlaget. De icke-deformerande `*_ik`- och `*_pole`-benen är
+redigeringskontroller i Blender och exporteras inte till webben. Nuvarande
+poser är FK-baserade; kontrollerna ger stabila mål för en senare IK-förfining
+utan att ändra runtime-riggens befintliga femton ben.
+
 Kroppsformen kommer från Kropps-atlasens BodyParts3D-hud. Generatorn läser den
 spårade `Kroppsatlas/models/body/skin.js`, lägger modellen i ryggläge, reducerar
 den till en webbanpassad yta och skapar riggvikter samt en separat patientskjorta

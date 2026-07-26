@@ -664,7 +664,7 @@ def create_patient_clothing(body, armature, gown_mat, sheet_mat, pants_mat):
         sheet_mat,
         "sheet",
     )
-    assign_rigid_skin(sheet, armature, "root")
+    assign_rigid_object(sheet, armature, "root")
     for pants_part in (pants_pelvis, *pants_legs):
         raise_clothing_above_skin(mesh_bvh(pants_part), sheet, 0.018)
     sheet["hlr_pants_clearance"] = 0.018
@@ -743,10 +743,18 @@ def weight_candidates(point):
     return ("root", "chest", "head")
 
 
+def attach_armature_modifier(obj, armature):
+    modifier = obj.modifiers.new("Patientarmatur", "ARMATURE")
+    modifier.object = armature
+    modifier.use_vertex_groups = True
+    obj["hlr_armature"] = armature.name
+
+
 def assign_skin_weights(obj, armature):
     segments = {
         bone.name: (bone.head_local.copy(), bone.tail_local.copy())
         for bone in armature.data.bones
+        if bone.use_deform
     }
     groups = {name: obj.vertex_groups.new(name=name) for name in segments}
     for vertex in obj.data.vertices:
@@ -762,14 +770,20 @@ def assign_skin_weights(obj, armature):
         for weight, name in raw_weights:
             groups[name].add((vertex.index,), weight / total, "REPLACE")
     obj.parent = armature
-    obj["hlr_armature"] = armature.name
+    attach_armature_modifier(obj, armature)
 
 
 def assign_rigid_skin(obj, armature, bone_name):
     group = obj.vertex_groups.new(name=bone_name)
     group.add(tuple(vertex.index for vertex in obj.data.vertices), 1.0, "REPLACE")
     obj.parent = armature
-    obj["hlr_armature"] = armature.name
+    attach_armature_modifier(obj, armature)
+
+
+def assign_rigid_object(obj, armature, bone_name):
+    obj["hlr_skinned"] = False
+    obj.pop("hlr_armature", None)
+    parent_to_bone(obj, armature, bone_name)
 
 
 def assign_torso_cloth_weights(obj, armature):
@@ -780,7 +794,7 @@ def assign_torso_cloth_weights(obj, armature):
         root.add((vertex.index,), 1.0 - chest_weight, "REPLACE")
         chest.add((vertex.index,), chest_weight, "REPLACE")
     obj.parent = armature
-    obj["hlr_armature"] = armature.name
+    attach_armature_modifier(obj, armature)
 
 
 def sphere(name, location, scale, mat, armature, bone, material_role, subdivisions=2):
@@ -831,6 +845,8 @@ def create_armature():
     bpy.context.collection.objects.link(armature)
     armature.show_in_front = True
     armature["hlr_patient_rig"] = True
+    armature["hlr_rest_pose"] = "anatomical_neutral_supinated"
+    armature["hlr_support_pose"] = "Patient_SupineGravity"
     bpy.context.view_layer.objects.active = armature
     armature.select_set(True)
     bpy.ops.object.mode_set(mode="EDIT")
@@ -856,11 +872,118 @@ def create_armature():
         bone = data.edit_bones.new(name)
         bone.head = head
         bone.tail = tail
+        # Samma vertikala rullreferens ger speglade lemmar förutsägbara poseaxlar.
+        bone.align_roll(Vector((0, 0, 1)))
         if parent:
             bone.parent = created[parent]
         created[name] = bone
+    controls = (
+        ("hand_ik.L", (-0.68, -0.50, 0.15), (-0.68, -0.50, 0.30)),
+        ("hand_ik.R", (0.68, -0.50, 0.15), (0.68, -0.50, 0.30)),
+        ("elbow_pole.L", (-1.00, 0.02, 0.35), (-1.00, 0.02, 0.50)),
+        ("elbow_pole.R", (1.00, 0.02, 0.35), (1.00, 0.02, 0.50)),
+        ("foot_ik.L", (-0.21, -1.90, 0.10), (-0.21, -1.90, 0.25)),
+        ("foot_ik.R", (0.21, -1.90, 0.10), (0.21, -1.90, 0.25)),
+        ("knee_pole.L", (-0.55, -1.28, 0.45), (-0.55, -1.28, 0.60)),
+        ("knee_pole.R", (0.55, -1.28, 0.45), (0.55, -1.28, 0.60)),
+    )
+    for name, head, tail in controls:
+        bone = data.edit_bones.new(name)
+        bone.head = head
+        bone.tail = tail
+        bone.parent = created["root"]
+        bone.use_deform = False
     bpy.ops.object.mode_set(mode="OBJECT")
+    for name, _head, _tail in controls:
+        data.bones[name]["hlr_control"] = True
     return armature
+
+
+def reset_pose(armature):
+    for bone in armature.pose.bones:
+        bone.rotation_mode = "XYZ"
+        bone.location = (0, 0, 0)
+        bone.rotation_euler = (0, 0, 0)
+        bone.scale = (1, 1, 1)
+
+
+def create_pose_action(armature, name, rotations=None):
+    reset_pose(armature)
+    for bone_name, rotation in (rotations or {}).items():
+        armature.pose.bones[bone_name].rotation_euler = rotation
+    armature.animation_data_create()
+    action = bpy.data.actions.new(name)
+    action.use_fake_user = True
+    action["hlr_pose_asset"] = True
+    armature.animation_data.action = action
+    for bone in armature.pose.bones:
+        if not bone.bone.use_deform:
+            continue
+        bone.keyframe_insert("location", frame=1, group=bone.name)
+        bone.keyframe_insert("rotation_euler", frame=1, group=bone.name)
+        bone.keyframe_insert("scale", frame=1, group=bone.name)
+    armature.animation_data.action = None
+    return action
+
+
+def create_pose_library(armature):
+    degrees = math.radians
+    create_pose_action(armature, "Patient_Neutral")
+    gravity = create_pose_action(armature, "Patient_SupineGravity")
+    gravity["hlr_support_contacts"] = "hand_back.L,hand_back.R,heel.L,heel.R"
+    create_pose_action(
+        armature,
+        "Patient_ArmsAbducted",
+        {
+            "upper_arm.L": (0, 0, degrees(-25)),
+            "upper_arm.R": (0, 0, degrees(25)),
+        },
+    )
+    create_pose_action(
+        armature,
+        "Patient_IVAccess",
+        {
+            "upper_arm.R": (0, 0, degrees(18)),
+        },
+    )
+    create_pose_action(
+        armature,
+        "Patient_HeadTiltChinLift",
+        {"head": (degrees(-10), 0, 0)},
+    )
+    create_pose_action(
+        armature,
+        "Patient_HipKneeFlexion",
+        {
+            "thigh.L": (degrees(32), 0, 0),
+            "shin.L": (degrees(-48), 0, 0),
+        },
+    )
+    reset_pose(armature)
+    armature.animation_data.action = None
+
+
+def create_support_contacts():
+    collection = bpy.data.collections.new("SUPPORT_CONTACTS")
+    bpy.context.scene.collection.children.link(collection)
+    contacts = {
+        "hand_back.L": (-0.69, -0.62, -0.02),
+        "hand_back.R": (0.69, -0.62, -0.02),
+        "wrist_support.L": (-0.67, -0.48, -0.02),
+        "wrist_support.R": (0.67, -0.48, -0.02),
+        "heel.L": (-0.21, -1.91, -0.02),
+        "heel.R": (0.21, -1.91, -0.02),
+        "calf_support.L": (-0.20, -1.55, -0.02),
+        "calf_support.R": (0.20, -1.55, -0.02),
+    }
+    for name, location in contacts.items():
+        obj = bpy.data.objects.new("SUPPORT_" + name, None)
+        collection.objects.link(obj)
+        obj.location = location
+        obj.empty_display_type = "CIRCLE"
+        obj.empty_display_size = 0.055
+        obj.show_in_front = True
+        obj["hlr_support_contact"] = name
 
 
 def create_meshes(armature):
@@ -971,8 +1094,12 @@ def add_instructions():
     text.write(
         "HLR PATIENT RIG\n\n"
         "Patienten ligger med huvudet mot positiv Blender-Y.\n"
+        "Rest pose är anatomisk neutralposition med supinerade underarmar och uppåtvända handflator.\n"
         "atlas_body_mesh är en webboptimerad kopia av Kropps-atlasens BodyParts3D-hud.\n"
         "Posera HLR_PATIENT_RIG i Pose Mode. Ändra inte bennamn eller ankarnamn.\n"
+        "Posebiblioteket innehåller neutral-, gravitations- och kliniska testposer.\n"
+        "SUPPORT_CONTACTS markerar handryggarnas, handledernas, vadernas och hälarnas underlag.\n"
+        "patient_leg_sheet är rigid mot root och saknar Armature-modifier.\n"
         "CLINICAL_ANCHORS styr sternum, luftväg, plattor, infart och ultraljud i webben.\n"
         "Kör export_hlr_patient_rig.py efter en avsiktlig modelländring.\n"
     )
@@ -982,6 +1109,8 @@ def main():
     clear_scene()
     armature = create_armature()
     create_meshes(armature)
+    create_pose_library(armature)
+    create_support_contacts()
     organize_preview(armature)
     add_instructions()
     scene = bpy.context.scene
