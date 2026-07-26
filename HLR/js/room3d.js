@@ -5,7 +5,7 @@ const HLRRoom3D=(()=>{
   const objects={},staff={},materials={};
   let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight;
   let patient,patientTorso,lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
-  let padCable,ivLine,usCable,monitorTrace,defibTrace;
+  let padCable,ivLine,usCable,ventCircuit,monitorTrace,defibTrace;
   let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,lucasLamp;
   let lastWidth=0,lastHeight=0;
 
@@ -19,6 +19,7 @@ const HLRRoom3D=(()=>{
     doctor:0x2D4569,nurse_ssk:0x447CAD,compressor:0x77A9C5,
     ambulance:0xB7C943,airway_staff:0x376B98,narkos_ssk:0x315F88,surgeon:0x397366
   };
+  const LAYOUT_SPREAD=.84,MODEL_SCALE=1.08;
   const Y_AXIS=new THREE.Vector3(0,1,0);
 
   function material(name,color,extra){
@@ -64,11 +65,13 @@ const HLRRoom3D=(()=>{
   }
   function layoutPosition(role,sprite,fallbackX,fallbackZ){
     const item=layoutItem(role,sprite);
-    if(!item)return new THREE.Vector3(fallbackX||0,0,fallbackZ||0);
-    return new THREE.Vector3((item.x-272)/31,0,(item.y-176)/28);
+    const x=item?(item.x-272)/31:(fallbackX||0);
+    const z=item?(item.y-176)/28:(fallbackZ||0);
+    return new THREE.Vector3(x*LAYOUT_SPREAD,0,z*LAYOUT_SPREAD);
   }
   function place(group,role,sprite,x,z){
     group.position.copy(layoutPosition(role,sprite,x,z));
+    group.scale.multiplyScalar(MODEL_SCALE);
     scene.add(group);objects[role||sprite]=group;return group;
   }
   function line(color){
@@ -114,7 +117,8 @@ const HLRRoom3D=(()=>{
 
     const sign=box(1.9,.5,.12,material("sign",0x2F6F65));sign.position.set(-6.2,3.15,-5.08);scene.add(sign);
     const lightMat=material("lightPanel",0xFFFBE8,{emissive:0xFFF3B0,emissiveIntensity:.45});
-    [[-2.8,3.9,-1],[2.8,3.9,1.2]].forEach(p=>{
+    // Lamporna ligger på rummets bortre sida så de inte skymmer teamet i den fasta kameran.
+    [[-3.3,4.15,-3.0],[2.6,4.15,-3.4]].forEach(p=>{
       const light=box(2.4,.08,.8,lightMat);light.position.set(p[0],p[1],p[2]);scene.add(light);
     });
   }
@@ -191,6 +195,7 @@ const HLRRoom3D=(()=>{
     const cupLip=new THREE.Mesh(new THREE.TorusGeometry(.26,.045,8,20),lucasDark);
     cupLip.rotation.x=Math.PI/2;cupLip.position.y=-.57;cupLip.castShadow=true;piston.add(cupLip);
     piston.position.set(0,1.61,-.18);lucas.add(piston);
+    lucas.scale.setScalar(MODEL_SCALE);
     scene.add(markPick(lucas,"bed"));
   }
 
@@ -215,6 +220,7 @@ const HLRRoom3D=(()=>{
     g.userData={role,torso,armL,armR,handL,handR,ring,baseY:0};
     markPick(g,role);staff[role]=g;
     const pos=layoutPosition(role,null,0,0);g.position.copy(pos);
+    g.scale.setScalar(MODEL_SCALE);
     scene.add(g);return g;
   }
   function poseStaff(g,target,active,compressing){
@@ -297,13 +303,60 @@ const HLRRoom3D=(()=>{
     });
     place(markPick(defib,"defib"),"defib",null,6.4,-3);
 
-    const us=equipmentFrame(0xD9E2DE,1.2,1.5,.82);
-    const usScreen=box(.86,.62,.06,screen);usScreen.position.set(0,1.36,-.44);us.add(usScreen);
-    ultrasoundProbe=cylinder(.08,.52,material("probe",0x52615A),10);ultrasoundProbe.rotation.z=Math.PI/2;ultrasoundProbe.position.set(-.72,1.05,0);us.add(ultrasoundProbe);
+    const us=new THREE.Group();
+    const usBody=material("usBody",0xDCE4E0,{roughness:.4});
+    const usDark=material("usDark",0x4D5A54,{roughness:.48});
+    const usMetal=material("usMetal",0x8E9B95,{roughness:.3,metalness:.55});
+    const usBase=box(1.15,.13,.72,usDark);usBase.position.y=.23;us.add(usBase);
+    [[-.44,.2],[.44,.2],[-.44,-.2],[.44,-.2]].forEach(p=>{
+      const wheel=cylinder(.1,.07,material("wheel",C.dark),14);wheel.rotation.z=Math.PI/2;
+      wheel.position.set(p[0],.08,p[1]);us.add(wheel);
+    });
+    const usColumn=box(.18,1.05,.18,usMetal);usColumn.position.y=.82;us.add(usColumn);
+    const usCabinet=box(.86,.58,.62,usBody);usCabinet.position.set(0,.7,0);us.add(usCabinet);
+    const keyboard=box(.9,.08,.45,usDark);keyboard.position.set(0,1.15,.22);keyboard.rotation.x=-.12;us.add(keyboard);
+    [0xD9C94B,0x5C91B8,0x35A46F].forEach((color,i)=>{
+      const key=cylinder(.035,.025,material("usKey-"+color,color),10);key.rotation.x=Math.PI/2;
+      key.position.set(-.18+i*.18,1.2,.45);us.add(key);
+    });
+    const usArm=tube(new THREE.Vector3(0,1.16,-.03),new THREE.Vector3(0,1.55,.02),.055,usMetal,12);us.add(usArm);
+    const usShell=box(1.05,.72,.16,usDark);usShell.position.set(0,1.72,.08);usShell.rotation.x=-.1;us.add(usShell);
+    const usScreen=box(.86,.54,.035,screen);usScreen.position.set(0,1.73,.177);usScreen.rotation.x=-.1;us.add(usScreen);
+    const scanFan=new THREE.Mesh(new THREE.RingGeometry(.04,.3,24,1,-2.2,1.25),
+      new THREE.MeshBasicMaterial({color:0xB9D0C7,transparent:true,opacity:.58,side:THREE.DoubleSide}));
+    scanFan.scale.set(.9,.7,1);scanFan.position.set(0,1.7,.202);scanFan.rotation.z=.48;us.add(scanFan);
+    const probeHolder=new THREE.Mesh(new THREE.TorusGeometry(.14,.035,8,18),usDark);
+    probeHolder.rotation.y=Math.PI/2;probeHolder.position.set(-.65,1.03,.1);probeHolder.castShadow=true;us.add(probeHolder);
+    ultrasoundProbe=cylinder(.075,.48,material("probe",0x52615A),12);
+    ultrasoundProbe.rotation.z=Math.PI/2;ultrasoundProbe.position.set(-.7,1.02,.08);us.add(ultrasoundProbe);
     place(markPick(us,"ultrasound"),"ultrasound",null,7,1);
 
-    const vent=equipmentFrame(0xD9E2DE,1.1,1.5,.75);
-    const ventScreen=box(.75,.45,.05,screen);ventScreen.position.set(0,1.35,-.4);vent.add(ventScreen);
+    const vent=new THREE.Group();
+    const ventBody=material("ventBody",0xD6DFDB,{roughness:.4});
+    const ventDark=material("ventDark",0x35423C,{roughness:.5});
+    const ventBase=box(1.05,.13,.68,ventDark);ventBase.position.y=.23;vent.add(ventBase);
+    [[-.4,.18],[.4,.18],[-.4,-.18],[.4,-.18]].forEach(p=>{
+      const wheel=cylinder(.1,.07,material("wheel",C.dark),14);wheel.rotation.z=Math.PI/2;
+      wheel.position.set(p[0],.08,p[1]);vent.add(wheel);
+    });
+    const ventColumn=box(.15,.85,.16,usMetal);ventColumn.position.y=.72;vent.add(ventColumn);
+    const ventModule=box(.95,.95,.62,ventBody);ventModule.position.set(0,1.28,0);vent.add(ventModule);
+    const ventFace=box(.84,.78,.055,ventDark);ventFace.position.set(0,1.36,.335);vent.add(ventFace);
+    const ventScreen=box(.68,.36,.03,screen);ventScreen.position.set(0,1.53,.372);vent.add(ventScreen);
+    const ventWave=[];for(let i=0;i<28;i++){
+      const phase=i%9,value=phase<3?phase*.045:phase<6?(6-phase)*.045:0;
+      ventWave.push(new THREE.Vector3(-.29+i*.022,1.5+value,.393));
+    }
+    vent.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ventWave),
+      new THREE.LineBasicMaterial({color:0x65D8B0})));
+    [-.22,0,.22].forEach((x,i)=>{
+      const knob=cylinder(.055,.04,material("ventKnob-"+i,i===1?C.yellow:C.blue),14);
+      knob.rotation.x=Math.PI/2;knob.position.set(x,1.18,.375);vent.add(knob);
+    });
+    const outlet=cylinder(.09,.06,ventDark,16);outlet.rotation.x=Math.PI/2;outlet.position.set(.34,1.02,.36);vent.add(outlet);
+    const humidifier=cylinder(.14,.34,material("humidifier",0x9FD3D8,{transparent:true,opacity:.72}),16);
+    humidifier.position.set(-.38,.88,.05);vent.add(humidifier);
+    const ventHandle=box(1.08,.08,.1,ventDark);ventHandle.position.set(0,1.89,-.18);vent.add(ventHandle);
     place(vent,"ventilator","ventilator",4.4,-.9);
 
     const pole=new THREE.Group();
@@ -333,8 +386,8 @@ const HLRRoom3D=(()=>{
   }
 
   function createDynamicLines(){
-    padCable=line(0x606C67);ivLine=line(0x76B7CF);usCable=line(0x56645D);
-    padCable.visible=ivLine.visible=usCable.visible=false;
+    padCable=line(0x606C67);ivLine=line(0x76B7CF);usCable=line(0x56645D);ventCircuit=line(0x8BC7D5);
+    padCable.visible=ivLine.visible=usCable.visible=ventCircuit.visible=false;
   }
   function createLights(){
     scene.add(new THREE.HemisphereLight(0xFFFDF4,0x63736A,.82));
@@ -426,18 +479,22 @@ const HLRRoom3D=(()=>{
     if(lucas.visible)piston.position.y=1.61-press*.22;
 
     if(S.pads){
-      const defibPos=objects.defib.position.clone().add(new THREE.Vector3(0,1.4,.4));
+      const defibPos=objects.defib.position.clone().add(new THREE.Vector3(0,1.4,.4).multiplyScalar(MODEL_SCALE));
       setLine(padCable,defibPos,new THREE.Vector3(.34,1.38,.12),.45);
     }else padCable.visible=false;
     if(S.access){
-      const pole=objects.iv_pole.position.clone().add(new THREE.Vector3(-.2,2.05,0));
+      const pole=objects.iv_pole.position.clone().add(new THREE.Vector3(-.2,2.05,0).multiplyScalar(MODEL_SCALE));
       setLine(ivLine,pole,new THREE.Vector3(1.02,1.2,.38),.65);
     }else ivLine.visible=false;
     if(S.usActive){
-      const us=objects.ultrasound.position.clone().add(new THREE.Vector3(-.65,1.05,0));
+      const us=objects.ultrasound.position.clone().add(new THREE.Vector3(-.7,1.02,.08).multiplyScalar(MODEL_SCALE));
       setLine(usCable,us,new THREE.Vector3(.48,1.35,.15),.3);
       ultrasoundProbe.visible=true;
     }else{usCable.visible=false;ultrasoundProbe.visible=true;}
+    if(S.vent){
+      const ventilator=objects.ventilator.position.clone().add(new THREE.Vector3(.34,1.02,.36).multiplyScalar(MODEL_SCALE));
+      setLine(ventCircuit,ventilator,new THREE.Vector3(.25,1.42,-1.9),.55);
+    }else ventCircuit.visible=false;
   }
   function updateEquipment(){
     objects.iv_pole.visible=!!S.access;

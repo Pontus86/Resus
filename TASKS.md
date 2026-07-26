@@ -27,6 +27,7 @@ current directory, branch, and clean/expected Git status.
 | R-014 | done | Codex | `.agents/`, `.gitignore`, `scripts/agent_loop.py`, `tests/test_agent_loop.py`, `docs/agent-loop.md`, `AGENTS.md`, `DECISIONS.md`, `TASKS.md` | `codex/work` | this commit |
 | R-015 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/room3d.js`, `HLR/js/room-render.js`, `HLR/js/main.js`, `IDEAS/README.md`, `IDEAS/2026-07-25-hlr-diorama-view.md`, `TASKS.md` | `codex/work` | this commit |
 | R-016 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
+| R-017 | done | Codex | `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -109,6 +110,17 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
   their actions work in the live 3D room; Classic fallback is unaffected; verify desktop and
   narrow layouts with no new console errors.
 
+### R-017 — Tighten HLR room composition and refine support equipment
+
+- User-authorized continuation of R-016. Make the 3D clinical cluster more legible by bringing
+  objects closer together and increasing their scale slightly without changing the shared
+  Classic/Canvas layout data.
+- Move the overhead geometry currently occluding the patient, bed and doctor's head out of the
+  camera sightline. Refine the ultrasound and ventilator as the next recognizable devices.
+- Acceptance: the patient/team remain unobscured; the 3D room reads larger and tighter; the
+  ultrasound and ventilator have distinct clinical silhouettes and functional details; existing
+  state animations, raycast actions, Classic fallback and file compatibility remain intact.
+
 ## Assignment rules
 
 1. Give every task a stable ID such as `R-001`.
@@ -180,6 +192,26 @@ don't leave it dangling as still `open`/`suspected` there.
 - Notes: The available browser runtime reported no browser backends in this session, so fresh
   visual desktop/narrow and live interaction QA could not be completed. No external model,
   source, dependency or licence was added. R-006 remains untouched.
+
+### R-017 — Tighter HLR composition and support equipment — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Contracted the 3D-only layout around the bed by 16 percent and increased clinical
+  model scale by 8 percent without changing `ROOM_LAYOUT` or the Classic fallback. Relocated
+  both overhead light panels to the far side of the room so they no longer cross the fixed
+  camera's view of the patient or doctor. Rebuilt the ultrasound as a wheeled cart with
+  column, keyboard, controls, articulated display, scan fan, probe cradle and probe. Rebuilt
+  the ventilator with cart, module, controls, waveform, outlet, humidifier and a breathing
+  circuit that appears during ventilation.
+- Verified: `node --check` for `room3d.js` and nearby `main.js`; HTML load-order and relative
+  asset assertions; mathematical fixed-camera projection confirms neither ceiling panel
+  overlaps the bed or doctor bounds; static state/raycast checks cover the contracted layout,
+  scaled models, ultrasound interaction, ventilator circuit, defibrillator charge button and
+  LUCAS bed action; confirmed no runtime `fetch()`; `git diff --check`.
+- Notes: No browser backend was available for fresh live visual, desktop/narrow or interaction
+  QA in this session. No external model, dependency or licence was added. R-006 remains
+  untouched.
 
 ### R-014 — Bounded Claude Code ↔ Codex controller — done
 
