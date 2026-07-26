@@ -82,13 +82,15 @@ Patientkläderna är separata lågpolymeshar: axelok, korta ärmar, två öppna
 sidopaneler, en mittpanel, byxor och ett lakan över bäcken/ben. Mittpanelen visas
 vid ankomst men döljs när kompressioner, defibrillatorplattor eller LUCAS
 påbörjas. Axelok och ärmar ligger kvar, medan thorax exponeras och byxorna
-fortsätter täcka patienten under lakanet.
+fortsätter täcka patienten under lakanet. Sidopaneler, axelok och ärmar följer
+Atlas-huden runt kroppens sidor och baksida. Byxorna är slutna elliptiska skal
+med överlappande bäcken- och bendelar, inte enbart synliga ovansidor.
 
-Generatorn projicerar klädernas synliga ytor mot den ryggliggande Atlas-huden och
-lägger dem med ett positivt säkerhetsavstånd. Vid återskapande provas samtliga
-vertices samt kanternas mittpunkter och polygonernas centrum. Genereringen avbryts
-om någon provpunkt ligger i eller för nära kroppen; byxorna byggs tätare och med
-större tygmån eftersom de ska ligga löst under lakanet.
+Generatorn projicerar den främre mittpanelen och lakanet mot den ryggliggande
+Atlas-huden och provar vertices, kantmittpunkter och polygoncentrum. Helskalens
+vertices kontrolleras radiellt mot exakt de Atlas-vertices som de skapades från.
+Byxornas bäcken- och bendelar måste omsluta alla relevanta hudvertices med minst
+sex procents radiell reserv. Genereringen avbryts om något av dessa krav bryts.
 
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender --background \

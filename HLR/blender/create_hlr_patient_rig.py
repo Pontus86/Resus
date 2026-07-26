@@ -24,9 +24,11 @@ ATLAS_FACE_PARTS = {
     "atlas_cornea_right": ("FMA58239", "cornea", 0.08),
     "atlas_eyebrows": ("FMA54237", "eyebrow", 0.04),
 }
+SHELL_REFERENCES = {}
 
 
 def clear_scene():
+    SHELL_REFERENCES.clear()
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
     for collection in list(bpy.data.collections):
@@ -213,27 +215,86 @@ def grid_faces(columns, rows, skip=None):
     return faces
 
 
-def top_grid_clothing_mesh(body, name, rows, margin, mat, material_role):
-    body_bvh = mesh_bvh(body)
+def ring_faces(columns, rows):
+    faces = []
+    for row in range(rows - 1):
+        for column in range(columns):
+            next_column = (column + 1) % columns
+            lower = row * columns + column
+            faces.append((
+                lower,
+                row * columns + next_column,
+                (row + 1) * columns + next_column,
+                lower + columns,
+            ))
+    return faces
+
+
+def ellipse_tube_mesh(name, rings, segments, mat, material_role):
     vertices = []
-    columns = len(rows[0])
-    if any(len(row) != columns for row in rows):
-        raise RuntimeError(f"Ojämnt klädgrid i {name}")
-    for row_index, row in enumerate(rows):
-        for column_index, (x, y, fallback_z) in enumerate(row):
-            top = top_skin_point(body_bvh, Vector((x, y, fallback_z)))
-            fold = 0.003 * (
-                0.5
-                + 0.5 * math.sin(row_index * 0.8 + column_index * 1.7)
-            )
-            z = (top.z if top else fallback_z) + margin + fold
-            vertices.append((x, y, z))
+    for y, center_x, center_z, radius_x, radius_z in rings:
+        for segment in range(segments):
+            angle = segment / segments * math.pi * 2
+            vertices.append((
+                center_x + math.cos(angle) * radius_x,
+                y,
+                center_z + math.sin(angle) * radius_z,
+            ))
     return clothing_mesh(
         name,
         vertices,
-        grid_faces(columns, len(rows)),
+        ring_faces(segments, len(rings)),
         mat,
         material_role,
+    )
+
+
+def interpolated_ring(rings, y):
+    if y <= rings[0][0]:
+        lower, upper = rings[0], rings[1]
+    elif y >= rings[-1][0]:
+        lower, upper = rings[-2], rings[-1]
+    else:
+        lower, upper = next(
+            (rings[index], rings[index + 1])
+            for index in range(len(rings) - 1)
+            if rings[index][0] <= y <= rings[index + 1][0]
+        )
+    factor = (y - lower[0]) / (upper[0] - lower[0])
+    return tuple(
+        lower[index] + (upper[index] - lower[index]) * factor
+        for index in range(1, 5)
+    )
+
+
+def validate_enclosing_tube(body, garment, rings, predicate):
+    checked = 0
+    largest = 0.0
+    largest_point = None
+    for vertex in body.data.vertices:
+        point = vertex.co
+        if not predicate(point):
+            continue
+        center_x, center_z, radius_x, radius_z = interpolated_ring(rings, point.y)
+        normalized_radius = math.sqrt(
+            ((point.x - center_x) / radius_x) ** 2
+            + ((point.z - center_z) / radius_z) ** 2
+        )
+        if normalized_radius > largest:
+            largest = normalized_radius
+            largest_point = point.copy()
+        checked += 1
+    if not checked or largest >= 0.94:
+        raise RuntimeError(
+            f"{garment.name} omsluter inte huden: största normaliserade radie "
+            f"{largest:.3f} vid {tuple(round(value, 3) for value in largest_point)}"
+        )
+    garment["hlr_skin_clearance"] = round(1.0 - largest, 5)
+    garment["hlr_skin_intersections"] = 0
+    garment["hlr_clearance_mode"] = "enclosing_tube"
+    print(
+        f"Omslutningskontroll {garment.name}: {checked} hudvertices, "
+        f"{(1.0 - largest) * 100:.1f}% radiell reserv"
     )
 
 
@@ -270,12 +331,120 @@ def surface_clothing_mesh(body, name, predicate, margin, mat, material_role):
     return clothing_mesh(name, vertices, faces, mat, material_role)
 
 
+def shell_clothing_mesh(body, name, predicate, outward, margin, mat, material_role):
+    source = body.data
+    selected = []
+    used = set()
+    for polygon in source.polygons:
+        center = sum((source.vertices[index].co for index in polygon.vertices), Vector()) / len(polygon.vertices)
+        if predicate(center):
+            face = tuple(polygon.vertices)
+            selected.append(face)
+            used.update(face)
+    if not selected:
+        raise RuntimeError(f"Klädskalet {name} saknar polygoner")
+    remap = {old: new for new, old in enumerate(sorted(used))}
+    vertices = []
+    for old in sorted(used):
+        source_vertex = source.vertices[old]
+        direction = outward(source_vertex.co)
+        if direction.length < 0.0001:
+            direction = Vector((0, 0, 1))
+        fold = 0.002 * (1.0 + math.sin(source_vertex.co.y * 17 + source_vertex.co.x * 11))
+        vertices.append(source_vertex.co + direction.normalized() * (margin + fold))
+    faces = [tuple(remap[index] for index in face) for face in selected]
+    SHELL_REFERENCES[name] = {
+        "vertices": [source.vertices[old].co.copy() for old in sorted(used)],
+        "faces": faces,
+    }
+    return clothing_mesh(name, vertices, faces, mat, material_role)
+
+
 def mesh_bvh(obj):
     return BVHTree.FromPolygons(
         [vertex.co.copy() for vertex in obj.data.vertices],
         [tuple(polygon.vertices) for polygon in obj.data.polygons],
         all_triangles=False,
     )
+
+
+def shell_face_sample_pairs(garment, reference, face_index):
+    polygon = garment.data.polygons[face_index]
+    indices = tuple(polygon.vertices)
+    points = [garment.data.vertices[index].co for index in indices]
+    source_points = [reference["vertices"][index] for index in indices]
+    return [(point, source_point) for point, source_point in zip(points, source_points)]
+
+
+def shell_reference_clearance(sample, source_sample, outward):
+    direction = outward(source_sample)
+    if direction.length < 0.0001:
+        direction = sample - source_sample
+    return (sample - source_sample).dot(direction.normalized())
+
+
+def raise_shell_outside_body(garment, outward, minimum):
+    reference = SHELL_REFERENCES[garment.name]
+    for _iteration in range(20):
+        corrections = {}
+        for face_index, polygon in enumerate(garment.data.polygons):
+            deficit = max(
+                (
+                    minimum - shell_reference_clearance(sample, source_sample, outward)
+                    for sample, source_sample in shell_face_sample_pairs(
+                        garment,
+                        reference,
+                        face_index,
+                    )
+                ),
+                default=0.0,
+            )
+            if deficit > 0:
+                for index in polygon.vertices:
+                    corrections[index] = max(corrections.get(index, 0.0), deficit + 0.001)
+        if not corrections:
+            return
+        for index, correction in corrections.items():
+            vertex = garment.data.vertices[index]
+            direction = outward(reference["vertices"][index])
+            if direction.length < 0.0001:
+                direction = Vector((0, 0, 1))
+            vertex.co += direction.normalized() * correction
+        garment.data.update()
+    raise RuntimeError(f"{garment.name} kunde inte flyttas helt utanför kroppen")
+
+
+def validate_shell_clearance(body, garments):
+    for garment, outward, minimum in garments:
+        raise_shell_outside_body(garment, outward, minimum)
+        reference = SHELL_REFERENCES[garment.name]
+        sample_pairs = [
+            pair
+            for face_index in range(len(garment.data.polygons))
+            for pair in shell_face_sample_pairs(
+                garment,
+                reference,
+                face_index,
+            )
+        ]
+        clearances = [
+            shell_reference_clearance(sample, source_sample, outward)
+            for sample, source_sample in sample_pairs
+        ]
+        smallest = min(clearances)
+        wrong_side = sum(clearance <= 0 for clearance in clearances)
+        if wrong_side or smallest < minimum:
+            raise RuntimeError(
+                f"{garment.name} skär kroppen runtom: {wrong_side} prover på insidan, "
+                f"minsta radiella marginal {smallest:.4f} m"
+            )
+        garment["hlr_skin_clearance"] = round(smallest, 5)
+        garment["hlr_skin_intersections"] = 0
+        garment["hlr_clearance_mode"] = "radial_360"
+        print(
+            f"360-kontroll {garment.name}: {len(sample_pairs)} ytprover, "
+            f"{smallest:.4f} m, alla utanför kroppen"
+        )
 
 
 def raise_clothing_above_skin(body_bvh, garment, minimum):
@@ -337,6 +506,7 @@ def validate_clothing_clearance(body, garments):
 
 
 def create_patient_clothing(body, armature, gown_mat, sheet_mat, pants_mat):
+    torso_outward = lambda point: Vector((point.x, 0, point.z - 0.14))
     closed = surface_clothing_mesh(
         body,
         "gown_closed_panel",
@@ -354,94 +524,120 @@ def create_patient_clothing(body, armature, gown_mat, sheet_mat, pants_mat):
     panels = []
     yokes = []
     sleeves = []
+    shell_checks = []
     for side, sign in (("L", -1), ("R", 1)):
-        side_panel = surface_clothing_mesh(
+        side_panel = shell_clothing_mesh(
             body,
             f"gown_open_panel_{side}",
-            lambda center, normal, sign=sign: (
-                -0.58 <= center.y <= 0.66
-                and 0.32 <= sign * center.x <= 0.60
-                and center.z >= 0.12
+            lambda center, sign=sign: (
+                -0.74 <= center.y <= 0.80
+                and abs(center.x) <= 0.72
+                and (
+                    0.26 <= sign * center.x
+                    or (center.z <= 0.34 and -0.08 <= sign * center.x)
+                )
             ),
-            0.021,
+            torso_outward,
+            0.035,
             gown_mat,
             "gown",
         )
         assign_torso_cloth_weights(side_panel, armature)
         panels.append(side_panel)
+        shell_checks.append((side_panel, torso_outward, 0.012))
 
-        yoke = surface_clothing_mesh(
+        yoke = shell_clothing_mesh(
             body,
             f"gown_shoulder_yoke_{side}",
-            lambda center, normal, sign=sign: (
-                0.52 <= center.y <= 1.10
-                and 0.08 <= sign * center.x <= 0.67
-                and center.z >= 0.10
+            lambda center, sign=sign: (
+                0.42 <= center.y <= 1.20
+                and -0.02 <= sign * center.x <= 0.78
+                and (0.12 <= sign * center.x or center.z <= 0.34)
             ),
-            0.019,
+            torso_outward,
+            0.030,
             gown_mat,
             "gown",
         )
         assign_torso_cloth_weights(yoke, armature)
         yokes.append(yoke)
+        shell_checks.append((yoke, torso_outward, 0.012))
 
-        sleeve = surface_clothing_mesh(
+        arm_outward = lambda point, sign=sign: Vector((
+            point.x - sign * 0.58,
+            0,
+            point.z - 0.16,
+        ))
+        sleeve = shell_clothing_mesh(
             body,
             f"gown_sleeve_{side}",
-            lambda center, _normal, sign=sign: (
-                0.10 <= center.y <= 0.56
-                and 0.49 <= sign * center.x <= 0.76
-                and center.z >= -0.02
+            lambda center, sign=sign: (
+                -0.02 <= center.y <= 0.68
+                and 0.38 <= sign * center.x <= 0.86
             ),
-            0.018,
+            arm_outward,
+            0.030,
             gown_mat,
             "gown",
         )
         assign_skin_weights(sleeve, armature)
         sleeves.append(sleeve)
+        shell_checks.append((sleeve, arm_outward, 0.012))
 
-    pelvis_xs = tuple(-0.46 + index * 0.92 / 16 for index in range(17))
-    pelvis_ys = tuple(-0.84 + index * 0.62 / 12 for index in range(13))
-    pants_pelvis = top_grid_clothing_mesh(
-        body,
+    pelvis_rings = (
+        (-0.98, 0.0, 0.13, 0.50, 0.40),
+        (-0.82, 0.0, 0.13, 0.54, 0.42),
+        (-0.60, 0.0, 0.14, 0.62, 0.48),
+        (-0.35, 0.0, 0.14, 0.62, 0.48),
+        (-0.10, 0.0, 0.14, 0.62, 0.48),
+    )
+    pants_pelvis = ellipse_tube_mesh(
         "patient_pants_pelvis",
-        [
-            [
-                (x, y, 0.20 + 0.13 * max(0, 1 - (x / 0.46) ** 2))
-                for x in pelvis_xs
-            ]
-            for y in pelvis_ys
-        ],
-        0.100,
+        pelvis_rings,
+        28,
         pants_mat,
         "pants",
     )
     assign_rigid_skin(pants_pelvis, armature, "root")
+    validate_enclosing_tube(
+        body,
+        pants_pelvis,
+        pelvis_rings,
+        lambda point: (
+            -0.98 <= point.y <= -0.10
+            and abs(point.x) <= 0.45
+            and point.z <= 0.50
+        ),
+    )
     pants_legs = []
     for side, sign in (("L", -1), ("R", 1)):
-        leg_ys = tuple(-0.76 - index * 1.14 / 16 for index in range(17))
-        leg_widths = tuple(0.23 - index * 0.09 / 16 for index in range(17))
-        fractions = tuple(-1.0 + index / 6 for index in range(13))
-        leg = top_grid_clothing_mesh(
-            body,
+        leg_rings = (
+            (-1.85, sign * 0.20, 0.11, 0.17, 0.27),
+            (-1.62, sign * 0.20, 0.12, 0.18, 0.26),
+            (-1.38, sign * 0.20, 0.12, 0.20, 0.32),
+            (-1.14, sign * 0.20, 0.13, 0.22, 0.32),
+            (-0.90, sign * 0.20, 0.13, 0.24, 0.33),
+            (-0.68, sign * 0.20, 0.13, 0.27, 0.36),
+        )
+        leg = ellipse_tube_mesh(
             f"patient_pants_leg_{side}",
-            [
-                [
-                    (
-                        sign * 0.20 + fraction * width,
-                        y,
-                        0.15 + 0.10 * max(0, 1 - fraction * fraction),
-                    )
-                    for fraction in fractions
-                ]
-                for y, width in zip(leg_ys, leg_widths)
-            ],
-            0.085,
+            leg_rings,
+            24,
             pants_mat,
             "pants",
         )
         assign_skin_weights(leg, armature)
         pants_legs.append(leg)
+        validate_enclosing_tube(
+            body,
+            leg,
+            leg_rings,
+            lambda point, sign=sign: (
+                -1.85 <= point.y <= -0.68
+                and 0.0 <= sign * point.x <= 0.55
+                and point.z <= 0.40
+            ),
+        )
 
     sheet_ys = (-1.98, -1.82, -1.62, -1.42, -1.22, -1.02, -0.82, -0.57, -0.38, -0.22)
     sheet_widths = (0.45, 0.47, 0.50, 0.54, 0.58, 0.62, 0.65, 0.68, 0.69, 0.67)
@@ -472,15 +668,11 @@ def create_patient_clothing(body, armature, gown_mat, sheet_mat, pants_mat):
     for pants_part in (pants_pelvis, *pants_legs):
         raise_clothing_above_skin(mesh_bvh(pants_part), sheet, 0.018)
     sheet["hlr_pants_clearance"] = 0.018
+    validate_shell_clearance(body, shell_checks)
     validate_clothing_clearance(
         body,
         [
             (closed, 0.004),
-            *((panel, 0.004) for panel in panels),
-            *((yoke, 0.004) for yoke in yokes),
-            *((sleeve, 0.004) for sleeve in sleeves),
-            (pants_pelvis, 0.004),
-            *((leg, 0.004) for leg in pants_legs),
             (sheet, 0.004),
         ],
     )
