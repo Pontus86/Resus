@@ -70,12 +70,12 @@ def load_atlas_skin():
     for line in obj_text.splitlines():
         if line.startswith("v "):
             raw = Vector(tuple(float(value) for value in line.split()[1:4]))
-            # BodyParts3D står upp (Z kraniellt, Y framåt). Patienten ligger med huvudet mot +Y.
+            # BodyParts3D står upp (Z kraniellt, negativ Y framåt). Patienten ligger på rygg med huvudet mot +Y.
             vertices.append(
                 (
                     (raw.x - ATLAS_CENTER.x) * ATLAS_SCALE,
                     (raw.z - ATLAS_CENTER.z) * ATLAS_SCALE - 0.12,
-                    (raw.y + 246.783) * ATLAS_SCALE,
+                    (45.2476 - raw.y) * ATLAS_SCALE,
                 )
             )
         elif line.startswith("f "):
