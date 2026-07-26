@@ -156,9 +156,24 @@ function boot(){
   }
   /* Rumsvy-växlare (Klassisk / 3D med Canvas-fallback) */
   const rvseg=$("rvseg");
+  const roomFxToggle=$("roomFxToggle");
+  if(roomFxToggle){
+    roomFxToggle.checked=false;
+    roomFxToggle.disabled=true;
+    roomFxToggle.onchange=()=>{
+      if(typeof HLRRoom3D==="object"){
+        const available=HLRRoom3D.setPostFXEnabled(roomFxToggle.checked);
+        if(roomFxToggle.checked&&!available){
+          roomFxToggle.checked=false;
+          roomFxToggle.setAttribute("title","Eftereffekter kunde inte starta i denna webbläsare");
+        }
+      }
+    };
+  }
   if(rvseg){ rvseg.querySelectorAll("button").forEach(b=>{
     b.onclick=()=>{ roomView=b.dataset.v;
       rvseg.querySelectorAll("button").forEach(x=>x.classList.toggle("sel",x===b));
+      if(roomFxToggle)roomFxToggle.disabled=roomView!=="sprite";
       drawRoom(); };
   }); }
   lastReal=performance.now();

@@ -32,6 +32,7 @@ current directory, branch, and clean/expected Git status.
 | R-019 | done | Codex | `HLR/blender/`, `HLR/js/room3d-layout-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `DECISIONS.md`, `TASKS.md` | `codex/work` | this commit |
 | R-020 | done | Codex | `HLR/js/complications.js`, `HLR/js/state.js`, `TASKS.md` | `codex/work` | this commit |
 | R-021 | done | Codex | `Sandbox/README.md`, `Sandbox/agent-edit-lab/`, `TASKS.md` | `codex/work` | this commit |
+| R-022 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/main.js`, `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -181,6 +182,19 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 - Acceptance: works directly through `file://`; user can iteratively change the mock HLR view,
   undo it, compare with the original and download/copy a deterministic review package; narrow
   layout remains usable; experiment limitations and promotion criteria are documented.
+
+### R-022 — Optional HLR post-processing
+
+- User-authorized visual setting. Make the existing 3D bloom/colour/vignette pipeline explicitly
+  toggleable and off by default on every page load.
+- Add a compact accessible control beside the room-view selector. It should be disabled outside
+  the 3D view and must not affect Classic or Canvas fallback.
+- Do not allocate post-processing render targets until the user enables the setting. Turning it
+  off must immediately return to direct rendering; turning it on again may reuse initialized
+  resources.
+- Acceptance: direct rendering is the initial path; the control enables/disables the existing
+  full post-processing chain without reload; 3D raycasting/state logic is unchanged; the
+  control remains usable at narrow widths.
 
 ## Assignment rules
 
@@ -618,3 +632,18 @@ don't leave it dangling as still `open`/`suspected` there.
   backend or installed Playwright runtime was available, so live click/visual QA remains for
   the user's trial; promotion requires separate decisions about backend access, privacy,
   authentication, cost and real-page isolation.
+
+### R-022 — Optional HLR post-processing — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Added an accessible Effects checkbox beside the room-view selector. It starts
+  unchecked and disabled in Classic, becomes available in 3D, and controls the complete
+  bloom/colour/vignette chain. Direct rendering is now the default, and post-processing
+  targets/shaders are allocated lazily only after opt-in. A failed initialization returns the
+  setting to off; initialized resources may be reused when toggling.
+- Verified: JavaScript syntax checks passed. Static contracts confirmed the initial false
+  state, lazy initialization, direct-render bypass, exposed toggle API, 3D-only UI enablement,
+  HTML control placement and narrow 460 px label. CSS braces and `git diff --check` passed.
+- Notes: Raycasting, scene updates, Classic and Canvas fallback were not changed. No browser
+  backend was available for live toggling in this session.

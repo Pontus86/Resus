@@ -50,11 +50,16 @@ body.expert #chips{display:none !important}
 .panel h3{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
   padding:8px 12px;border-bottom:1px solid var(--line);background:var(--bg);font-weight:700}
 .rvhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rvcontrols{display:flex;align-items:center;gap:7px}
 .rvseg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
 .rvseg button{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
   padding:3px 9px;border:0;background:transparent;color:var(--muted);cursor:pointer;line-height:1.4}
 .rvseg button+button{border-left:1px solid var(--line)}
 .rvseg button.sel{background:var(--ink);color:#fff}
+.room-fx-toggle{display:flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:9px;
+  letter-spacing:.04em;text-transform:none;color:var(--muted);cursor:pointer}
+.room-fx-toggle input{margin:0;width:13px;height:13px;accent-color:var(--ink)}
+.room-fx-toggle:has(input:disabled){opacity:.42;cursor:not-allowed}
 
 /* ---------- rum + monitor ---------- */
 .room-stage{position:relative;width:100%;aspect-ratio:560/330;overflow:hidden;background:#E4E0DE}
@@ -413,6 +418,13 @@ kbd{font-family:var(--font-mono);background:var(--bg);border:1px solid var(--lin
 .coach-msg b{color:var(--ok);font-weight:700}
 .coach-tag{flex:none;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ok);font-weight:700;opacity:.7}
 @media(max-width:640px){.coach-tag{display:none}}
+@media(max-width:460px){
+  .rvhead{padding-left:9px;padding-right:9px}
+  .rvcontrols{gap:5px}
+  .rvseg button{padding-left:7px;padding-right:7px}
+  .room-fx-toggle span{font-size:0}
+  .room-fx-toggle span::after{content:"FX";font-size:9px}
+}
 .act.spot{animation:spot 1.4s ease-in-out infinite;border-color:var(--ok)!important;background:var(--ok-tint)}
 @keyframes spot{0%,100%{box-shadow:0 0 0 0 rgba(46,125,50,.0)}50%{box-shadow:0 0 0 4px rgba(46,125,50,.18)}}
 .tabs button.newtab{animation:spot 1.4s ease-in-out infinite;color:var(--ok)}

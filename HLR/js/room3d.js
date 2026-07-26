@@ -9,6 +9,7 @@ const HLRRoom3D=(()=>{
   let defibScreen,defibLamp,defibChargeButton,ultrasoundProbe,lucasLamp;
   let postScene,postCamera,postQuad,sceneTarget,bloomTargetA,bloomTargetB;
   let brightMaterial,blurMaterial,compositeMaterial,postFXReady=false;
+  let postFXEnabled=false;
   let lastWidth=0,lastHeight=0;
 
   const C={
@@ -529,7 +530,8 @@ const HLRRoom3D=(()=>{
       raycaster=new THREE.Raycaster();pointer=new THREE.Vector2();
       createRoom();createBed();createPatient();createEquipment();
       ["airway_staff","compressor","doctor","nurse_ssk","ambulance","narkos_ssk","surgeon"].forEach(createStaff);
-      createDynamicLines();createLights();initPostFX();
+      createDynamicLines();createLights();
+      if(postFXEnabled)initPostFX();
       canvas.addEventListener("webglcontextlost",e=>{e.preventDefault();API.failed=true;API.ready=false;});
       window.addEventListener("resize",resize);
       API.ready=true;resize();return true;
@@ -667,7 +669,7 @@ const HLRRoom3D=(()=>{
     }
   }
   function renderWithPostFX(){
-    if(!postFXReady){renderer.setRenderTarget(null);renderer.render(scene,camera);return;}
+    if(!postFXEnabled||!postFXReady){renderer.setRenderTarget(null);renderer.render(scene,camera);return;}
     renderer.setRenderTarget(sceneTarget);renderer.clear();renderer.render(scene,camera);
 
     postQuad.material=brightMaterial;brightMaterial.uniforms.tInput.value=sceneTarget.texture;
@@ -718,6 +720,18 @@ const HLRRoom3D=(()=>{
     if(!canvas)return;
     canvas.classList.toggle("room-view-hidden",!visible);
   }
+  function setPostFXEnabled(enabled){
+    postFXEnabled=!!enabled;
+    if(postFXEnabled&&renderer&&!postFXReady){
+      initPostFX();
+      if(!postFXReady)postFXEnabled=false;
+      lastWidth=lastHeight=0;
+      resize();
+    }
+    return postFXEnabled&&(!renderer||postFXReady);
+  }
   API.init=init;API.render=render;API.pick=pick;API.setVisible=setVisible;API.resize=resize;
+  API.setPostFXEnabled=setPostFXEnabled;
+  API.isPostFXEnabled=()=>postFXEnabled;
   return API;
 })();
