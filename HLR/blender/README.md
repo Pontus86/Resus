@@ -38,3 +38,20 @@ raycasting, spelregler, bloom och tillstånd ligger fortfarande i `HLR/js/room3d
 ```
 
 Vanliga layoutändringar ska göras direkt i `.blend`-filen, inte genom att ändra generatorn.
+
+## Riggad personalmodell
+
+`hlr-staff-rig.blend` innehåller den gemensamma kliniska personmodellen och armaturen
+`HLR_STAFF_RIG`. Benen kan provas i Pose Mode. Bennamn, mesharnas `hlr_bone` och
+`hlr_material` är exportkontrakt och får inte ändras utan motsvarande runtime-migrering.
+
+Efter en avsiktlig modelländring:
+
+```sh
+/Applications/Blender.app/Contents/MacOS/Blender --background \
+  HLR/blender/hlr-staff-rig.blend \
+  --python HLR/blender/export_hlr_staff_rig.py
+```
+
+Exporten bäddar in restarmatur och lågpolymeshar i
+`HLR/js/room3d-staff-rig-data.js`. Inga Blender-filer laddas av webbsidan.

@@ -2,7 +2,7 @@
    fungerar via file:// utan modellhämtning, byggsteg eller tungt minnesbehov. */
 const HLRRoom3D=(()=>{
   const API={ready:false,failed:false};
-  const objects={},staff={},materials={};
+  const objects={},staff={},materials={},rigGeometries={};
   let canvas,renderer,scene,camera,raycaster,pointer,clockLight,shockLight;
   let patient,patientTorso,lucas,piston,pads,airwayMask,airwayTube,ventBag,accessPatch;
   let padCable,ivLine,usCable,ventCircuit,monitorTrace,defibTrace;
@@ -275,7 +275,62 @@ const HLRRoom3D=(()=>{
     scene.add(markPick(lucas,"bed"));
   }
 
+  function rigMaterial(role,key){
+    if(key==="skin")return material("skin",C.skin);
+    if(key==="dark"||key==="eye")return material("dark",C.dark);
+    if(key==="hair_or_cap"){
+      return role==="airway_staff"||role==="narkos_ssk"||role==="surgeon"
+        ?material("cap-"+role,ROLE_COLOR[role]||ROLE_COLOR.doctor)
+        :material("hair",C.hair);
+    }
+    return material("role-"+role,ROLE_COLOR[role]||ROLE_COLOR.doctor);
+  }
+  function rigGeometry(spec){
+    if(rigGeometries[spec.name])return rigGeometries[spec.name];
+    const geometry=new THREE.BufferGeometry();
+    geometry.setAttribute("position",new THREE.Float32BufferAttribute(spec.positions,3));
+    geometry.setIndex(spec.indices);
+    geometry.computeVertexNormals();
+    rigGeometries[spec.name]=geometry;
+    return geometry;
+  }
+  function createRiggedStaff(role){
+    const source=HLR_STAFF_RIG,g=new THREE.Group(),bones={};
+    const pending=Object.keys(source.bones);
+    while(pending.length){
+      let progressed=false;
+      for(let i=pending.length-1;i>=0;i--){
+        const name=pending[i],spec=source.bones[name];
+        if(spec.parent&&!bones[spec.parent])continue;
+        const bone=new THREE.Bone();
+        bone.name=name;bone.position.fromArray(spec.position);
+        bone.quaternion.fromArray(spec.quaternion);bone.scale.fromArray(spec.scale);
+        bone.userData.restQuaternion=bone.quaternion.clone();
+        (spec.parent?bones[spec.parent]:g).add(bone);
+        bones[name]=bone;pending.splice(i,1);progressed=true;
+      }
+      if(!progressed)throw new Error("HLR-personriggen har en trasig benhierarki");
+    }
+    source.meshes.forEach(spec=>{
+      const mesh=new THREE.Mesh(rigGeometry(spec),rigMaterial(role,spec.material));
+      mesh.name=spec.name;mesh.position.fromArray(spec.position);
+      mesh.quaternion.fromArray(spec.quaternion);mesh.scale.fromArray(spec.scale);
+      mesh.castShadow=true;mesh.receiveShadow=true;bones[spec.bone].add(mesh);
+    });
+    const ring=new THREE.Mesh(new THREE.RingGeometry(.52,.62,28),
+      new THREE.MeshBasicMaterial({color:C.green,transparent:true,opacity:0,side:THREE.DoubleSide}));
+    ring.rotation.x=-Math.PI/2;ring.position.y=.025;g.add(ring);
+    g.userData={role,rigged:true,bones,ring,baseY:0};
+    markPick(g,role);staff[role]=g;
+    g.position.copy(layoutPosition(role,null,0,0));
+    applyAuthoredTransform(g,role,MODEL_SCALE);
+    g.userData.layoutYaw=g.rotation.y;
+    scene.add(g);return g;
+  }
   function createStaff(role){
+    if(typeof HLR_STAFF_RIG==="object"&&HLR_STAFF_RIG.bones&&HLR_STAFF_RIG.meshes){
+      return createRiggedStaff(role);
+    }
     const col=ROLE_COLOR[role]||ROLE_COLOR.doctor;
     const cloth=material("role-"+role,col),skin=material("skin",C.skin),dark=material("dark",C.dark);
     const g=new THREE.Group();
@@ -316,9 +371,36 @@ const HLRRoom3D=(()=>{
     g.userData.layoutYaw=g.rotation.y;
     scene.add(g);return g;
   }
+  function poseRiggedStaff(g,target,active,compressing){
+    const data=g.userData,bones=data.bones;
+    const dx=target.x-g.position.x,dz=target.z-g.position.z;
+    g.rotation.y=active?Math.atan2(dx,dz):data.layoutYaw;
+    Object.values(bones).forEach(bone=>bone.quaternion.copy(bone.userData.restQuaternion));
+    const pose=(name,x,z)=>{
+      const bone=bones[name];
+      if(!bone)return;
+      bone.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(x||0,0,z||0)));
+    };
+    if(active){
+      pose("spine",compressing?-.18:-.1,0);
+      pose("head",.06,0);
+      pose("upper_arm.L",compressing?-1.12:-.82,compressing?.52:.28);
+      pose("upper_arm.R",compressing?-1.12:-.82,compressing?-.52:-.28);
+      pose("forearm.L",compressing?-.5:-.32,.2);
+      pose("forearm.R",compressing?-.5:-.32,-.2);
+      pose("hand.L",compressing?.18:.08,.08);
+      pose("hand.R",compressing?.18:.08,-.08);
+    }else{
+      pose("upper_arm.L",-.04,.03);pose("upper_arm.R",-.04,-.03);
+      pose("forearm.L",-.08,0);pose("forearm.R",-.08,0);
+    }
+    data.ring.material.opacity=active?.78:0;
+    data.ring.material.color.setHex(compressing?C.red:C.green);
+  }
   function poseStaff(g,target,active,compressing){
     if(!g)return;
     const data=g.userData;
+    if(data.rigged){poseRiggedStaff(g,target,active,compressing);return;}
     const dx=target.x-g.position.x,dz=target.z-g.position.z;
     g.rotation.y=active?Math.atan2(dx,dz):data.layoutYaw;
     g.updateMatrixWorld(true);
@@ -587,7 +669,7 @@ const HLRRoom3D=(()=>{
       const press=compressing?Math.max(0,Math.sin(typeof compPhase==="number"?compPhase:0)):0;
       g.position.y=compressing?-press*.1:0;
       poseStaff(g,target,active,compressing);
-      g.userData.torso.rotation.x=active ? .08 : 0;
+      if(!g.userData.rigged)g.userData.torso.rotation.x=active ? .08 : 0;
     });
   }
   function updatePatient(){

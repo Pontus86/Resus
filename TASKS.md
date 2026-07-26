@@ -33,6 +33,7 @@ current directory, branch, and clean/expected Git status.
 | R-020 | done | Codex | `HLR/js/complications.js`, `HLR/js/state.js`, `TASKS.md` | `codex/work` | this commit |
 | R-021 | done | Codex | `Sandbox/README.md`, `Sandbox/agent-edit-lab/`, `TASKS.md` | `codex/work` | this commit |
 | R-022 | done | Codex | `HLR/ahlr.html`, `HLR/css/styles.css`, `HLR/js/main.js`, `HLR/js/room3d.js`, `TASKS.md` | `codex/work` | this commit |
+| R-023 | done | Codex | `HLR/blender/`, `HLR/js/room3d-staff-rig-data.js`, `HLR/js/room3d.js`, `HLR/ahlr.html`, `TASKS.md` | `codex/work` | this commit |
 
 Statuses: `ready`, `in progress`, `blocked`, `review`, `done`.
 
@@ -195,6 +196,23 @@ rediscover it. Move a task's brief under Handoff history once it reaches `done`.
 - Acceptance: direct rendering is the initial path; the control enables/disables the existing
   full post-processing chain without reload; 3D raycasting/state logic is unchanged; the
   control remains usable at narrow widths.
+
+### R-023 — Rigged HLR staff model
+
+- User-authorized next visual step. Create a reusable Blender-authored clinical staff model
+  with a real named armature, more human proportions and independently poseable torso, head,
+  upper/lower arms, hands, upper/lower legs and feet.
+- Add a deterministic exporter for the rest skeleton and rigidly bone-bound low-poly meshes.
+  Embed the result as an ordinary global JavaScript data file; do not add a runtime loader,
+  `fetch()`, build step or external dependency.
+- Make the live 3D room instantiate the exported rig for every staff role and drive its bones
+  for idle, active, ventilation and compression poses. Preserve role colours, caps, layout
+  transforms, task-facing behavior, selection rings, raycasting and the existing procedural
+  character as fallback if rig data is unavailable.
+- Acceptance: tracked `.blend` opens with organized armature/mesh collections; a deterministic
+  Blender export round-trip succeeds; a bone-pose test moves only the expected hierarchy; live
+  data loads before `room3d.js`; syntax/file/load-order contracts pass; post-FX remains off by
+  default and Classic/Canvas behavior is unchanged.
 
 ## Assignment rules
 
@@ -647,3 +665,27 @@ don't leave it dangling as still `open`/`suspected` there.
   HTML control placement and narrow 460 px label. CSS braces and `git diff --check` passed.
 - Notes: Raycasting, scene updates, Classic and Canvas fallback were not changed. No browser
   backend was available for live toggling in this session.
+
+### R-023 — Rigged HLR staff model — done
+
+- Owner/branch: `Codex`, `codex/work`
+- Commit: this commit
+- Changed: Added `hlr-staff-rig.blend`, an organized reusable clinical person with a named
+  16-bone armature and 28 rigidly bone-bound low-poly meshes. The deterministic exporter embeds
+  the 822-vertex model and rest skeleton in a 40 KB ordinary data script. The 3D room now
+  instantiates this rig for all seven staff roles, reuses geometry, applies role scrub/cap
+  materials and drives torso/head/upper-arm/forearm/hand bones for idle, active, ventilation
+  and compression poses. Layout transforms, facing, rings, raycast roles and the old procedural
+  person fallback remain.
+- Verified: Blender 4.3 generated, opened, exported and rendered the source; the corrected
+  preview was visually inspected. Two exports had identical SHA-256
+  `bc68ccf6a005cada6714d08d9198a1a791af9e7d15653db4ccf4c4210ee05a11`.
+  A Blender pose test moved the left-hand hierarchy 0.824 m and the right hand 0.000 m. An
+  independent Three.js r149 reconstruction validated all bones/mesh indices and plausible
+  bounds, then moved the left hand 0.770 units with zero right-hand movement. Python and
+  JavaScript syntax, 16-bone/28-mesh schema, HTML load order, generated-data path, runtime rig
+  routing, procedural fallback, default-off FX and `git diff --check` passed.
+- Notes: This is deliberately a small rigid-bone low-poly rig rather than a high-resolution
+  deforming human mesh. It removes the runtime mannequin's rebuilt-cylinder posing and provides
+  a real editable armature for later proportion, clothing and animation passes. No browser
+  backend was available for live WebGL/raycast QA.
