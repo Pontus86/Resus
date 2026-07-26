@@ -216,6 +216,10 @@ const HLRRoom3D=(()=>{
 
   function patientRigMaterial(key){
     if(key==="gown")return material("gown",C.gown);
+    if(key==="gown_dark")return material("gownDark",new THREE.Color(C.gown).multiplyScalar(.68).getHex());
+    if(key==="gown_light")return material("gownLight",new THREE.Color(C.gown).lerp(new THREE.Color(0xFFFFFF),.24).getHex());
+    if(key==="wristband")return material("patientWristband",0xE5EEE8,{roughness:.44});
+    if(key==="eye_white")return material("patientEyeWhite",0xE8E5DC,{roughness:.42});
     if(key==="hair")return material("hair",C.hair);
     if(key==="dark")return material("dark",C.dark);
     if(key==="lips"){
@@ -345,11 +349,18 @@ const HLRRoom3D=(()=>{
   function rigMaterial(role,key){
     if(key==="skin")return material("skin",C.skin);
     if(key==="dark"||key==="eye")return material("dark",C.dark);
+    if(key==="eye_white")return material("staffEyeWhite",0xE8E5DC,{roughness:.42});
+    if(key==="lip")return material("staffLip",0x96585B,{roughness:.48});
+    if(key==="badge")return material("staffBadge",0xD8E7E3,{roughness:.35,metalness:.08});
     if(key==="hair_or_cap"){
       return role==="airway_staff"||role==="narkos_ssk"||role==="surgeon"
         ?material("cap-"+role,ROLE_COLOR[role]||ROLE_COLOR.doctor)
         :material("hair",C.hair);
     }
+    if(key==="scrub_dark")return material("role-dark-"+role,
+      new THREE.Color(ROLE_COLOR[role]||ROLE_COLOR.doctor).multiplyScalar(.68).getHex());
+    if(key==="scrub_light")return material("role-light-"+role,
+      new THREE.Color(ROLE_COLOR[role]||ROLE_COLOR.doctor).lerp(new THREE.Color(0xFFFFFF),.2).getHex());
     return material("role-"+role,ROLE_COLOR[role]||ROLE_COLOR.doctor);
   }
   function rigGeometry(spec,prefix){

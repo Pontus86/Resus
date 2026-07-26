@@ -78,6 +78,23 @@ def cylinder_between(name, start, end, radius, mat, armature, bone, material_rol
     return obj
 
 
+def cube(name, location, dimensions, mat, armature, bone, material_role, rotation_z=0.0, bevel=0.025):
+    bpy.ops.mesh.primitive_cube_add(location=location)
+    obj = bpy.context.object
+    obj.name = name
+    obj.dimensions = dimensions
+    obj.rotation_euler[2] = rotation_z
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    if bevel:
+        modifier = obj.modifiers.new("Mjuka kanter", "BEVEL")
+        modifier.width = bevel
+        modifier.segments = 2
+    assign(obj, mat)
+    obj["hlr_material"] = material_role
+    parent_to_bone(obj, armature, bone)
+    return obj
+
+
 def create_armature():
     data = bpy.data.armatures.new("HLR_PATIENT_ARMATURE")
     armature = bpy.data.objects.new("HLR_PATIENT_RIG", data)
@@ -123,23 +140,43 @@ def create_meshes(armature):
         "hair": material("Hair", (0.08, 0.055, 0.04)),
         "dark": material("Eyes", (0.025, 0.035, 0.03)),
         "lips": material("Lips", (0.38, 0.16, 0.18)),
+        "eye_white": material("Eye whites", (0.86, 0.84, 0.78)),
+        "gown_dark": material("Gown seams", (0.24, 0.48, 0.40)),
+        "gown_light": material("Gown folds", (0.58, 0.76, 0.67)),
+        "wristband": material("Patient wristband", (0.84, 0.88, 0.82)),
     }
     sphere("chest_mesh", (0, 0.10, 0.17), (0.58, 0.79, 0.23), mats["gown"], armature, "chest", "gown", 3)
     sphere("pelvis_mesh", (0, -0.72, 0.13), (0.49, 0.43, 0.19), mats["gown"], armature, "root", "gown", 2)
     cylinder_between("neck_mesh", (0, 0.88, 0.13), (0, 1.12, 0.14), 0.15, mats["skin"], armature, "head", "skin", 14)
     sphere("head_mesh", (0, 1.43, 0.16), (0.33, 0.40, 0.29), mats["skin"], armature, "head", "skin", 3)
     sphere("jaw_mesh", (0, 1.22, 0.14), (0.24, 0.22, 0.22), mats["skin"], armature, "head", "skin", 2)
-    sphere("hair_mesh", (0, 1.50, 0.34), (0.34, 0.37, 0.13), mats["hair"], armature, "head", "hair", 2)
-    sphere("nose_mesh", (0, 1.69, 0.18), (0.05, 0.07, 0.065), mats["skin"], armature, "head", "skin", 1)
-    sphere("lips_mesh", (0, 1.59, 0.275), (0.075, 0.022, 0.018), mats["lips"], armature, "head", "lips", 1)
+    sphere("hair_mesh", (0, 1.56, 0.29), (0.34, 0.31, 0.11), mats["hair"], armature, "head", "hair", 2)
+    sphere("nose_mesh", (0, 1.46, 0.455), (0.05, 0.07, 0.055), mats["skin"], armature, "head", "skin", 1)
+    sphere("lips_mesh", (0, 1.34, 0.435), (0.075, 0.022, 0.018), mats["lips"], armature, "head", "lips", 1)
     for side, sign in (("L", -1), ("R", 1)):
-        sphere(f"eye_{side}", (sign * 0.105, 1.655, 0.255), (0.024, 0.015, 0.022), mats["dark"], armature, "head", "dark", 1)
+        sphere(f"eye_white_{side}", (sign * 0.105, 1.50, 0.425), (0.048, 0.030, 0.018),
+               mats["eye_white"], armature, "head", "eye_white", 1)
+        sphere(f"ear_{side}", (sign * 0.31, 1.43, 0.16), (0.045, 0.07, 0.055),
+               mats["skin"], armature, "head", "skin", 1)
+        cylinder_between(f"eyebrow_{side}", (sign * 0.16, 1.55, 0.452), (sign * 0.055, 1.57, 0.455),
+                         0.012, mats["hair"], armature, "head", "hair", 7)
+    cube("gown_center_seam", (0, 0.06, 0.402), (0.026, 1.10, 0.020),
+         mats["gown_dark"], armature, "chest", "gown_dark", bevel=0.006)
+    for side, sign in (("L", -1), ("R", 1)):
+        cube(f"gown_neckline_{side}", (sign * 0.08, 0.68, 0.397), (0.13, 0.26, 0.024),
+             mats["gown_dark"], armature, "chest", "gown_dark", rotation_z=sign * 0.55, bevel=0.01)
+        cube(f"gown_fold_{side}", (sign * 0.28, 0.03, 0.398), (0.018, 0.88, 0.018),
+             mats["gown_light"], armature, "chest", "gown_light", rotation_z=sign * 0.06, bevel=0.004)
+    for side, sign in (("L", -1), ("R", 1)):
+        sphere(f"eye_{side}", (sign * 0.105, 1.50, 0.444), (0.019, 0.016, 0.010), mats["dark"], armature, "head", "dark", 1)
         cylinder_between(f"upper_arm_{side}", (sign * 0.43, 0.42, 0.10), (sign * 0.72, -0.02, 0.08), 0.13, mats["skin"], armature, f"upper_arm.{side}", "skin")
         cylinder_between(f"forearm_{side}", (sign * 0.72, -0.02, 0.08), (sign * 1.02, -0.48, 0.06), 0.115, mats["skin"], armature, f"forearm.{side}", "skin")
         sphere(f"hand_{side}", (sign * 1.04, -0.59, 0.06), (0.13, 0.19, 0.08), mats["skin"], armature, f"hand.{side}", "skin", 1)
         cylinder_between(f"thigh_{side}", (sign * 0.24, -0.82, 0.08), (sign * 0.31, -1.35, 0.07), 0.15, mats["gown"], armature, f"thigh.{side}", "gown")
         cylinder_between(f"shin_{side}", (sign * 0.31, -1.35, 0.07), (sign * 0.36, -1.93, 0.06), 0.13, mats["skin"], armature, f"shin.{side}", "skin")
         sphere(f"foot_{side}", (sign * 0.36, -2.04, 0.06), (0.15, 0.27, 0.10), mats["skin"], armature, f"foot.{side}", "skin", 1)
+    cylinder_between("patient_wristband", (0.86, -0.23, 0.065), (0.91, -0.31, 0.063), 0.124,
+                     mats["wristband"], armature, "forearm.R", "wristband", 14)
 
 
 def create_anchor(name, location, collection):
@@ -168,9 +205,9 @@ def organize_preview(armature):
         "sternum": (0, 0.18, 0.39),
         "compression_hand_left": (-0.055, 0.18, 0.42),
         "compression_hand_right": (0.055, 0.18, 0.445),
-        "airway": (0, 1.72, 0.39),
-        "mask_seal": (0, 1.70, 0.43),
-        "bag_grip": (0.38, 2.10, 0.55),
+        "airway": (0, 1.41, 0.49),
+        "mask_seal": (0, 1.41, 0.49),
+        "bag_grip": (0.38, 1.82, 0.58),
         "pad_left": (-0.34, 0.60, 0.38),
         "pad_right": (0.34, -0.12, 0.38),
         "access_right": (1.02, -0.38, 0.20),

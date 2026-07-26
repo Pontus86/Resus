@@ -167,10 +167,15 @@ def create_armature():
 def create_meshes(armature):
     mats = {
         "scrub": material("Scrub preview", (0.05, 0.23, 0.42)),
+        "scrub_dark": material("Scrub seams", (0.035, 0.14, 0.25)),
+        "scrub_light": material("Scrub highlights", (0.18, 0.38, 0.56)),
         "skin": material("Skin", (0.66, 0.40, 0.25)),
         "dark": material("Shoes and details", (0.035, 0.05, 0.045)),
         "hair_or_cap": material("Hair or cap", (0.08, 0.05, 0.035)),
         "eye": material("Eyes", (0.025, 0.035, 0.03)),
+        "eye_white": material("Eye whites", (0.86, 0.84, 0.78)),
+        "lip": material("Lips", (0.40, 0.17, 0.16)),
+        "badge": material("ID badge", (0.82, 0.88, 0.86)),
     }
     sphere("pelvis_mesh", (0, 0, 1.14), (0.38, 0.27, 0.28), mats["scrub"], armature, "pelvis", "scrub")
     cone("torso_mesh", (0, 0, 1.52), 0.68, 0.43, 0.31, mats["scrub"], armature, "spine", "scrub")
@@ -179,11 +184,26 @@ def create_meshes(armature):
     sphere("head_mesh", (0, 0, 2.17), (0.26, 0.23, 0.31), mats["skin"], armature, "head", "skin", 3)
     sphere("jaw_mesh", (0, -0.015, 2.07), (0.21, 0.20, 0.18), mats["skin"], armature, "head", "skin")
     sphere("nose_mesh", (0, -0.235, 2.18), (0.045, 0.06, 0.07), mats["skin"], armature, "head", "skin", 1)
+    sphere("lips_mesh", (0, -0.238, 2.08), (0.072, 0.018, 0.026), mats["lip"], armature, "head", "lip", 1)
     sphere("hair_mesh", (0, 0.025, 2.34), (0.27, 0.23, 0.13), mats["hair_or_cap"], armature, "head", "hair_or_cap", 2)
+    waistband = cube("scrub_waistband", (0, -0.01, 1.20), (0.72, 0.05, 0.08), mats["scrub_dark"], armature, "pelvis", "scrub_dark", 0.018)
+    pocket = cube("scrub_pocket", (0.18, -0.285, 1.50), (0.20, 0.025, 0.20), mats["scrub_light"], armature, "spine", "scrub_light", 0.015)
+    badge = cube("id_badge", (-0.18, -0.295, 1.64), (0.14, 0.022, 0.10), mats["badge"], armature, "spine", "badge", 0.01)
+    for side, angle in (("L", -0.58), ("R", 0.58)):
+        sign = -1 if side == "L" else 1
+        collar = cube(f"vneck_{side}", (sign * 0.075, -0.286, 1.73), (0.18, 0.025, 0.045),
+                      mats["scrub_dark"], armature, "spine", "scrub_dark", 0.012)
+        collar.rotation_euler[1] = angle
     for side, sign in (("L", -1), ("R", 1)):
-        sphere(f"eye_{side}", (sign * 0.09, -0.218, 2.21), (0.022, 0.014, 0.022), mats["eye"], armature, "head", "eye", 1)
+        sphere(f"eye_white_{side}", (sign * 0.09, -0.221, 2.21), (0.045, 0.015, 0.031), mats["eye_white"], armature, "head", "eye_white", 1)
+        sphere(f"eye_{side}", (sign * 0.09, -0.237, 2.21), (0.018, 0.010, 0.018), mats["eye"], armature, "head", "eye", 1)
+        eyebrow = cube(f"eyebrow_{side}", (sign * 0.09, -0.238, 2.275), (0.12, 0.018, 0.022),
+                       mats["hair_or_cap"], armature, "head", "hair_or_cap", 0.008)
+        eyebrow.rotation_euler[1] = sign * 0.08
         sphere(f"ear_{side}", (sign * 0.255, 0, 2.18), (0.045, 0.025, 0.065), mats["skin"], armature, "head", "skin", 1)
         cylinder_between(f"upper_arm_{side}", (sign * 0.34, 0, 1.70), (sign * 0.48, 0, 1.30), 0.115, mats["scrub"], armature, f"upper_arm.{side}", "scrub")
+        cylinder_between(f"sleeve_cuff_{side}", (sign * 0.445, 0, 1.405), (sign * 0.475, 0, 1.32), 0.122,
+                         mats["scrub_dark"], armature, f"upper_arm.{side}", "scrub_dark")
         sphere(f"elbow_{side}", (sign * 0.48, 0, 1.30), (0.12, 0.12, 0.12), mats["skin"], armature, f"forearm.{side}", "skin", 1)
         cylinder_between(f"forearm_{side}", (sign * 0.48, 0, 1.30), (sign * 0.43, -0.02, 0.96), 0.09, mats["skin"], armature, f"forearm.{side}", "skin")
         sphere(f"palm_{side}", (sign * 0.43, -0.06, 0.84), (0.105, 0.075, 0.12), mats["skin"], armature, f"hand.{side}", "skin", 1)
@@ -198,6 +218,8 @@ def create_meshes(armature):
             0.022, mats["skin"], armature, f"hand.{side}", "skin", 7,
         )
         cylinder_between(f"thigh_{side}", (sign * 0.18, 0, 1.08), (sign * 0.19, 0, 0.67), 0.14, mats["scrub"], armature, f"thigh.{side}", "scrub")
+        cube(f"trouser_seam_{side}", (sign * 0.18, -0.142, 0.88), (0.022, 0.018, 0.34),
+             mats["scrub_dark"], armature, f"thigh.{side}", "scrub_dark", 0.006)
         sphere(f"knee_{side}", (sign * 0.19, 0, 0.67), (0.125, 0.125, 0.13), mats["scrub"], armature, f"shin.{side}", "scrub", 1)
         cylinder_between(f"shin_{side}", (sign * 0.19, 0, 0.67), (sign * 0.18, 0, 0.15), 0.105, mats["scrub"], armature, f"shin.{side}", "scrub")
         cube(f"shoe_{side}", (sign * 0.18, -0.10, 0.08), (0.22, 0.39, 0.13), mats["dark"], armature, f"foot.{side}", "dark")
