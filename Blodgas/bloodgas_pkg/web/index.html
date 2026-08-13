@@ -1281,47 +1281,47 @@ function acidBaseJourneySVG(i,r,flags){
   }
   if(!primaryPoint||!expectedPoint) return '';
 
-  const W=480,H=330,padL=54,padR=18,padT=18,padB=64;
+  // Samma fasta utsnitt används för alla patienter; annars kan en autoskalning få två
+  // lika stora fysiologiska förflyttningar att se olika stora ut.
+  const W=480,H=300,padL=40,padR=14,padT=14,padB=30;
   const x0=padL,x1=W-padR,y0=H-padB,y1=padT;
-  const [pMin,pMax]=ABM_PCO2,[hMin,hMax]=ABM_HCO3;
+  const [pMin,pMax]=[2,7],[hMin,hMax]=[6,30];
   const lp=Math.log10(pMin),lP=Math.log10(pMax),lh=Math.log10(hMin),lH=Math.log10(hMax);
   const lx=v=>x0+(Math.log10(Math.max(pMin,Math.min(pMax,v)))-lp)/(lP-lp)*(x1-x0);
   const ly=v=>y0-(Math.log10(Math.max(hMin,Math.min(hMax,v)))-lh)/(lH-lh)*(y0-y1);
   const fmtPh=v=>v.toFixed(2).replace('.',',');
   const fmtVal=v=>(Math.round(v*10)/10).toString().replace('.',',');
   const hidden=(f.HAGMA&&r.naClGap!==undefined&&Math.abs(r.naClGap)>3)
-    ? {label:r.naClGap>3?'Dold metabol alkalos':'Dold NAGMA',gap:r.naClGap,direction:r.naClGap>3?-1:1}
+    ? {label:r.naClGap>3?'Dold metabol alkalos':'Dold NAGMA',gap:r.naClGap}
     : null;
   const px=lx(actual.p),py=ly(actual.h);
   const nx0=lx(TREND_RANGES.pCO2[0]),nx1=lx(TREND_RANGES.pCO2[1]);
   const ny0=ly(TREND_RANGES.HCO3[1]),ny1=ly(TREND_RANGES.HCO3[0]);
-  const arrow=(a,b,color,dash='')=>`<line x1="${lx(a.p).toFixed(1)}" y1="${ly(a.h).toFixed(1)}" x2="${lx(b.p).toFixed(1)}" y2="${ly(b.h).toFixed(1)}" stroke="${color}" stroke-width="3.2" stroke-linecap="round" marker-end="url(#journey-arrow-${color.slice(1)})" ${dash}/>`;
+  const arrow=(a,b,color,dash='')=>`<line x1="${lx(a.p).toFixed(1)}" y1="${ly(a.h).toFixed(1)}" x2="${lx(b.p).toFixed(1)}" y2="${ly(b.h).toFixed(1)}" stroke="${color}" stroke-width="4" stroke-linecap="round" marker-end="url(#journey-arrow-${color.slice(1)})" ${dash}/>`;
   const marker=(color)=>`<marker id="journey-arrow-${color.slice(1)}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${color}"/></marker>`;
-  const node=(pt,n,color,label,dy)=>`<g><circle cx="${lx(pt.p).toFixed(1)}" cy="${ly(pt.h).toFixed(1)}" r="10" fill="${color}" stroke="#fff" stroke-width="2"/><text x="${lx(pt.p).toFixed(1)}" y="${(ly(pt.h)+3.5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">${n}</text><text x="${lx(pt.p).toFixed(1)}" y="${(ly(pt.h)+dy).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${color}">${label}</text></g>`;
-  const hiddenY=Math.max(y1+14,Math.min(y0-14,py+hidden?.direction*42));
+  const stepText=[
+    `Normal utgångspunkt: pCO₂ 5,3 kPa och HCO₃⁻ 24 mmol/L.`,
+    `Primär rubbning: ${primary}. Modellpunkt pCO₂ ${fmtVal(primaryPoint.p)} kPa och HCO₃⁻ ${fmtVal(primaryPoint.h)} mmol/L.`,
+    `Förväntad kompensation: ${compensationLabel.toLowerCase()}. Modellpunkt pCO₂ ${fmtVal(expectedPoint.p)} kPa och HCO₃⁻ ${fmtVal(expectedPoint.h)} mmol/L.`,
+    `Uppmätt slutpunkt: pH ${fmtPh(i.pH)}, pCO₂ ${fmtVal(actual.p)} kPa och beräknat HCO₃⁻ ${fmtVal(actual.h)} mmol/L.${hidden?` Na–Cl-gap ${fmtVal(hidden.gap)} talar dessutom för ${hidden.label.toLowerCase()}.`:''}`
+  ];
+  const node=(pt,n,color)=>`<g class="journey-node" data-step="${n}" role="button" tabindex="0" aria-label="Steg ${n}: ${stepText[n-1]}"><circle cx="${lx(pt.p).toFixed(1)}" cy="${ly(pt.h).toFixed(1)}" r="13" fill="${color}" stroke="#fff" stroke-width="2.5"/><text x="${lx(pt.p).toFixed(1)}" y="${(ly(pt.h)+4).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" pointer-events="none">${n}</text></g>`;
 
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="height:auto;max-width:480px;display:block;margin:0 auto" role="img" aria-label="Färgkodad väg från normal syra-basstatus via primär rubbning och kompensation till patientens uppmätta värde">
+  return `<div class="journey-wrap" style="position:relative;max-width:480px;margin:0 auto"><svg viewBox="0 0 ${W} ${H}" width="100%" style="height:auto;display:block" role="img" aria-label="Färgkodad syra-bas-väg med fyra interaktiva numrerade steg">
     <defs>${marker('#7A7775')}${marker('#C5362B')}${marker('#1976D2')}${marker('#7B3FB2')}</defs>
     <rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="#fff" stroke="#E7E4E3"/>
     <rect x="${nx0.toFixed(1)}" y="${ny0.toFixed(1)}" width="${(nx1-nx0).toFixed(1)}" height="${(ny1-ny0).toFixed(1)}" fill="#2e7d32" opacity="0.08"/>
-    ${[2,3,4,6,8,12].map(v=>`<line x1="${lx(v).toFixed(1)}" y1="${y1}" x2="${lx(v).toFixed(1)}" y2="${y0}" stroke="#EEEAE8"/><text x="${lx(v).toFixed(1)}" y="${y0+15}" text-anchor="middle" font-size="9" fill="#777">${v}</text>`).join('')}
-    ${[5,10,20,30,40].map(v=>`<line x1="${x0}" y1="${ly(v).toFixed(1)}" x2="${x1}" y2="${ly(v).toFixed(1)}" stroke="#EEEAE8"/><text x="${x0-7}" y="${(ly(v)+3).toFixed(1)}" text-anchor="end" font-size="9" fill="#777">${v}</text>`).join('')}
+    ${[2,3,4,5,6,7].map(v=>`<line x1="${lx(v).toFixed(1)}" y1="${y1}" x2="${lx(v).toFixed(1)}" y2="${y0}" stroke="#EEEAE8"/><text x="${lx(v).toFixed(1)}" y="${y0+16}" text-anchor="middle" font-size="10" fill="#777">${v}</text>`).join('')}
+    ${[6,10,15,20,25,30].map(v=>`<line x1="${x0}" y1="${ly(v).toFixed(1)}" x2="${x1}" y2="${ly(v).toFixed(1)}" stroke="#EEEAE8"/><text x="${x0-7}" y="${(ly(v)+3).toFixed(1)}" text-anchor="end" font-size="10" fill="#777">${v}</text>`).join('')}
     ${arrow(normal,primaryPoint,'#C5362B')}
     ${arrow(primaryPoint,expectedPoint,'#1976D2')}
-    ${arrow(expectedPoint,actual,'#7A7775','stroke-dasharray="4 3"')}
-    ${node(normal,1,'#7A7775','Normal',-15)}
-    ${node(primaryPoint,2,'#C5362B',primary,-15)}
-    ${node(expectedPoint,3,'#1976D2',compensationLabel,22)}
-    <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${hidden?13:10}" fill="${hidden?'none':'#262322'}" stroke="${hidden?'#7B3FB2':'#fff'}" stroke-width="${hidden?4:2}"/>
-    <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="8" fill="#262322" stroke="#fff" stroke-width="1.5"/>
-    <text x="${px.toFixed(1)}" y="${(py+3.5).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">4</text>
-    <text x="${px.toFixed(1)}" y="${(py-17).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#262322">Uppmätt · pH ${fmtPh(i.pH)}</text>
-    ${hidden?`<line x1="${px.toFixed(1)}" y1="${hiddenY.toFixed(1)}" x2="${px.toFixed(1)}" y2="${(py+hidden.direction*15).toFixed(1)}" stroke="#7B3FB2" stroke-width="3" stroke-dasharray="4 3" marker-end="url(#journey-arrow-7B3FB2)"/><text x="${(px+8).toFixed(1)}" y="${(hiddenY+hidden.direction*-5).toFixed(1)}" font-size="9.5" font-weight="800" fill="#7B3FB2">${hidden.label} · Na–Cl-gap ${fmtVal(hidden.gap)}</text>`:''}
-    <text x="${(x0+x1)/2}" y="${H-29}" text-anchor="middle" font-size="10.5" fill="#6B6B6B" font-weight="700">pCO₂ (kPa)</text>
-    <text x="${x0}" y="${y1-5}" font-size="10.5" fill="#6B6B6B" font-weight="700">HCO₃⁻ (mmol/L)</text>
-    <g transform="translate(${x0},${H-14})"><circle cx="4" cy="0" r="4" fill="#7A7775"/><text x="12" y="3" font-size="8.5" fill="#555">Normal</text><circle cx="68" cy="0" r="4" fill="#C5362B"/><text x="76" y="3" font-size="8.5" fill="#555">Primär</text><circle cx="132" cy="0" r="4" fill="#1976D2"/><text x="140" y="3" font-size="8.5" fill="#555">Kompensation</text><circle cx="229" cy="0" r="4" fill="#7B3FB2"/><text x="237" y="3" font-size="8.5" fill="#555">Dold rubbning</text></g>
-  </svg>
-  <p class="edu-cap">Vägen börjar i normalområdet och delar upp det aktuella fallet i en dominerande primär förskjutning och det förväntade kompensatoriska svaret. Den svarta slutpunkten är patientens verkliga värde: pCO₂ ${fmtVal(actual.p)} kPa och beräknat HCO₃⁻ ${fmtVal(actual.h)} mmol/L.${hidden?` Den lila markeringen visar att Na–Cl-gap ${fmtVal(hidden.gap)} dessutom talar för ${hidden.label.toLowerCase()}.`:' Ingen dold metabol rubbning påvisas av Na–Cl-gapet.'} Delstegen är en tolkningsmodell, inte upprepade provtagningar.</p>`;
+    ${arrow(expectedPoint,actual,hidden?'#7B3FB2':'#7A7775','stroke-dasharray="4 3"')}
+    ${node(normal,1,'#7A7775')}
+    ${node(primaryPoint,2,'#C5362B')}
+    ${node(expectedPoint,3,'#1976D2')}
+    ${node(actual,4,hidden?'#7B3FB2':'#262322')}
+  </svg><div class="journey-popup" role="status" hidden style="position:absolute;left:12px;right:12px;top:12px;background:rgba(255,255,255,.97);border:1px solid #D8D3D0;border-radius:9px;padding:10px 34px 10px 12px;box-shadow:0 5px 18px rgba(45,39,35,.16);font-size:12px;line-height:1.45;color:#262322"></div></div>
+  <p class="edu-cap">Tryck eller hovra på 1–4 för att se vad varje steg betyder. Diagrammet använder alltid samma fasta utsnitt (pCO₂ 2–7 kPa, HCO₃⁻ 6–30 mmol/L).</p>`;
 }
 
 /* ---------- Elektroneutralitet / anjongap som två pelare ----------
@@ -1565,7 +1565,10 @@ function renderChartThumbs(){
   // redan gömda där via CSS, men dubbla id:n i DOM:en gör att getElementById plockar fel
   // (dolt) exemplar när man skriver i det RIKTIGA fältet i detaljvyn. Strippa bort dem här.
   thumbsEl.innerHTML=keys.map(k=>{
-    const content=(lastChartSVG[k]||'<p class="chart-empty-note">–</p>').replace(/<div class="o2-inputs">[\s\S]*?<\/div>/,'');
+    let content=(lastChartSVG[k]||'<p class="chart-empty-note">–</p>').replace(/<div class="o2-inputs">[\s\S]*?<\/div>/,'');
+    // Miniatyren är själv en knapp; dess kopia av SVG-punkterna får därför inte skapa
+    // nästlade tabb-stopp. Interaktiviteten finns bara i den stora detaljvyn.
+    if(k==='journey')content=content.replace(/ role="button" tabindex="0"/g,'');
     return `
     <button type="button" class="chart-thumb" data-chart="${k}">
       <span class="chart-thumb-box">${content}</span>
@@ -1584,6 +1587,33 @@ function selectChart(key){
   const detail=document.getElementById('chart-detail');
   if(detail)detail.innerHTML=lastChartSVG[key]||'';
   wireO2CurveInputs();
+  wireJourneyPopup();
+}
+
+function wireJourneyPopup(){
+  const wrap=document.querySelector('#chart-detail .journey-wrap');
+  if(!wrap)return;
+  const popup=wrap.querySelector('.journey-popup');
+  const nodes=[...wrap.querySelectorAll('.journey-node')];
+  let pinned=false;
+  const show=node=>{
+    popup.textContent=(node.getAttribute('aria-label')||'').replace(/^Steg \d+: /,'');
+    popup.hidden=false;
+  };
+  const hide=()=>{ if(!pinned)popup.hidden=true; };
+  nodes.forEach(node=>{
+    node.style.cursor='pointer';
+    node.addEventListener('mouseenter',()=>show(node));
+    node.addEventListener('mouseleave',hide);
+    node.addEventListener('focus',()=>show(node));
+    node.addEventListener('blur',hide);
+    node.addEventListener('click',e=>{ e.stopPropagation(); pinned=true; show(node); });
+    node.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); pinned=true; show(node); }
+      if(e.key==='Escape'){ pinned=false; popup.hidden=true; node.blur(); }
+    });
+  });
+  wrap.addEventListener('click',()=>{ pinned=false; popup.hidden=true; });
 }
 // pO₂/SaO₂-fälten i O₂-kurvans detaljvy skriver sig själva in i huvudformulärets in_O2/
 // in_O2sat (samma fält som "Fler värden" använder) och kör om hela Beräkna -- så kurvan,
