@@ -1281,23 +1281,32 @@ function acidBaseJourneySVG(i,r,flags){
   }
   if(!primaryPoint||!expectedPoint) return '';
 
-  // Samma fasta utsnitt används för alla patienter; annars kan en autoskalning få två
-  // lika stora fysiologiska förflyttningar att se olika stora ut.
-  const W=480,H=300,padL=40,padR=14,padT=14,padB=30;
+  // Höjden visar enbart ORDNING. Det gör att två processer som driver åt motsatta håll
+  // aldrig ritas ovanpå varandra. Horisontellt används samma fasta pH-skala i varje fall.
+  const W=480,H=310,padL=34,padR=14,padT=24,padB=28;
   const x0=padL,x1=W-padR,y0=H-padB,y1=padT;
-  const [pMin,pMax]=[2,7],[hMin,hMax]=[6,30];
-  const lp=Math.log10(pMin),lP=Math.log10(pMax),lh=Math.log10(hMin),lH=Math.log10(hMax);
-  const lx=v=>x0+(Math.log10(Math.max(pMin,Math.min(pMax,v)))-lp)/(lP-lp)*(x1-x0);
-  const ly=v=>y0-(Math.log10(Math.max(hMin,Math.min(hMax,v)))-lh)/(lH-lh)*(y0-y1);
+  const [phMin,phMax]=[6.9,7.6];
+  const lx=v=>x0+(Math.max(phMin,Math.min(phMax,v))-phMin)/(phMax-phMin)*(x1-x0);
   const fmtPh=v=>v.toFixed(2).replace('.',',');
   const fmtVal=v=>(Math.round(v*10)/10).toString().replace('.',',');
   const hidden=(f.HAGMA&&r.naClGap!==undefined&&Math.abs(r.naClGap)>3)
     ? {label:r.naClGap>3?'Dold metabol alkalos':'Dold NAGMA',gap:r.naClGap}
     : null;
-  const px=lx(actual.p),py=ly(actual.h);
-  const nx0=lx(TREND_RANGES.pCO2[0]),nx1=lx(TREND_RANGES.pCO2[1]);
-  const ny0=ly(TREND_RANGES.HCO3[1]),ny1=ly(TREND_RANGES.HCO3[0]);
-  const arrow=(a,b,color,dash='')=>`<line x1="${lx(a.p).toFixed(1)}" y1="${ly(a.h).toFixed(1)}" x2="${lx(b.p).toFixed(1)}" y2="${ly(b.h).toFixed(1)}" stroke="${color}" stroke-width="4" stroke-linecap="round" marker-end="url(#journey-arrow-${color.slice(1)})" ${dash}/>`;
+  const phAt=pt=>6.1+Math.log10(pt.h/(0.23*pt.p));
+  const levels=[42,112,182,252];
+  // Den dolda processens exakta separata pH-bidrag kan inte räknas baklänges ur ett enda
+  // prov. Visa därför bara dess säkra RIKTNING med ett fast litet steg, aldrig en påhittad
+  // storlek som skulle kunna misstolkas som ett beräknat värde.
+  const beforeHiddenPH=hidden ? i.pH-(hidden.gap>0?0.12:-0.12) : phAt(expectedPoint);
+  const visual=[
+    {ph:7.4,y:levels[0]},
+    {ph:phAt(primaryPoint),y:levels[1]},
+    {ph:beforeHiddenPH,y:levels[2]},
+    {ph:i.pH,y:levels[3]}
+  ];
+  // Varje förflyttning går först åt vänster/höger och sedan ned till nästa steg.
+  // Den lodräta delen får pilspetsen, så läsordningen förblir entydig även vid reträtt.
+  const arrow=(a,b,color,dash='')=>`<path d="M ${lx(a.ph).toFixed(1)} ${a.y} H ${lx(b.ph).toFixed(1)} V ${b.y}" fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#journey-arrow-${color.slice(1)})" ${dash}/>`;
   const marker=(color)=>`<marker id="journey-arrow-${color.slice(1)}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="${color}"/></marker>`;
   const stepText=[
     `Normal utgångspunkt: pCO₂ 5,3 kPa och HCO₃⁻ 24 mmol/L.`,
@@ -1305,23 +1314,21 @@ function acidBaseJourneySVG(i,r,flags){
     `Förväntad kompensation: ${compensationLabel.toLowerCase()}. Modellpunkt pCO₂ ${fmtVal(expectedPoint.p)} kPa och HCO₃⁻ ${fmtVal(expectedPoint.h)} mmol/L.`,
     `Uppmätt slutpunkt: pH ${fmtPh(i.pH)}, pCO₂ ${fmtVal(actual.p)} kPa och beräknat HCO₃⁻ ${fmtVal(actual.h)} mmol/L.${hidden?` Na–Cl-gap ${fmtVal(hidden.gap)} talar dessutom för ${hidden.label.toLowerCase()}.`:''}`
   ];
-  const node=(pt,n,color)=>`<g class="journey-node" data-step="${n}" role="button" tabindex="0" aria-label="Steg ${n}: ${stepText[n-1]}"><circle cx="${lx(pt.p).toFixed(1)}" cy="${ly(pt.h).toFixed(1)}" r="13" fill="${color}" stroke="#fff" stroke-width="2.5"/><text x="${lx(pt.p).toFixed(1)}" y="${(ly(pt.h)+4).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" pointer-events="none">${n}</text></g>`;
+  const node=(pt,n,color)=>`<g class="journey-node" data-step="${n}" role="button" tabindex="0" aria-label="Steg ${n}: ${stepText[n-1]}"><circle cx="${lx(pt.ph).toFixed(1)}" cy="${pt.y}" r="13" fill="${color}" stroke="#fff" stroke-width="2.5"/><text x="${lx(pt.ph).toFixed(1)}" y="${pt.y+4}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" pointer-events="none">${n}</text></g>`;
 
   return `<div class="journey-wrap" style="position:relative;max-width:480px;margin:0 auto"><svg viewBox="0 0 ${W} ${H}" width="100%" style="height:auto;display:block" role="img" aria-label="Färgkodad syra-bas-väg med fyra interaktiva numrerade steg">
     <defs>${marker('#7A7775')}${marker('#C5362B')}${marker('#1976D2')}${marker('#7B3FB2')}</defs>
     <rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="#fff" stroke="#E7E4E3"/>
-    <rect x="${nx0.toFixed(1)}" y="${ny0.toFixed(1)}" width="${(nx1-nx0).toFixed(1)}" height="${(ny1-ny0).toFixed(1)}" fill="#2e7d32" opacity="0.08"/>
-    ${[2,3,4,5,6,7].map(v=>`<line x1="${lx(v).toFixed(1)}" y1="${y1}" x2="${lx(v).toFixed(1)}" y2="${y0}" stroke="#EEEAE8"/><text x="${lx(v).toFixed(1)}" y="${y0+16}" text-anchor="middle" font-size="10" fill="#777">${v}</text>`).join('')}
-    ${[6,10,15,20,25,30].map(v=>`<line x1="${x0}" y1="${ly(v).toFixed(1)}" x2="${x1}" y2="${ly(v).toFixed(1)}" stroke="#EEEAE8"/><text x="${x0-7}" y="${(ly(v)+3).toFixed(1)}" text-anchor="end" font-size="10" fill="#777">${v}</text>`).join('')}
-    ${arrow(normal,primaryPoint,'#C5362B')}
-    ${arrow(primaryPoint,expectedPoint,'#1976D2')}
-    ${arrow(expectedPoint,actual,hidden?'#7B3FB2':'#7A7775','stroke-dasharray="4 3"')}
-    ${node(normal,1,'#7A7775')}
-    ${node(primaryPoint,2,'#C5362B')}
-    ${node(expectedPoint,3,'#1976D2')}
-    ${node(actual,4,hidden?'#7B3FB2':'#262322')}
+    ${[6.9,7.0,7.1,7.2,7.3,7.4,7.5,7.6].map(v=>`<line x1="${lx(v).toFixed(1)}" y1="${y1}" x2="${lx(v).toFixed(1)}" y2="${y0}" stroke="${v===7.4?'#D7E7D7':'#EEEAE8'}"/><text x="${lx(v).toFixed(1)}" y="${y0+17}" text-anchor="middle" font-size="10" fill="#777">${String(v).replace('.',',')}</text>`).join('')}
+    ${arrow(visual[0],visual[1],'#C5362B')}
+    ${arrow(visual[1],visual[2],'#1976D2')}
+    ${arrow(visual[2],visual[3],hidden?'#7B3FB2':'#7A7775','stroke-dasharray="5 4"')}
+    ${node(visual[0],1,'#7A7775')}
+    ${node(visual[1],2,'#C5362B')}
+    ${node(visual[2],3,'#1976D2')}
+    ${node(visual[3],4,hidden?'#7B3FB2':'#262322')}
   </svg><div class="journey-popup" role="status" hidden style="position:absolute;left:12px;right:12px;top:12px;background:rgba(255,255,255,.97);border:1px solid #D8D3D0;border-radius:9px;padding:10px 34px 10px 12px;box-shadow:0 5px 18px rgba(45,39,35,.16);font-size:12px;line-height:1.45;color:#262322"></div></div>
-  <p class="edu-cap">Tryck eller hovra på 1–4 för att se vad varje steg betyder. Diagrammet använder alltid samma fasta utsnitt (pCO₂ 2–7 kPa, HCO₃⁻ 6–30 mmol/L).</p>`;
+  <p class="edu-cap">Tryck eller hovra på 1–4 för att se vad varje steg betyder. Höjden visar ordningen; vänster/höger visar pH-effekten på samma fasta skala (6,9–7,6) i varje fall. För en dold rubbning visar sista pilen riktningen, inte en beräknad storlek.</p>`;
 }
 
 /* ---------- Elektroneutralitet / anjongap som två pelare ----------
